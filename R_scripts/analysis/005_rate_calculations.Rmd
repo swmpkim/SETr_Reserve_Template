@@ -33,8 +33,7 @@ library(ggplot2)
 library(nlme)
 library(broom)
 library(here)
-funs_path <- here::here('R', '000_functions.R')
-source(funs_path)
+source(here::here('R_scripts', '000_functions.R'))
 ```
 
 
@@ -43,18 +42,42 @@ source(funs_path)
 This reads in the long dataset, converted from other formats by earlier scripts. It also converts pin heights to mm if they weren't already in those units.    
 
 ```{r read_data}
-path <- here::here('data/intermediate')
-dat <- read_csv(paste0(path, '/GND.csv'))
+################################################################################
+# get the data in
+################################################################################
 
-# make sure pin heights are in mm
+# find the folder with processed data
+path <- here::here('data', 'processed')
+
+# find the name of the file(s) that ends with 'set.csv'
+filelist <- grep('set.csv$', dir(path), value = TRUE)
+
+# generate warnings if the folder is empty; if there are multiple matching files, select the first one
+if (length(filelist) == 0) stop("There are no files of the correct name/format (---set.csv) in your processed data folder.")
+
+if (length(filelist) > 1) {
+    warning("There is more than one file of the correct format (---set.csv) in your data folder. The first file alphabetically will be used.")
+    filelist <- filelist[1]
+}
+
+# generate the full path to the file; read it in and get pin heights to mm
+filename <- paste0(path, "/", filelist)
+dat <- read_csv(filename)
 dat <- height_to_mm(dat)
 
-# get rid of any placeholders; make sure date is proper format  
+
+
+# if the date column is datetime, posixct, or posixlt, change it to Date
+if (sum(class(dat$date) %in% c("datetime", "POSIXct", "POSIXlt")) > 0)
+    dat$date <- as.Date(dat$date)
+    
+###############################################################################
+
+# get rid of any placeholders; make sure set_id is a factor  
 dat <- dat %>%
     filter(!is.na(date),
            !is.na(pin_number)) %>%
-    mutate(date = as.Date(date),
-           set_id = as.factor(set_id))
+    mutate(set_id = as.factor(set_id))
 ```
 
 Other reserve-specific inputs here (e.g., NAVD-88 heights of SET receivers; local rate of SLR; etc)  
