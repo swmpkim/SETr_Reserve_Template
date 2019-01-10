@@ -8,11 +8,11 @@ library(rmarkdown)
 
 infile <- here::here("R_scripts", "analysis", "005_rate_calculations.Rmd")
 outdir <- here::here("R_output", "analysis")
-render(infile, output_dir = outdir)
+rmarkdown::render(infile, output_dir = outdir)
 
 
 
-# this generates html into a different directory, but not other file types
+# this generates html, but not other file types, into a different directory
 
 # library(ezknitr)
 # topdir <- here::here()
