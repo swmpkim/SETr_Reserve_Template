@@ -21,7 +21,7 @@ source(here::here('R_scripts', '000_functions.R'))
 # find the folder with processed data
 path <- here::here('data', 'processed')
 
-# find the name of the file(s) that ends with 'set.csv'
+# in that folder, find the name of the file(s) that ends with 'set.csv'
 filelist <- grep('set.csv$', dir(path), value = TRUE)
 
 # generate warnings if the folder is empty; if there are multiple matching files, select the first one
