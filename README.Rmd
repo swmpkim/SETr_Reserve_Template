@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = FALSE)
 ```
 
 
-This page and repository is for the scripts as they're modified to work at the Reserve-level. The file structure necessarily needs to be different from what I've been doing to wrangle data from multiple reserves. It needs to work on other people's computers.  
+This page and repository is for the scripts as they're modified to work at the Reserve-level. The file structure necessarily needs to be different from what I've been doing to wrangle data from multiple reserves. It needs to work on other people's computers, on their individual datasets.  
 
 Here, my efforts are to construct a standardized file directory that Reserves can use to manage and perform basic analyses on SET data into the future. The only folder being tracked here on GitHub is the `R_scripts` folder.    
 
@@ -20,7 +20,7 @@ Here, my efforts are to construct a standardized file directory that Reserves ca
 Exactly the best way to do this is up for discussion ([join a discussion here](https://docs.google.com/spreadsheets/d/1yUnDSISJnmqUBLvZN9xpS0PYvla1A0OECBVWL9UDmk4/edit?usp=sharing)), but this is the current setup. The top level is the `Reserve_Template` folder; everything performed by the R scripts will be relative to this folder. It can be anywhere on the user's computer.  
 
 ```{r, fig.width = 4, fig.align = "center"}
-knitr::include_graphics("other/file_structure_2019-01-11.png")
+knitr::include_graphics("file_structure_2019-01-11.png")
 ```
   
 The only folder being tracked here on GitHub is the `R_scripts` folder.  

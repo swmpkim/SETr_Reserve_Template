@@ -13,7 +13,7 @@ Current file structure
 
 Exactly the best way to do this is up for discussion ([join a discussion here](https://docs.google.com/spreadsheets/d/1yUnDSISJnmqUBLvZN9xpS0PYvla1A0OECBVWL9UDmk4/edit?usp=sharing)), but this is the current setup. The top level is the `Reserve_Template` folder; everything performed by the R scripts will be relative to this folder. It can be anywhere on the user's computer.
 
-<img src="other/file_structure_2019-01-11.png" width="514" style="display: block; margin: auto;" />
+<img src="file_structure_2019-01-11.png" width="514" style="display: block; margin: auto;" />
 
 The only folder being tracked here on GitHub is the `R_scripts` folder.
 
