@@ -9,3 +9,4 @@ protocols/
 R_output/
 *.Rproj
 *.png
+!file_structure_2019-01-11.png
