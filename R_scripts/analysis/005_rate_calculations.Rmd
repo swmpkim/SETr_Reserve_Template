@@ -28,6 +28,8 @@ The following R packages are required to generate this report:
 ```{r load_libraries, echo = TRUE}
 library(knitr)
 library(readr)
+library(readxl)
+library(janitor)
 library(dplyr)
 library(tidyr)
 library(ggplot2)
@@ -51,13 +53,13 @@ This reads in the long dataset, converted from other formats by earlier scripts.
 path <- here::here('data', 'processed')
 
 # in that folder, find the name of the file(s) that ends with 'set.csv'
-filelist <- grep('set.csv$', dir(path), value = TRUE)
+filelist <- grep('set_QC.csv$', dir(path), value = TRUE)
 
 # generate warnings if the folder is empty; if there are multiple matching files, select the first one
-if (length(filelist) == 0) stop("There are no files of the correct name/format (---set.csv) in your processed data folder.")
+if (length(filelist) == 0) stop("There are no files of the correct name/format (---set_QC.csv) in your processed data folder.")
 
 if (length(filelist) > 1) {
-    warning("There is more than one file of the correct format (---set.csv) in your data folder. The first file alphabetically will be used.")
+    warning("There is more than one file of the correct format (---set_QC.csv) in your data folder. The first file alphabetically will be used.")
     filelist <- filelist[1]
 }
 
@@ -84,6 +86,8 @@ dat <- dat %>%
 
 ### Sanity checks  
 
+This analysis was run on `r filename` on `r Sys.Date()`.
+
 Make sure site names in metadata match up with site names in data file, etc. Can do this part invisibly once it's figured out, and only show warning or error messages if the files don't match.    
 
 
@@ -96,23 +100,34 @@ Make sure site names in metadata match up with site names in data file, etc. Can
 path <- here::here('metadata')
 
 # in that folder, find the name of the file(s) that ends with 'setm.csv'
-filelist <- grep('setm.csv$', dir(path), value = TRUE)
+filelist <- grep('set_metadata.xls', dir(path), value = TRUE)
 
 # generate warnings if the folder is empty; if there are multiple matching files, select the first one
-if (length(filelist) == 0) stop("There are no files of the correct name/format (---setm.csv) in your metadata folder.")
+if (length(filelist) == 0) stop("There are no files of the correct name/format (---set_metadata.xls or .xlsx) in your metadata folder.")
 
 if (length(filelist) > 1) {
-    warning("There is more than one file of the correct format (---setm.csv) in your metadata folder. The first file alphabetically will be used.")
+    warning("There is more than one file of the correct format (---set_metadata.xls or .xlsx) in your metadata folder. The first file alphabetically will be used.")
     filelist <- filelist[1]
 }
 
-# generate the full path to the file; read it in and get pin heights to mm
+# generate the full path to the file; read it in, clean the names, and only keep columns that aren't completely full of NAs
 filename <- paste0(path, "/", filelist)
-mdat <- read_csv(filename)
+mdat <- read_excel(filename) %>%
+    clean_names() %>%
+    select_if(function(x) any(!is.na(x)))
 
 ###############################################################################
 
 ```
+
+
+Manually compare SET id's in both files (automate this later; just checking for the moment):  
+
+```{r}
+unique(dat$set_id)
+unique(mdat$unique_set_id)
+```
+
 
 
 # Background information  

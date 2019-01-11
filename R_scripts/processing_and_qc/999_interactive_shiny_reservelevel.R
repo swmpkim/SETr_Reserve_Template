@@ -21,14 +21,14 @@ source(here::here('R_scripts', '000_functions.R'))
 # find the folder with processed data
 path <- here::here('data', 'processed')
 
-# in that folder, find the name of the file(s) that ends with 'set.csv'
-filelist <- grep('set.csv$', dir(path), value = TRUE)
+# in that folder, find the name of the file(s) that ends with 'set_QC.csv'
+filelist <- grep('set_QC.csv$', dir(path), value = TRUE)
 
 # generate warnings if the folder is empty; if there are multiple matching files, select the first one
-if (length(filelist) == 0) stop("There are no files of the correct name/format (---set.csv) in your processed data folder.")
+if (length(filelist) == 0) stop("There are no files of the correct name/format (---set_QC.csv) in your processed data folder.")
 
 if (length(filelist) > 1) {
-    warning("There is more than one file of the correct format (---set.csv) in your data folder. The first file alphabetically will be used.")
+    warning("There is more than one file of the correct format (---set_QC.csv) in your data folder. The first file alphabetically will be used.")
     filelist <- filelist[1]
 }
 
