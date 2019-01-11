@@ -4,7 +4,7 @@ Reserve-level workflow repository
 -   [Current file structure](#current-file-structure)
 -   [Proposed workflow](#proposed-workflow)
 
-This page and repository is for the scripts as they're modified to work at the Reserve-level. The file structure necessarily needs to be different from what I've been doing to wrangle data from multiple reserves. It needs to work on other people's computers.
+This page and repository is for the scripts as they're modified to work at the Reserve-level. The file structure necessarily needs to be different from what I've been doing to wrangle data from multiple reserves. It needs to work on other people's computers, on their individual datasets.
 
 Here, my efforts are to construct a standardized file directory that Reserves can use to manage and perform basic analyses on SET data into the future. The only folder being tracked here on GitHub is the `R_scripts` folder.
 
