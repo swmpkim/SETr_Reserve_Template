@@ -144,7 +144,34 @@ if (length(m_not_dat) > 0) {
 if (length(dat_not_m) + length(m_not_dat) == 0) {
     print("SET IDs match in your data and metadata files.")
 }
+
+# cleanup
+rm(dat_not_m, m_not_dat, metadata_setid, data_setid, filelist, filename, path, toprint)
 ```
+
+
+Read in general sea-level rates sheet and pull out the rate that matches the reserve.  
+
+```{r}
+slr_path <- here::here('metadata')
+slr_file <- paste0(slr_path, "/slr_rates.csv")
+slr_rates <- read_csv(slr_file) %>%
+    clean_names() %>%
+    select_if(function(x) any(!is.na(x)))
+```
+
+Pull out the information relevant to the current reserve. Assign relevant values to objects and print out the table with information about the site.   
+
+```{r}
+res_to_match <- unique(dat$reserve)
+slr_res <- slr_rates %>%
+    filter(reserve == res_to_match) %>%
+    select(-link)
+slr <- slr_res$slr_rate_mm_yr
+slr_ci <- slr_res$x95_percent_ci
+kable(slr_res, align = "c")
+```
+
 
 
 # Background information  
@@ -181,8 +208,7 @@ Other reserve-specific inputs here (e.g., NAVD-88 heights of SET receivers; loca
 
 ```{r}
 # local rate of sea level rise, in mm/yr. eventually, pull from metadata table
-slr <- 3.61
-slr_ci <- 0.59
+
 ```
 
 
