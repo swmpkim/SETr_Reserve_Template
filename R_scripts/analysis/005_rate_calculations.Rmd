@@ -89,7 +89,7 @@ dat <- dat %>%
 This analysis was run on `r filename` on `r Sys.Date()`.
 
 
-```{r read_metadata}
+```{r read_metadata, warning = TRUE}
 ################################################################################
 # get the metadata in
 ################################################################################
@@ -121,21 +121,24 @@ mdat <- read_excel(filename) %>%
 
 Make sure the same SET IDs exist in both the data and metadata file.   
 
-```{r}
+```{r, warning = TRUE}
+# first pull out set_id from both data frames
 data_setid <- unique(as.character(dat$set_id))
 metadata_setid <- unique(mdat$unique_set_id)
 
+# find set_ids that are in the data, but not in the metadata
 dat_not_m <- setdiff(data_setid, metadata_setid)
+# find set_ids that are in the metadata, but not in the data
 m_not_dat <- setdiff(metadata_setid, data_setid)
 
 if (length(dat_not_m) > 0) {
     toprint <- paste(dat_not_m, collapse = ", ")
-    print(paste0("The following SET IDs exist in your data, but not in your metadata: ", toprint))
+    warning(paste0("The following SET IDs exist in your data, but not in your metadata: ", toprint))
 }
 
 if (length(m_not_dat) > 0) {
     toprint <- paste(m_not_dat, collapse = ", ")
-    print(paste0("The following SET IDs exist in your metadata, but not in your data: ", toprint))
+    warning(paste0("The following SET IDs exist in your metadata, but not in your data: ", toprint))
 }
 
 if (length(dat_not_m) + length(m_not_dat) == 0) {
