@@ -88,8 +88,6 @@ dat <- dat %>%
 
 This analysis was run on `r filename` on `r Sys.Date()`.
 
-Make sure site names in metadata match up with site names in data file, etc. Can do this part invisibly once it's figured out, and only show warning or error messages if the files don't match.    
-
 
 ```{r read_metadata}
 ################################################################################
@@ -121,13 +119,29 @@ mdat <- read_excel(filename) %>%
 ```
 
 
-Manually compare SET id's in both files (automate this later; just checking for the moment):  
+Make sure the same SET IDs exist in both the data and metadata file.   
 
 ```{r}
-unique(dat$set_id)
-unique(mdat$unique_set_id)
-```
+data_setid <- unique(as.character(dat$set_id))
+metadata_setid <- unique(mdat$unique_set_id)
 
+dat_not_m <- setdiff(data_setid, metadata_setid)
+m_not_dat <- setdiff(metadata_setid, data_setid)
+
+if (length(dat_not_m) > 0) {
+    toprint <- paste(dat_not_m, collapse = ", ")
+    print(paste0("The following SET IDs exist in your data, but not in your metadata: ", toprint))
+}
+
+if (length(m_not_dat) > 0) {
+    toprint <- paste(m_not_dat, collapse = ", ")
+    print(paste0("The following SET IDs exist in your metadata, but not in your data: ", toprint))
+}
+
+if (length(dat_not_m) + length(m_not_dat) == 0) {
+    print("SET IDs match in your data and metadata files.")
+}
+```
 
 
 # Background information  
