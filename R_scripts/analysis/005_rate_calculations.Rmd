@@ -55,6 +55,8 @@ path <- here::here('data', 'processed')
 # in that folder, find the name of the file(s) that ends with 'set.csv'
 filelist <- grep('set_QC.csv$', dir(path), value = TRUE)
 
+
+
 # generate warnings if the folder is empty; if there are multiple matching files, select the first one
 if (length(filelist) == 0) stop("There are no files of the correct name/format (---set_QC.csv) in your processed data folder.")
 
@@ -62,6 +64,8 @@ if (length(filelist) > 1) {
     warning("There is more than one file of the correct format (---set_QC.csv) in your data folder. The first file alphabetically will be used.")
     filelist <- filelist[1]
 }
+
+
 
 # generate the full path to the file; read it in and get pin heights to mm
 filename <- paste0(path, "/", filelist)
@@ -86,7 +90,7 @@ dat <- dat %>%
 
 ### Sanity checks  
 
-This analysis was run on `r filename` on `r Sys.Date()`.
+This analysis was run on `r filelist[1]` on `r Sys.Date()`.
 
 
 ```{r read_metadata, warning = TRUE}
@@ -108,11 +112,11 @@ if (length(filelist) > 1) {
     filelist <- filelist[1]
 }
 
-# generate the full path to the file; read it in, clean the names, and only keep columns that aren't completely full of NAs
+# generate the full path to the file; read it in, clean the names, get rid of empty rows and columns
 filename <- paste0(path, "/", filelist)
 mdat <- read_excel(filename) %>%
     clean_names() %>%
-    select_if(function(x) any(!is.na(x)))
+    janitor::remove_empty(which = c("rows", "cols"))
 
 ###############################################################################
 
@@ -146,7 +150,7 @@ if (length(dat_not_m) + length(m_not_dat) == 0) {
 }
 
 # cleanup
-rm(dat_not_m, m_not_dat, metadata_setid, data_setid, filelist, filename, path, toprint)
+rm(dat_not_m, m_not_dat, metadata_setid, data_setid, filelist, filename, path)
 ```
 
 
@@ -157,7 +161,7 @@ slr_path <- here::here('metadata')
 slr_file <- paste0(slr_path, "/slr_rates.csv")
 slr_rates <- read_csv(slr_file) %>%
     clean_names() %>%
-    select_if(function(x) any(!is.na(x)))
+    janitor::remove_empty(which = c("rows", "cols"))
 ```
 
 Pull out the information relevant to the current reserve. Assign relevant values to objects and print out the table with information about the site.   
@@ -199,17 +203,6 @@ This should probably be a table (or series of tables)
 +  Years of data collection  
 +  Distance from closest water body 
 +  Dominant vegetation?
-
-
-
-
-
-Other reserve-specific inputs here (e.g., NAVD-88 heights of SET receivers; local rate of SLR; etc)  
-
-```{r}
-# local rate of sea level rise, in mm/yr. eventually, pull from metadata table
-
-```
 
 
 
