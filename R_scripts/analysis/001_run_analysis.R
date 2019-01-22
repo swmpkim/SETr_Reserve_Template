@@ -9,15 +9,3 @@ library(rmarkdown)
 infile <- here::here("R_scripts", "analysis", "005_rate_calculations.Rmd")
 outdir <- here::here("R_output", "analysis")
 rmarkdown::render(infile, output_dir = outdir)
-
-
-
-# this generates html, but not other file types, into a different directory
-
-# library(ezknitr)
-# topdir <- here::here()
-# https://github.com/ropensci/ezknitr#readme
-# ezknit(file = "R_scripts/analysis/005_rate_calculations.Rmd",
-# out_dir = "R_output/analysis",
-# fig_dir = "figs",
-# wd = topdir)

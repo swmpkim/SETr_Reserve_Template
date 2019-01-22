@@ -430,6 +430,23 @@ So in our case, we have, for each SET:
 +  random effects: arm_position, pin_number  (note, these are nested)  
 
 
+Great resource on linear mixed models:  
+https://ourcodingclub.github.io/2017/03/15/mixed-models.html#one  
+
+
+On partial pooling and groups, from https://stats.stackexchange.com/questions/4700/what-is-the-difference-between-fixed-effect-random-effect-and-mixed-effect-mode :
+
+To motivate the random effects model, ask yourself: why would you partial pool? Probably because you think the little subgroups are part of some bigger group with a common mean effect. The subgroup means can deviate a bit from the big group mean, but not by an arbitrary amount. To formalize that idea, we posit that the deviations follow a distribution, typically Gaussian. That's where the "random" in random effects comes in: we're assuming the deviations of subgroups from a parent follow the distribution of a random variable. Once you have this idea in mind, the mixed-effects model equations follow naturally.  
+
+.....*While many treatments of this topic focus on a narrow definition of "group", the concept is in fact very flexible: it is just a set of observations that share a common property. A group could be composed of multiple observations of a single person, or multiple people in a school, or multiple schools in a district, or multiple varieties of a single kind of fruit, or multiple kinds of vegetable from the same harvest, or multiple harvests of the same kind of vegetable, etc. Any categorical variable can be used as a grouping variable.
+
+
+
+In the case of SETs, the arms and individual pins are "the little subgroups" that are part of "some bigger group" of the SET, with a common mean effect. At Grand Bay (and possibly others?), we have 3 SETs together in a marsh zone, so if we wanted to ask about that general area of the marsh, perhaps SET would also become a random effect ("little subgroup") and the marsh zone would be the fixed effect ("bigger group").
+
+Here it goes with models.
+
+
 ```{r calc_lmm}
 models2 <- dat %>%
     group_by(reserve, set_id) %>%
