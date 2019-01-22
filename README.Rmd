@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = FALSE)
 ```
 
 
-This page and repository is for the scripts as they're modified to work at the Reserve-level. The file structure necessarily needs to be different from what I've been doing to wrangle data from multiple reserves. It needs to work on other people's computers, on their individual datasets.  
+This page and repository are for the scripts as they're modified to work at the Reserve-level. The file structure necessarily needs to be different from what I've been doing to wrangle data from multiple reserves. It needs to work on other people's computers, on their individual datasets.  
 
 Here, my efforts are to construct a standardized file directory that Reserves can use to manage and perform basic analyses on SET data into the future. The only folder being tracked here on GitHub is the `R_scripts` folder.    
 
