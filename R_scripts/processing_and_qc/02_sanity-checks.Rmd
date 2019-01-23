@@ -22,10 +22,12 @@ library(dplyr)
 library(tidyr)
 library(ggplot2)
 library(here)
-library(flextable)
+# library(flextable)
 source(here::here('R_scripts', '000_functions.R'))
 ```
 
+
+Read in data. Can see how it's formatted in the following output.  
 
 ```{r}
 ################################################################################
@@ -65,7 +67,7 @@ if (sum(class(dat$date) %in% c("datetime", "POSIXct", "POSIXlt")) > 0)
 
 # Introduce some wonkiness for testing purposes  
 
-```{r, echo = TRUE}
+```{r}
 
 ################## FOR TESTING ONLY ##########################
 # make some wonky values
@@ -112,21 +114,21 @@ overview_all <- full_join(overview, overview_trimmed) %>%
 ```
 
 
-play with flextable:  
+play with flextable. Just kidding; this won't work without pandoc 2.0 or higher, and that's not yet bundled with RStudio. Keeping the code here because I think that will be supported soon, and then we can auto-highlight some of the output. 
 
 ```{r}
-overview_ft <- regulartable(head(overview_all))
-overview_ft <- color(overview_ft, i = ~ removed > 0,
-                     j = ~ date + removed,
-                     color = "red")
-overview_ft <- bg(overview_ft, i = ~ removed > 0,
-                     j = ~ date + removed,
-                     bg = "gray80")
-overview_ft
+# overview_ft <- regulartable(head(overview_all))
+# overview_ft <- color(overview_ft, i = ~ removed > 0,
+#                      j = ~ date + removed,
+#                      color = "red")
+# overview_ft <- bg(overview_ft, i = ~ removed > 0,
+#                      j = ~ date + removed,
+#                      bg = "gray80")
+# overview_ft
 ```
 
 
-What I really want to do is split each of the count tables by SET, and put overview and overview_trimmed next to each other, possibly with differences highlighted  
+Print out some information about each SET.  
 
 ```{r, results = "asis", message = FALSE, warning = FALSE}
 
@@ -136,17 +138,37 @@ unique_sets <- unique(dat$set_id)
 # https://stackoverflow.com/questions/36373630/how-to-create-a-loop-that-includes-both-a-code-chunk-and-text-with-knitr-in-r
 
 for(i in seq_along(unique_sets)){
-    cat("  \n###", unique_sets[i], "QC results  \n")
+    cat("  \n###", unique_sets[i], "  \n")
     
     # subset the data and remove columns we don't need
     overview_sub <- overview_all[overview_all$set_id == unique_sets[i], ]
+    
+    num_dates <- length(unique(overview_sub$date, na.rm = TRUE))
+    first_date <- min(unique(overview_sub$date, na.rm = TRUE))
+    last_date <- max(unique(overview_sub$date, na.rm = TRUE))
+    
+    readings_summ <- data.frame("times_read" = num_dates,
+                                "first_reading" = first_date,
+                                "last_reading" = last_date)
+    
+    print(kable(readings_summ, 
+                align = "c",
+                caption = "Summary of SET visits"))
+    
+    cat("  \n")
+    cat("  \n")
+    
+    # select only wonky data points
     overview_sub <- overview_sub %>%
+        filter(pre_n != 36 | post_n != 36 | removed != 0) %>%
         select(-reserve, -set_id)
     
     # print the subsetted data
+    if(nrow(overview_sub) > 0){
     print(kable(overview_sub, 
                 align = "c",
-                caption = "Number of pin measurements by date, before and after QC removal"))
+                caption = "Summary of reading dates that do not meet QC criteria"))
+    } else {print("All reading dates meet QC criteria (36 pins; no readings removed by QC codes)")}
     
     cat("  \n")
     
