@@ -22,6 +22,7 @@ library(dplyr)
 library(tidyr)
 library(ggplot2)
 library(here)
+library(flextable)
 source(here::here('R_scripts', '000_functions.R'))
 ```
 
@@ -62,14 +63,19 @@ if (sum(class(dat$date) %in% c("datetime", "POSIXct", "POSIXlt")) > 0)
 ```
 
 
-Produce tabular summaries  
+# Introduce some wonkiness for testing purposes  
 
-Pre-QC
+```{r, echo = TRUE}
 
-```{r}
-overview <- dat %>%
-    group_by(reserve, set_id, date) %>%
-    summarize(non_na_count = sum(!is.na(pin_height))) 
+################## FOR TESTING ONLY ##########################
+# make some wonky values
+dat$flag[2:4] <- 2
+##############################################################
+
+############## for testing only ##########################
+# make a negative pin height
+dat$pin_height[2] <- -5
+##########################################################
 ```
 
 When QC flag is [one of a subset of numbers; i'll pick 2], make pin_height `NA` to exclude that value from analysis. Generate another tabular summary.
@@ -77,13 +83,17 @@ When QC flag is [one of a subset of numbers; i'll pick 2], make pin_height `NA` 
 __NOTE__ At this point, I've inserted a few wonky values. A '2' flag in the 2nd-4th rows of the data frame, and a negative pin reading as the first pin_height. This is to test the script's capabilities to detect these.  
 
 ```{r}
+# summarize original dataframe
+overview <- dat %>%
+    group_by(reserve, set_id, date) %>%
+    summarize(pre_n = sum(!is.na(pin_height)),
+              pre_min = min(pin_height, na.rm = TRUE),
+              pre_max = max(pin_height, na.rm = TRUE)) %>%
+    ungroup()
+
 # back up original data frame  
 dat_backup <- dat
 
-################## FOR TESTING ONLY ##########################
-# make some wonky values
-dat$flag[2:4] <- 2
-##############################################################
 
 # remove wonky values
 dat$pin_height[dat$flag == '2'] <- NA
@@ -91,7 +101,28 @@ dat$pin_height[dat$flag == '2'] <- NA
 # overview after removing suspect data points
 overview_trimmed <- dat %>%
     group_by(reserve, set_id, date) %>%
-    summarize(non_na_count = sum(!is.na(pin_height))) 
+    summarize(post_n = sum(!is.na(pin_height)),
+              post_min = min(pin_height, na.rm = TRUE),
+              post_max = max(pin_height, na.rm = TRUE)) %>%
+    ungroup()
+
+# join them together
+overview_all <- full_join(overview, overview_trimmed) %>%
+        mutate(removed = pre_n - post_n)
+```
+
+
+play with flextable:  
+
+```{r}
+overview_ft <- regulartable(head(overview_all))
+overview_ft <- color(overview_ft, i = ~ removed > 0,
+                     j = ~ date + removed,
+                     color = "red")
+overview_ft <- bg(overview_ft, i = ~ removed > 0,
+                     j = ~ date + removed,
+                     bg = "gray80")
+overview_ft
 ```
 
 
@@ -106,18 +137,14 @@ unique_sets <- unique(dat$set_id)
 
 for(i in seq_along(unique_sets)){
     cat("  \n###", unique_sets[i], "QC results  \n")
-    overview_sub <- overview[overview$set_id == unique_sets[i], ]
-    overview_trimmed_sub <- overview_trimmed[overview_trimmed$set_id == unique_sets[i], ]
     
-    names(overview_sub) <- c("reserve", "set_id", "date", "pre_QC")
-    names(overview_trimmed_sub) <- c("reserve", "set_id", "date", "post_removal")
-    
-    overview_all <- full_join(overview_sub, overview_trimmed_sub) %>%
-        mutate(n_removed = pre_QC - post_removal) %>%
-        ungroup() %>%
+    # subset the data and remove columns we don't need
+    overview_sub <- overview_all[overview_all$set_id == unique_sets[i], ]
+    overview_sub <- overview_sub %>%
         select(-reserve, -set_id)
     
-    print(kable(overview_all, 
+    # print the subsetted data
+    print(kable(overview_sub, 
                 align = "c",
                 caption = "Number of pin measurements by date, before and after QC removal"))
     
@@ -141,11 +168,6 @@ Find differences between pre- and post- QC point removal
 
 ```{r}
 # check for negative pin heights
-
-############## for testing only ##########################
-# make a negative pin height
-dat$pin_height[1] <- -5
-##########################################################
 
 if(sum(dat$pin_height < 0, na.rm = TRUE) >= 1) {
     print(paste0("There are ", sum(dat$pin_height < 0, na.rm = TRUE), " pin heights <0. They are listed below."))
