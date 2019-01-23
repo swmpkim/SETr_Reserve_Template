@@ -1,0 +1,155 @@
+---
+title: "SET Data Sanity Checks"
+date: "`r Sys.Date()`"
+output: word_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+Read in processed data (all SETs in same CSV file) and perform some basic checks of the parameters.  
+
+
+```{r load_packages, echo = TRUE, message = FALSE, warning = FALSE}
+library(knitr)
+library(readr)
+library(readxl)
+library(janitor)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(here)
+source(here::here('R_scripts', '000_functions.R'))
+```
+
+
+```{r}
+################################################################################
+# get the data in
+################################################################################
+
+# find the folder with processed data
+path <- here::here('data', 'processed')
+
+# in that folder, find the name of the file(s) that ends with 'set.csv'
+filelist <- grep('set_QC.csv$', dir(path), value = TRUE)
+
+
+
+# generate warnings if the folder is empty; if there are multiple matching files, select the first one
+if (length(filelist) == 0) stop("There are no files of the correct name/format (---set_QC.csv) in your processed data folder.")
+
+if (length(filelist) > 1) {
+    warning("There is more than one file of the correct format (---set_QC.csv) in your data folder. The first file alphabetically will be used.")
+    filelist <- filelist[1]
+}
+
+
+
+# generate the full path to the file; read it in and get pin heights to mm
+filename <- paste0(path, "/", filelist)
+dat <- read_csv(filename)
+dat <- height_to_mm(dat)
+
+
+
+# if the date column is datetime, posixct, or posixlt, change it to Date
+if (sum(class(dat$date) %in% c("datetime", "POSIXct", "POSIXlt")) > 0)
+    dat$date <- as.Date(dat$date)
+```
+
+
+Produce tabular summaries  
+
+Pre-QC
+
+```{r}
+overview <- dat %>%
+    group_by(reserve, set_id, date) %>%
+    summarize(non_na_count = sum(!is.na(pin_height))) 
+```
+
+When QC flag is [one of a subset of numbers; i'll pick 2], make pin_height `NA` to exclude that value from analysis. Generate another tabular summary.
+
+__NOTE__ At this point, I've inserted a few wonky values. A '2' flag in the 2nd-4th rows of the data frame, and a negative pin reading as the first pin_height. This is to test the script's capabilities to detect these.  
+
+```{r}
+# back up original data frame  
+dat_backup <- dat
+
+################## FOR TESTING ONLY ##########################
+# make some wonky values
+dat$flag[2:4] <- 2
+##############################################################
+
+# remove wonky values
+dat$pin_height[dat$flag == '2'] <- NA
+
+# overview after removing suspect data points
+overview_trimmed <- dat %>%
+    group_by(reserve, set_id, date) %>%
+    summarize(non_na_count = sum(!is.na(pin_height))) 
+```
+
+
+What I really want to do is split each of the count tables by SET, and put overview and overview_trimmed next to each other, possibly with differences highlighted  
+
+```{r, results = "asis", message = FALSE, warning = FALSE}
+
+unique_sets <- unique(dat$set_id)
+
+# thank you stackoverflow for helping with this format
+# https://stackoverflow.com/questions/36373630/how-to-create-a-loop-that-includes-both-a-code-chunk-and-text-with-knitr-in-r
+
+for(i in seq_along(unique_sets)){
+    cat("  \n###", unique_sets[i], "QC results  \n")
+    overview_sub <- overview[overview$set_id == unique_sets[i], ]
+    overview_trimmed_sub <- overview_trimmed[overview_trimmed$set_id == unique_sets[i], ]
+    
+    names(overview_sub) <- c("reserve", "set_id", "date", "pre_QC")
+    names(overview_trimmed_sub) <- c("reserve", "set_id", "date", "post_removal")
+    
+    overview_all <- full_join(overview_sub, overview_trimmed_sub) %>%
+        mutate(n_removed = pre_QC - post_removal) %>%
+        ungroup() %>%
+        select(-reserve, -set_id)
+    
+    print(kable(overview_all, 
+                align = "c",
+                caption = "Number of pin measurements by date, before and after QC removal"))
+    
+    cat("  \n")
+    
+}
+```
+
+
+# Tests to perform  
+
+Find any counts that are not 36  
+Especially find any that are > 36  
+Find differences between pre- and post- QC point removal
+
+
+
+# Tests and Checks  
+
+## Negative Pin Heights  
+
+```{r}
+# check for negative pin heights
+
+############## for testing only ##########################
+# make a negative pin height
+dat$pin_height[1] <- -5
+##########################################################
+
+if(sum(dat$pin_height < 0, na.rm = TRUE) >= 1) {
+    print(paste0("There are ", sum(dat$pin_height < 0, na.rm = TRUE), " pin heights <0. They are listed below."))
+    neg_pin_hts <- dat %>% filter(pin_height < 0)
+    kable(neg_pin_hts)
+    } else {print("all pin heights are >0")}
+```
