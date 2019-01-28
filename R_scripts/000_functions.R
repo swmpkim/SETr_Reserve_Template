@@ -173,9 +173,9 @@ plot_raw_pin <- function(data, set, columns = 2, pointsize = 2){
 ##### cumulative change
 
 ## by arm
-plot_cumu_arm <- function(columns = 4) {
+plot_cumu_arm <- function(columns = 4, pointsize = 2) {
     ggplot(change_cumu_arm, aes(x = date, y = mean_cumu, col = as.factor(arm_position))) +
-        geom_point(size = 2) +
+        geom_point(size = pointsize) +
         geom_line() +
         facet_wrap(~set_id, ncol = columns, scales = 'free_y') +
         labs(title = 'Cumulative Change',
@@ -188,14 +188,14 @@ plot_cumu_arm <- function(columns = 4) {
 
 
 ## by set
-plot_cumu_set <- function(columns = 4){
+plot_cumu_set <- function(columns = 4, pointsize = 3.5){
     ggplot(change_cumu_set, aes(x = date, y = mean_cumu)) +
         geom_line(col = 'lightsteelblue4') +
         geom_smooth(se = FALSE, method = 'lm', 
                     col = 'steelblue4', lty = 5, size = 1) +
         geom_point(shape = 21, 
                    fill = 'lightsteelblue1', col = 'steelblue3', 
-                   size = 3.5, alpha = 0.9) +
+                   size = pointsize, alpha = 0.9) +
         facet_wrap(~set_id, ncol = columns, scales = 'free_y') +
         labs(title = 'Cumulative Change since first reading', 
              subtitle = 'dashed line is linear regression',

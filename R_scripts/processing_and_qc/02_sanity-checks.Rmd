@@ -84,7 +84,7 @@ When QC flag is [one of a subset of numbers; i'll pick 2], make pin_height `NA` 
 
 __NOTE__ At this point, I've inserted a few wonky values. A '2' flag in the 2nd-4th rows of the data frame, and a negative pin reading as the first pin_height. This is to test the script's capabilities to detect these.  
 
-```{r}
+```{r, message = FALSE}
 # summarize original dataframe
 overview <- dat %>%
     group_by(reserve, set_id, date) %>%
@@ -158,10 +158,10 @@ for(i in seq_along(unique_sets)){
     cat("  \n")
     cat("  \n")
     
-    # select only wonky data points
+    # select only dates with wonky data points
     overview_sub <- overview_sub %>%
         filter(pre_n != 36 | post_n != 36 | removed != 0) %>%
-        select(-reserve, -set_id)
+        select(date, pre_n, post_n, removed)
     
     # print the subsetted data
     if(nrow(overview_sub) > 0){

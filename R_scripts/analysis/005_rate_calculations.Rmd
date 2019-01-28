@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 
 Everything in this report currently uses ALL reported data values. Quality flags were ignored, which may lead to differences in final numbers once we deal with QA/QC issues.  
 
-Also, be aware that linear regression as a way to calculate rate of change is not appropriate at all sites. Use discretion about these results.  
+Also, be aware that linear models are not appropriate for calculating rates of change at all sites. Use discretion about these results.  
 
 Rates of change were calculated first for each pin using a linear model of pin_height vs. date. Rates were converted from mm/day to mm/year by multiplying by 365.25 (to account for leap years). So linear models result in 36 rates of change per SET.  
 
@@ -175,7 +175,6 @@ if (res_to_match %in% unique(slr_rates$reserve)) {
         select(-link)
     slr <- slr_res$slr_rate_mm_yr
     slr_ci <- slr_res$x95_percent_ci
-    kable(slr_res, align = "c")
 } else {warning("This reserve does not have an entry in the sea level rise rates file. Please check metadata/slr_rates.csv and make sure your reserve is present.")}
 ```
 
@@ -189,25 +188,26 @@ Necessary context; pull from metadata file
 
 Bullet-point list, probably, to include:    
 
-+  tidal range  
-+  SLR rate  
-+  Closest NWLON station  
-+  Years of data collection that generated SLR rate (available on NWLON station's page)    
 +  geomorphic setting  
++  tidal range  
++  Local rate of sea level change is **`r slr`** +/- **`r slr_ci`** mm/yr.  
++  This rate is reported by `r slr_res$nearest_nwlon_station`, NWLON station number `r as.character(slr_res$nwlon_station_number)` based on data from *`r slr_res$data_start`* to *`r slr_res$data_end`*.
+  
 
 ## SET-level  
 
-This should probably be a table (or series of tables)      
+This should probably be a table (or series of tables) with info pulled out of metadata spreadsheet.
 
-+  GPS coordinates  
+```{r}
+mdat %>%
+    select(unique_set_id, set_type, latitude_dec_deg, longitude_dec_deg, co_dominant_species1, co_dominant_species2, co_dominant_species3) %>%
+    knitr::kable(align = "c", col.names = c("SET ID", "Type", "Lat", "Long", "Main Veg 1", "Main Veg 2", "Main Veg 3"))
+```
+
+
 +  NAVD88 elevation (and year determined)  
-+  Deep or Shallow SET?  
-+  Does it have a Shallow/Deep counterpart (is it part of a pair)?  
 +  Years of data collection  
 +  Distance from closest water body 
-+  Dominant vegetation?
-
-
 
 
 ***

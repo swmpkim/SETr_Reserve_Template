@@ -110,6 +110,15 @@ ui <- fluidPage(
                         max = 1.5,
                         value = 0.5,
                         step = 0.1)
+            ),
+            
+            
+            # select the number of columns to show
+            # in the cumulative change graph
+            selectInput(inputId = "columns", 
+                        label = strong("# columns in cumulative change graph"),
+                        choices = c(1, 2, 3, 4, 5),
+                        selected = 4
             )
             
             
@@ -118,13 +127,25 @@ ui <- fluidPage(
         
         
         mainPanel(
-            plotlyOutput(outputId = "plotlyscatter"),
-            br(), br(),
-            plotlyOutput(outputId = "plotly_raw_arm"),
-            br(), br(),
-            plotlyOutput(outputId = "plotly_raw_pin"),
-            br(), br(),
-            plotlyOutput(outputId = "plotly_incr_pin")
+            
+            tabsetPanel(type = "tabs",
+            
+                        tabPanel("Raw Data",
+                                 plotlyOutput(outputId = "plotlyscatter"),
+                                 br(), br(),
+                                 plotlyOutput(outputId = "plotly_raw_arm"),
+                                 br(), br(),
+                                 plotlyOutput(outputId = "plotly_raw_pin")
+                        ),
+                        
+                        tabPanel("Incremental Calcs",
+                                 plotlyOutput(outputId = "plotly_incr_pin")
+                        ),
+                        
+                        tabPanel("Cumulative Calcs",
+                                 plotlyOutput(outputId = "plotly_cumu_set")
+                        )
+            )
         )
         
     )
@@ -206,6 +227,15 @@ server <- function(input, output) {
         req(input$date)
         a <- plot_incr_pin2(input$SET, pointsize = input$ptsize_multi)
         a
+    })
+    
+    
+    # create plotly plot of cumulative change by SET
+    output$plotly_cumu_set <- renderPlotly({
+        req(input$SET)
+        b <- plot_cumu_set(columns = input$columns, 
+                           pointsize = input$ptsize_multi)
+        b
     })
     
 }
