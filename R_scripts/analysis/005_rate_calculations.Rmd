@@ -86,7 +86,8 @@ if (sum(class(dat$date) %in% c("datetime", "POSIXct", "POSIXlt")) > 0)
 dat <- dat %>%
     filter(!is.na(date),
            !is.na(pin_number)) %>%
-    mutate(set_id = as.factor(set_id))
+    mutate(set_id = as.factor(set_id),
+           arm_position = as.character(arm_position))
 ```
 
 
