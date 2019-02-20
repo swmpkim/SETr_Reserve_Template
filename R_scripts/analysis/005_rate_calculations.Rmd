@@ -229,34 +229,36 @@ These values are not shown but can be if people want them.
 
 
 ```{r rates_pins, rows.print = 9}
-# generate linear model for each pin
-models <- dat %>%
-    group_by(reserve, set_id, arm_position, pin_number) %>%
-    do(mod = lm(pin_height ~ date, data = .))  
+### commented out because this uses linear regression on each pin 
 
-
-# pull out coefficients of interest:
-# intercept, slope, p-value, 95% confidence bounds
-modelcoef <- tidy(models, mod, conf.int=TRUE, conf.level=0.95) 
-
-
-# get rid of intercept row,
-# calculate mm/yr for all the terms,
-# get rid of the mm/day stuff
-# p-value and statistic are rounded
-rates_elev_pins <- modelcoef %>%
-    filter(term == "date") %>%
-    mutate(rate_mm.yr = estimate*365.25,
-           se_mm.yr = std.error*365.25,
-           CIlow_mm.yr = conf.low*365.25,
-           CIhigh_mm.yr = conf.high*365.25,
-           p_value = round(p.value, 4),
-           statistic = round(statistic, 3)) %>%
-    select(reserve, set_id, arm_position, pin_number, rate_mm.yr, se_mm.yr, CIlow_mm.yr, CIhigh_mm.yr, statistic, p_value)
-
-
-# calculate r^2, adjusted r^2, p values, and other model diagnostics
-modelsummary_pins <- glance(models, mod) 
+# # generate linear model for each pin
+# models <- dat %>%
+#     group_by(reserve, set_id, arm_position, pin_number) %>%
+#     do(mod = lm(pin_height ~ date, data = .))  
+# 
+# 
+# # pull out coefficients of interest:
+# # intercept, slope, p-value, 95% confidence bounds
+# modelcoef <- tidy(models, mod, conf.int=TRUE, conf.level=0.95) 
+# 
+# 
+# # get rid of intercept row,
+# # calculate mm/yr for all the terms,
+# # get rid of the mm/day stuff
+# # p-value and statistic are rounded
+# rates_elev_pins <- modelcoef %>%
+#     filter(term == "date") %>%
+#     mutate(rate_mm.yr = estimate*365.25,
+#            se_mm.yr = std.error*365.25,
+#            CIlow_mm.yr = conf.low*365.25,
+#            CIhigh_mm.yr = conf.high*365.25,
+#            p_value = round(p.value, 4),
+#            statistic = round(statistic, 3)) %>%
+#     select(reserve, set_id, arm_position, pin_number, rate_mm.yr, se_mm.yr, CIlow_mm.yr, CIhigh_mm.yr, statistic, p_value)
+# 
+# 
+# # calculate r^2, adjusted r^2, p values, and other model diagnostics
+# modelsummary_pins <- glance(models, mod) 
 ```
 
 
@@ -273,20 +275,20 @@ Average of the 36 pins' rates.
 <br>
 
 ```{r rates_sets}
-rates_elev_set <- rates_elev_pins %>%
-    group_by(reserve, set_id) %>%
-    summarize(rate_mm.yr_set = mean(rate_mm.yr, na.rm = TRUE),
-              sd_mm.yr = sd(rate_mm.yr, na.rm = TRUE),
-              se_mm.yr = sd_mm.yr/sqrt(n())) %>%
-    mutate(CI95_low = rate_mm.yr_set - 1.96*se_mm.yr,
-           CI95_high = rate_mm.yr_set + 1.96*se_mm.yr) %>%
-    ungroup()
-
-knitr::kable(rates_elev_set,
-             caption = "Rate of Elevation Change by SET", 
-             col.names = c("Reserve", "SET ID", "Rate (mm/yr)", "stdev", "sterr", "95% CI lower bound", "95% CI upper bound"),
-             digits = 3,
-             align = 'c')
+# rates_elev_set <- rates_elev_pins %>%
+#     group_by(reserve, set_id) %>%
+#     summarize(rate_mm.yr_set = mean(rate_mm.yr, na.rm = TRUE),
+#               sd_mm.yr = sd(rate_mm.yr, na.rm = TRUE),
+#               se_mm.yr = sd_mm.yr/sqrt(n())) %>%
+#     mutate(CI95_low = rate_mm.yr_set - 1.96*se_mm.yr,
+#            CI95_high = rate_mm.yr_set + 1.96*se_mm.yr) %>%
+#     ungroup()
+# 
+# knitr::kable(rates_elev_set,
+#              caption = "Rate of Elevation Change by SET", 
+#              col.names = c("Reserve", "SET ID", "Rate (mm/yr)", "stdev", "sterr", "95% CI lower bound", "95% CI upper bound"),
+#              digits = 3,
+#              align = 'c')
 ```
 
 ***
@@ -307,14 +309,14 @@ The following tables break the SETs into groups where the rate of SET elevation 
 
 <br>
 
-```{r slr_comp_lower}
-rates_elev_set %>%
-    filter(CI95_high < slr) %>%
-    select(reserve, set_id, rate_mm.yr_set, CI95_low, CI95_high) %>%
-    knitr::kable(caption = "SETs where elevation change is lower than SLR",
-                 col.names = c("Reserve", "SET ID", "Rate (mm/yr)", "95% CI lower bound", "95% CI upper bound"),
-                 digits = 3,
-                 align = 'c')
+```{r slr_comp_lower01}
+# rates_elev_set %>%
+#     filter(CI95_high < slr) %>%
+#     select(reserve, set_id, rate_mm.yr_set, CI95_low, CI95_high) %>%
+#     knitr::kable(caption = "SETs where elevation change is lower than SLR",
+#                  col.names = c("Reserve", "SET ID", "Rate (mm/yr)", "95% CI lower bound", "95% CI upper bound"),
+#                  digits = 3,
+#                  align = 'c')
 ```
 
 <br>
@@ -323,14 +325,14 @@ rates_elev_set %>%
 
 <br>
 
-```{r slr_comp_higher}
-rates_elev_set %>%
-    filter(CI95_low > slr) %>%
-    select(reserve, set_id, rate_mm.yr_set, CI95_low, CI95_high) %>%
-    knitr::kable(caption = "SETs where elevation change is higher than SLR",
-                 col.names = c("Reserve", "SET ID", "Rate (mm/yr)", "95% CI lower bound", "95% CI upper bound"),
-                 digits = 3,
-                 align = 'c')
+```{r slr_comp_higher01}
+# rates_elev_set %>%
+#     filter(CI95_low > slr) %>%
+#     select(reserve, set_id, rate_mm.yr_set, CI95_low, CI95_high) %>%
+#     knitr::kable(caption = "SETs where elevation change is higher than SLR",
+#                  col.names = c("Reserve", "SET ID", "Rate (mm/yr)", "95% CI lower bound", "95% CI upper bound"),
+#                  digits = 3,
+#                  align = 'c')
 ```
 
 <br>
@@ -339,21 +341,21 @@ rates_elev_set %>%
 
 <br>
 
-```{r slr_comp_same}
-rates_elev_set %>%
-    filter(CI95_low < slr & CI95_high > slr) %>%
-    select(reserve, set_id, rate_mm.yr_set, CI95_low, CI95_high) %>%
-    knitr::kable(caption = "SETs where the 95% CI for elevation change rate includes SLR",
-                 col.names = c("Reserve", "SET ID", "Rate (mm/yr)", "95% CI lower bound", "95% CI upper bound"),
-                 digits = 3,
-                 align = 'c')
+```{r slr_comp_same01}
+# rates_elev_set %>%
+#     filter(CI95_low < slr & CI95_high > slr) %>%
+#     select(reserve, set_id, rate_mm.yr_set, CI95_low, CI95_high) %>%
+#     knitr::kable(caption = "SETs where the 95% CI for elevation change rate includes SLR",
+#                  col.names = c("Reserve", "SET ID", "Rate (mm/yr)", "95% CI lower bound", "95% CI upper bound"),
+#                  digits = 3,
+#                  align = 'c')
 ```
 
 ***  
 
 # Graph  
 
-for a sanity check of the above rates  
+for a sanity check of calculated rates; NOTE each panel is on a different scale  
 
 Linear regression is NOT appropriate for all sites; interpret this with caution
 
@@ -373,16 +375,16 @@ ggplot(dat, aes(x = date, y = pin_height)) +
 To visualize confidence intervals; because calculated SLR rate also has a standard error  
 
 ```{r plot_slr_ci, fig.width = 7, fig.height = 6}
-ggplot() +
-    geom_blank(data = rates_elev_set, aes(x = set_id, y = rate_mm.yr_set)) +
-    geom_ribbon(aes(x = 0:(nrow(rates_elev_set)+1), ymin = slr-slr_ci, ymax = slr+slr_ci), fill = "navyblue", alpha = 0.1) +
-    geom_hline(aes(yintercept = slr), col = "navyblue", size = 1, alpha = 0.9) +
-    geom_hline(aes(yintercept = 0), col = "gray70") +
-    geom_errorbar(data = rates_elev_set, aes(x = set_id, ymin = CI95_low, ymax = CI95_high), col = "gray55", size = 1) +
-    geom_point(data = rates_elev_set, aes(x = set_id, y = rate_mm.yr_set), size = 3, col = "red3") +
-    theme_classic() + 
-    labs(title = "Elevation Change, 95% Confidence Intervals", subtitle = paste0("Local SLR in blue: ", slr, " +/- ", slr_ci, " mm/yr"), x = "SET", y = "Rate of change (mm/yr)") +
-    coord_flip()
+# ggplot() +
+#     geom_blank(data = rates_elev_set, aes(x = set_id, y = rate_mm.yr_set)) +
+#     geom_ribbon(aes(x = 0:(nrow(rates_elev_set)+1), ymin = slr-slr_ci, ymax = slr+slr_ci), fill = "navyblue", alpha = 0.1) +
+#     geom_hline(aes(yintercept = slr), col = "navyblue", size = 1, alpha = 0.9) +
+#     geom_hline(aes(yintercept = 0), col = "gray70") +
+#     geom_errorbar(data = rates_elev_set, aes(x = set_id, ymin = CI95_low, ymax = CI95_high), col = "gray55", size = 1) +
+#     geom_point(data = rates_elev_set, aes(x = set_id, y = rate_mm.yr_set), size = 3, col = "red3") +
+#     theme_classic() + 
+#     labs(title = "Elevation Change, 95% Confidence Intervals", subtitle = paste0("Local SLR in blue: ", slr, " +/- ", slr_ci, " mm/yr"), x = "SET", y = "Rate of change (mm/yr)") +
+#     coord_flip()
 ```
 
 
@@ -478,6 +480,67 @@ See other diagnostics from the models:
 kable(glance(models2, mod))
 ```
 
+
+# Sea Level Rise Comparisons  
+
+The long-term local rate of sea level rise is **`r slr` +/- `r slr_ci` mm/yr** .
+
+The following tables break the SETs into groups where the rate of SET elevation change is *lower than* / *higher than* / *not different from* this SLR rate.
+
+NOTE:  At this point, I'm only using the point estimate of long-term SLR, NOT the confidence interval.  
+
+95% Confidence Intervals are calculated as:  
+`mean +/- [1.96 * standard error]`  
+
+<br>
+
+***
+
+<br>
+
+```{r slr_comp_lower}
+modelcoef2 %>%
+    filter(CIhigh_mm.yr < slr) %>%
+    select(reserve, set_id, rate_mm.yr, CIlow_mm.yr, CIhigh_mm.yr) %>%
+    knitr::kable(caption = "SETs where elevation change is lower than SLR",
+                 col.names = c("Reserve", "SET ID", "Rate (mm/yr)", "95% CI lower bound", "95% CI upper bound"),
+                 digits = 3,
+                 align = 'c')
+```
+
+<br>
+
+***
+
+<br>
+
+```{r slr_comp_higher}
+modelcoef2 %>%
+    filter(CIlow_mm.yr > slr) %>%
+    select(reserve, set_id, rate_mm.yr, CIlow_mm.yr, CIhigh_mm.yr) %>%
+    knitr::kable(caption = "SETs where elevation change is higher than SLR",
+                 col.names = c("Reserve", "SET ID", "Rate (mm/yr)", "95% CI lower bound", "95% CI upper bound"),
+                 digits = 3,
+                 align = 'c')
+```
+
+<br>
+
+***
+
+<br>
+
+```{r slr_comp_same}
+modelcoef2 %>%
+    filter(CIlow_mm.yr < slr & CIhigh_mm.yr > slr) %>%
+    select(reserve, set_id, rate_mm.yr, CIlow_mm.yr, CIhigh_mm.yr) %>%
+    knitr::kable(caption = "SETs where the 95% CI for elevation change rate includes SLR",
+                 col.names = c("Reserve", "SET ID", "Rate (mm/yr)", "95% CI lower bound", "95% CI upper bound"),
+                 digits = 3,
+                 align = 'c')
+```
+
+
 ***
 ***
 
@@ -501,3 +564,8 @@ ggplot() +
 ### Cumulative change graph here?  
 
 ### NAVD88 graph if we can figure it out  
+
+## MAP  
+
+arrows for increasing/decreasing  
+make size of arrows relate to the magnitude of increase or decrease  (also color)  
