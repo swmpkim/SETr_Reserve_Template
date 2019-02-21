@@ -13,9 +13,11 @@ to_map1 <- modelcoef2 %>%
     select(reserve, set_id, rate_mm.yr, se_mm.yr, p_value)
 
 ## MESS WITH THE DATASET TO MAKE SURE ALL DIRECTIONS APPEAR
-## REMOVE THIS BEFORE ACTUALLY RUNNING!!!!!!!!!
+## REMOVE THIS BEFORE USING ON REAL DATA!!!!!!!!!
 to_map1[to_map1$set_id %in% c("SPALT-1", "SPALT-2", "SPALT-3"), ]$rate_mm.yr <- -5
 to_map1[to_map1$set_id %in% c("JURO_Low-1", "JURO_Low-2", "JURO_Low-3"), ]$rate_mm.yr <- 0
+to_map1 <- to_map1 %>%
+    mutate(p_value = runif(1, 0, 0.1))
 
 coords <- mdat %>%
     select(reserve,
@@ -34,18 +36,25 @@ to_map <- left_join(to_map1, coords) %>%
            significance = case_when(p_value > 0.05 ~ "non-sig",
                                     p_value <= 0.05 & p_value > 0.01 ~ "p < 0.05",
                                     p_value <= 0.01 ~ "p < 0.01",
-                                    TRUE ~ "oops"))
+                                    TRUE ~ "oops"),
+           sig_size = case_when(significance == "non-sig" ~ 5,
+                                significance == "p < 0.05" ~ 10,
+                                significance == "p < 0.01" ~ 15,
+                                TRUE ~ 4))
 
 
-
-m <- leaflet(to_map) %>%
-    addCircleMarkers(radius = 8,
-                     color = ~dir_col) %>%
+m <- leaflet(to_map,
+             options = leafletOptions(minZoom = 0, maxZoom = 25)) %>%
+    addCircleMarkers(lng = ~long, 
+                     lat = ~lat,
+                     radius = ~sig_size,
+                     color = ~dir_col,
+                     fill = FALSE) %>%
     addScaleBar()
 
 # Esri World Gray Canvas tiles
 m %>%
-    addProviderTiles(leaflet::providers$Esri.WorldGrayCanvas)
+    addProviderTiles(leaflet::providers$Esri.WorldGrayCanvas) 
 
 
 # default tiles
