@@ -22,18 +22,15 @@ to_map1 <- to_map1 %>%
            p_value = case_when(set_id %in% c("JURO_Mid-1", "JURO_High-1") ~ 0.08,
                                TRUE ~ p_value))
     
-to_map1 <- to_map1 %>%
-    mutate(rate_mm.yr = case_when(set_id %in% c("SPALT-1", "SPALT-2", "SPALT-3") ~ -rate_mm.yr,
-                                  TRUE ~ rate_mm.yr),
-           p_value = case_when(set_id %in% c("JURO_Mid-1", "JURO_High-1") ~ 0.08,
-                               TRUE ~ p_value))
+
 
 # pull coordinates from the metadata
 coords <- mdat %>%
     select(reserve,
            set_id = unique_set_id,
            lat = latitude_dec_deg,
-           long = longitude_dec_deg)
+           long = longitude_dec_deg) %>%
+    mutate(set_id = as.character(set_id))
 
 # make cutoffs for the size classes (split dataset into 3)
 cut_low <- quantile(abs(to_map1$rate_mm.yr), probs = 0.33)
@@ -76,9 +73,13 @@ m <- leaflet(to_map,
     #                  color = ~dir_sig,
     #                  fill = FALSE) %>%
     addScaleBar() %>%
-    addMarkers(icon = icon_nonsig,
-               lng = ~long[nonsig_index],
-               lat = ~lat[nonsig_index]) %>%
+    # addMarkers(icon = icon_nonsig,
+    #            lng = ~long[nonsig_index],
+    #            lat = ~lat[nonsig_index]) %>%
+    addCircleMarkers(lng = ~long[nonsig_index],
+               lat = ~lat[nonsig_index],
+               radius = 8,
+               color = "gray40") %>%
     addMarkers(icon = icon_incr,
                lng = ~long[inc_index],
                lat = ~lat[inc_index]) %>%
