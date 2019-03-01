@@ -6,37 +6,7 @@
 library(leaflet)
 library(here)
 
-# read in icons to use on maps
-icon_incr_path <- here::here("img", "blue_up_arrow.png")
-icon_decr_path <- here::here("img", "red_down_arrow.png")
-icon_nonsig_path <- here::here("img", "gray_dash.png")
 
-icon_incr <- makeIcon(iconUrl = icon_incr_path, iconWidth = 30, iconHeight = 40)
-
-# funs from SWMPrExtension::res_sk_map
-###############################################################################
-if (exists("inc_icons")) {
-    ico_loc <- system.file("extdata", "arrow_inc.png", package = "SWMPrExtension")
-    icon_img <- makeIcon(iconUrl = ico_loc, iconWidth = 30, 
-                         iconHeight = 40, iconAnchorX = 15, iconAnchorY = 15)
-    m <- m %>% addMarkers(lng = ~Longitude[inc_icons] * 
-                              -1, lat = ~Latitude[inc_icons], icon = icon_img)
-}
-if (exists("dec_icons")) {
-    ico_loc <- system.file("extdata", "arrow_dec.png", package = "SWMPrExtension")
-    icon_img <- makeIcon(iconUrl = ico_loc, iconWidth = 30, 
-                         iconHeight = 40, iconAnchorX = 15, iconAnchorY = 15)
-    m <- m %>% addMarkers(lng = ~Longitude[dec_icons] * 
-                              -1, lat = ~Latitude[dec_icons], icon = icon_img)
-}
-if (exists("insig_icons")) {
-    ico_loc <- system.file("extdata", "bar_insig.png", package = "SWMPrExtension")
-    icon_img <- makeIcon(iconUrl = ico_loc, iconWidth = 30, 
-                         iconHeight = 15, iconAnchorX = 15, iconAnchorY = 7)
-    m <- m %>% addMarkers(lng = ~Longitude[insig_icons] * 
-                              -1, lat = ~Latitude[insig_icons], icon = icon_img)
-}
-################################################################################
 
 # pull together rates, p-values, and lat/long coords for mapping
 # include reserve and set_id as identifiers
@@ -71,24 +41,51 @@ cut_high <- quantile(abs(to_map1$rate_mm.yr), probs = 0.67)
 
 # join coordinates with the rate results, and categorize the rates
 to_map <- left_join(to_map1, coords) %>%
-    mutate(dir_sig = case_when(rate_mm.yr < 0 & p_value <= 0.05 ~ "red",
-                               rate_mm.yr > 0 & p_value <= 0.05 ~ "blue",
-                               TRUE ~ "gray80"),
+    mutate(dir_sig = case_when(rate_mm.yr < 0 & p_value <= 0.05 ~ "dec",
+                               rate_mm.yr > 0 & p_value <= 0.05 ~ "inc",
+                               TRUE ~ "nonsig"),
            circle_size = case_when(abs(rate_mm.yr) < cut_low ~ 5,
                                    abs(rate_mm.yr) > cut_high ~ 14,
                                    TRUE ~ 10))
+inc_index <- which(to_map$dir_sig == "inc")
+dec_index <- which(to_map$dir_sig == "dec")
+nonsig_index <- which(to_map$dir_sig == "nonsig")
 
+
+# read in images to use as map icons
+icon_incr_path <- here::here("img", "blue_up_arrow.png")
+icon_decr_path <- here::here("img", "red_down_arrow.png")
+icon_nonsig_path <- here::here("img", "gray_dash.png")
+
+
+# turn them into icons
+icon_incr <- makeIcon(iconUrl = icon_incr_path, 
+                      iconWidth = 30, iconHeight = 35)
+icon_decr <- makeIcon(iconUrl = icon_decr_path, 
+                      iconWidth = 30, iconHeight = 35)
+icon_nonsig <- makeIcon(iconUrl = icon_nonsig_path, 
+                        iconWidth = 25, iconHeight = 12)
 
 
 # make the map template
 m <- leaflet(to_map,
              options = leafletOptions(minZoom = 0, maxZoom = 25)) %>%
-    addCircleMarkers(lng = ~long, 
-                     lat = ~lat,
-                     radius = ~circle_size,
-                     color = ~dir_sig,
-                     fill = FALSE) %>%
-    addScaleBar()
+    # addCircleMarkers(lng = ~long, 
+    #                  lat = ~lat,
+    #                  radius = ~circle_size,
+    #                  color = ~dir_sig,
+    #                  fill = FALSE) %>%
+    addScaleBar() %>%
+    addMarkers(icon = icon_nonsig,
+               lng = ~long[nonsig_index],
+               lat = ~lat[nonsig_index]) %>%
+    addMarkers(icon = icon_incr,
+               lng = ~long[inc_index],
+               lat = ~lat[inc_index]) %>%
+    addMarkers(icon = icon_decr,
+               lng = ~long[dec_index],
+               lat = ~lat[dec_index])
+
 
 
 
@@ -120,24 +117,3 @@ m %>%
 
 m %>%
     addProviderTiles(leaflet::providers$OpenTopoMap)
-
-
-
-################# jitter the coords
-to_map_jittered <- to_map %>%
-    mutate(lat_jitter = jitter(lat, factor = 0.001),
-           long_jitter = jitter(long, factor = 0.001))
-
-mj <- leaflet(to_map_jittered,
-              options = leafletOptions(minZoom = 0, maxZoom = 25)) %>%
-    addCircleMarkers(lng = ~long_jitter, 
-                     lat = ~lat_jitter,
-                     radius = ~circle_size,
-                     color = ~dir_sig,
-                     fill = FALSE) %>%
-    addScaleBar()
-
-mj %>%
-    addProviderTiles(leaflet::providers$Esri.WorldGrayCanvas) 
-
-
