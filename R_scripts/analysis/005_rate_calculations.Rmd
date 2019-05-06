@@ -37,7 +37,6 @@ library(ggplot2)
 library(nlme)
 library(broom)
 library(here)
-library(officer)
 library(flextable)
 library(readxl)
 source(here::here('R_scripts', '000_functions.R'))
@@ -197,7 +196,7 @@ Bullet-point list, probably, to include:
 +  This rate is reported by `r slr_res$nearest_nwlon_station`, NWLON station number `r as.character(slr_res$nwlon_station_number)` based on data from *`r slr_res$data_start`* to *`r slr_res$data_end`*.
   
 
-## SET-level  
+## SET-level a  
 
 This should probably be a table (or series of tables) with info pulled out of metadata spreadsheet.
 
@@ -207,7 +206,7 @@ mdat %>%
     knitr::kable(align = "c", col.names = c("SET ID", "Type", "Lat", "Long", "Main Veg 1", "Main Veg 2", "Main Veg 3"))
 ```
 
-## Flextable  
+## SET-level characteristics  
 
 ```{r}
 mdat_short <- mdat %>%
