@@ -76,14 +76,12 @@ dat <- height_to_mm(dat)
 
 
 
-# if the date column is datetime, posixct, or posixlt, change it to Date
-if (sum(class(dat$date) %in% c("datetime", "POSIXct", "POSIXlt")) > 0)
-    dat$date <- as.Date(dat$date)
-    
 ###############################################################################
 
-# get rid of any placeholders; make sure set_id is a factor  
+# get rid of any placeholders; make sure set_id is a factor;
+# paste year, month, and day together into "date"
 dat <- dat %>%
+    mutate(date = lubridate::ymd(paste(year, month, day))) %>% 
     filter(!is.na(date),
            !is.na(pin_number)) %>%
     mutate(set_id = as.factor(set_id),

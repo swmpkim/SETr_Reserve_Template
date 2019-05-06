@@ -3,15 +3,15 @@
 # and name the column pin_height
 ########################################
 height_to_mm <- function(data){
-    if(exists('pin_height_cm', data)) {
+    if(exists('height_cm', data)) {
         data <- data %>%
-            mutate(pin_height = pin_height_cm * 10) %>%
-            select(-pin_height_cm)
+            mutate(pin_height = height_cm * 10) %>%
+            select(-height_cm)
     }
-    if(exists('pin_height_mm', data)){
+    if(exists('height_mm', data)){
         data <- data %>%
-            mutate(pin_height = pin_height_mm) %>%
-            select(-pin_height_mm)
+            mutate(pin_height = height_mm) %>%
+            select(-height_mm)
     }
     return(data)
 }
@@ -188,7 +188,7 @@ plot_cumu_arm <- function(columns = 4, pointsize = 2) {
 
 
 ## by set
-plot_cumu_set <- function(columns = 4, pointsize = 3.5){
+plot_cumu_set <- function(columns = 4, pointsize = 3.5, scales = "fixed"){
     ggplot(change_cumu_set, aes(x = date, y = mean_cumu)) +
         geom_line(col = 'lightsteelblue4') +
         geom_smooth(se = FALSE, method = 'lm', 
@@ -196,7 +196,7 @@ plot_cumu_set <- function(columns = 4, pointsize = 3.5){
         geom_point(shape = 21, 
                    fill = 'lightsteelblue1', col = 'steelblue3', 
                    size = pointsize, alpha = 0.9) +
-        facet_wrap(~set_id, ncol = columns, scales = 'free_y') +
+        facet_wrap(~set_id, ncol = columns, scales = scales) +
         labs(title = 'Cumulative Change since first reading', 
              subtitle = 'dashed line is linear regression',
              x = 'Date',
