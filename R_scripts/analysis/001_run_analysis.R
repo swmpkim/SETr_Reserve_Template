@@ -1,4 +1,6 @@
 # Use this script as a wrapper to run the analysis script, but put output where we want it
+# and choose its name
+
 library(here)
 library(rmarkdown)
 
@@ -8,5 +10,5 @@ library(rmarkdown)
 
 infile <- here::here("R_scripts", "analysis", "005_rate_calculations.Rmd")
 outdir <- here::here("R_output", "analysis")
-outfile <- paste0("SET_Analyses_", Sys.Date())
+outfile <- paste0("SET_Analyses_", Sys.Date(), ".docx")
 rmarkdown::render(infile, output_dir = outdir, output_file = outfile)

@@ -30,7 +30,6 @@ The following R packages are required to generate this report:
 ```{r load_libraries, echo = TRUE}
 library(knitr)
 library(readr)
-library(readxl)
 library(janitor)
 library(dplyr)
 library(tidyr)
@@ -38,6 +37,9 @@ library(ggplot2)
 library(nlme)
 library(broom)
 library(here)
+library(officer)
+library(flextable)
+library(readxl)
 source(here::here('R_scripts', '000_functions.R'))
 ```
 
@@ -204,6 +206,35 @@ mdat %>%
     select(unique_set_id, set_type, latitude_dec_deg, longitude_dec_deg, co_dominant_species1, co_dominant_species2, co_dominant_species3) %>%
     knitr::kable(align = "c", col.names = c("SET ID", "Type", "Lat", "Long", "Main Veg 1", "Main Veg 2", "Main Veg 3"))
 ```
+
+## Flextable  
+
+```{r}
+mdat_short <- mdat %>%
+    select(unique_set_id, set_type, latitude_dec_deg, 
+           longitude_dec_deg, co_dominant_species1) %>% 
+  setNames(c("SET_ID", "Type", "Lat", "Long", "Main_Veg")) 
+```
+
+```{r}
+mdat %>%
+    select(unique_set_id, set_type, latitude_dec_deg, 
+           longitude_dec_deg, co_dominant_species1) %>% 
+  setNames(c("SET_ID", "Type", "Lat", "Long", "Main_Veg")) %>% 
+  flextable() %>% 
+  theme_booktabs() %>% 
+  autofit()
+```
+
+```{r}
+
+ft <- flextable(data = mdat_short) %>%
+  theme_booktabs() %>%
+  autofit()
+
+ft
+```
+
 
 
 +  NAVD88 elevation (and year determined)  
