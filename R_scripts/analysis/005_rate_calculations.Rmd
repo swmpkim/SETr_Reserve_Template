@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 
 Everything in this report currently uses ALL reported data values. Quality flags were ignored, which may lead to differences in final numbers once we deal with QA/QC issues.  
 
-Also, be aware that linear models are not appropriate for calculating rates of change at all sites. Use discretion about these results.  
+Also, be aware that linear models are not appropriate for calculating rates of change at all sites. Use discretion when interpreting these results.  
 
 __Additional Note:__ We're moving away from the description below and using Linear Mixed Models to calculate SET rates of change. I'm keeping all the stuff below for now because of the formatting, graphics, etc.; need to change it over but want you all to see my ideas about presenting the information.  
 
