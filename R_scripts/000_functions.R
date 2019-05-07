@@ -2,6 +2,14 @@
 # turn any pin heights into mm
 # and name the column pin_height
 ########################################
+#' Pin Height to mm
+#'
+#' @param data 
+#'
+#' @return the original data frame, but if there was a "height_cm" or "height_mm" column, it is now named "pin_height". If original readings were in cm, they have been transformed into mm.
+#' @export
+#'
+#' @examples
 height_to_mm <- function(data){
     if(exists('height_cm', data)) {
         data <- data %>%
@@ -33,6 +41,7 @@ height_to_mm <- function(data){
 #' @export
 #'
 #' @examples
+#' 
 calc_change_cumu <- function(dat) {
     
     ## conditions: have correct columns in data frame
@@ -49,7 +58,7 @@ calc_change_cumu <- function(dat) {
     # by pin
     change_cumu_pin <- dat %>%
         group_by(set_id, arm_position, pin_number) %>%
-        mutate(cumu = pin_height - pin_height[1]) %>% ##### if there are nas in the first pin reading, maybe those pins should be excluded from further aggregation (at least this type of agg) - this will make those pins NA all the way through
+        mutate(cumu = pin_height - pin_height[1]) %>% 
         # mutate(cumu = pin_height - pin_height[min(which(!is.na(pin_height)))]) %>% ##### subtract off the first pin reading that's not NA
         select(-pin_height) %>%
         ungroup()
@@ -83,17 +92,38 @@ calc_change_cumu <- function(dat) {
 #### Incremental Change (change since last reading)
 ######################################################
 
+#' Title
+#'
+#' @param dat a data frame with one row per pin reading, and the following columns, named exactly: date, set_id, arm_position, pin_number, pin_height
+#'
+#' @return a list of three tibbles: one each for pin, arm, and set level calculations. Pin level change is calculated first, as the difference between a pin reading and the prior pin reading from that set_id--arm--pin. The column name in the $pin tibble is "incr". For every date of a pin reading, this calculated value will exist or be NA. On the first date, it is NA. Incremental pin changes are then averaged to the arm position level on each date, excluding NAs. St Deviation and St Error are also calculated. There is one calculated value for every arm on every reading date. These columns in the $arm tibble are "mean_incr", "sd_incr", and "se_incr". The cumulative arm changes are then averaged to the SET level, also with st dev and st err. There is one calculated value for every SET on every reading date. The columns in the $set tibble are again "mean_incr", "sd_incr", and "se_incr". Pin level calculations are the most helpful for qa/qc.
+#' @export
+#'
+#' @examples
 calc_change_incr <- function(dat){
+    
+    ## conditions: have correct columns in data frame
+    ## stop and give an informative message if this isn't met
+    req_clms <- c("set_id", "arm_position", "pin_number", "pin_height", "date")
+    
+    if(sum(req_clms %in% names(dat)) != length(req_clms)){
+        stop(paste("Your data frame must have the following columns, with these names, but is missing at least one:", paste(req_clms, collapse = ", ")))
+    }
+    
+    
+    ## calculations
+    
+    
     # by pin
-    change_incr_pin <<- dat %>%
-        arrange(reserve, set_id, arm_position, pin_number, date) %>%
-        group_by(reserve, set_id, arm_position, pin_number) %>%
+    change_incr_pin <- dat %>%
+        arrange(set_id, arm_position, pin_number, date) %>%
+        group_by(set_id, arm_position, pin_number) %>%
         mutate(incr = pin_height - lag(pin_height, 1)) %>%
         ungroup()
     
     # pins averaged up to arms
-    change_incr_arm <<- change_incr_pin %>%
-        group_by(reserve, set_id, arm_position, date) %>%
+    change_incr_arm <- change_incr_pin %>%
+        group_by(set_id, arm_position, date) %>%
         select(-pin_number) %>%
         summarize(mean_incr = mean(incr, na.rm = TRUE),
                   sd_incr = sd(incr, na.rm = TRUE),
@@ -101,13 +131,15 @@ calc_change_incr <- function(dat){
         ungroup()
     
     # arms averaged up to SETs
-    change_incr_set <<- change_incr_arm %>%
-        group_by(reserve, set_id, date) %>%
+    change_incr_set <- change_incr_arm %>%
+        group_by(set_id, date) %>%
         select(-arm_position, mean_value = mean_incr) %>%
         summarize(mean_incr = mean(mean_value, na.rm = TRUE),
                   sd_incr = sd(mean_value, na.rm = TRUE),
                   se_incr = sd(mean_value, na.rm = TRUE)/sqrt(length(!is.na(mean_value)))) %>%
         ungroup()
+    
+    return(list(pin = change_incr_pin, arm = change_incr_arm, set = change_incr_set))
 }
 
 
