@@ -47,9 +47,9 @@ if (sum(class(dat$date) %in% c("datetime", "POSIXct", "POSIXlt")) > 0)
 
 
 # cumulative change
-calc_change_cumu(dat)
+cumu_out <- calc_change_cumu(dat)
 # incremental change
-calc_change_incr(dat)
+incr_out <- calc_change_incr(dat)
 
 
 ### define UI
