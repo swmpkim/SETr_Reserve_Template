@@ -34,7 +34,8 @@ if (length(filelist) > 1) {
 
 # generate the full path to the file; read it in and get pin heights to mm
 filename <- paste0(path, "/", filelist)
-dat <- read_csv(filename)
+dat <- read_csv(filename) %>% 
+    mutate(date = lubridate::ymd(paste(year, month, day)))
 dat <- height_to_mm(dat)
 
 
@@ -158,13 +159,25 @@ server <- function(input, output) {
     
     
     # subset data, reactively
-    dat2 <- reactive({
+    dat_sub <- reactive({
         req(input$SET)
         req(input$date)
         dat %>%
             filter(set_id == input$SET,
                    date >= as.Date(input$date[1]),
                    date <= as.Date(input$date[2]))
+    })
+    
+    # subset incremental change list, reactively
+    incr_out_sub <- reactive({
+        req(input$date)
+        # write custom function to subset data frames
+        datesub <- function(x){
+            df <- x
+            df[df$date >= input$date[1] & df$date <= input$date[2], ]
+        }
+        # apply that function to each piece of the incr_out list
+        lapply(incr_out, datesub)
     })
 
     
@@ -175,7 +188,7 @@ server <- function(input, output) {
         req(input$date)
         
         # create the base plot
-        p <- ggplot(dat2()) +
+        p <- ggplot(dat_sub()) +
             geom_point(aes(x = date, y = pin_height, col = as.factor(arm_position))) +
             labs(title = paste("Raw pin measurements at", input$SET), x = "Date", y = "pin height (mm)") +
             theme_bw() +
@@ -208,7 +221,7 @@ server <- function(input, output) {
     output$plotly_raw_arm <- renderPlotly({
         req(input$SET)
         req(input$date)
-        q <- plot_raw_arm(dat2(), pointsize = input$ptsize_single)
+        q <- plot_raw_arm(dat_sub(), pointsize = input$ptsize_single)
         q
     }) 
     
@@ -216,7 +229,7 @@ server <- function(input, output) {
     output$plotly_raw_pin <- renderPlotly({
         req(input$SET)
         req(input$date)
-        z <- plot_raw_pin(dat2(), set = input$SET, pointsize = input$ptsize_multi)
+        z <- plot_raw_pin(dat_sub(), set = input$SET, pointsize = input$ptsize_multi)
         z
     })
     
@@ -225,7 +238,9 @@ server <- function(input, output) {
     output$plotly_incr_pin <- renderPlotly({
         req(input$SET)
         req(input$date)
-        a <- plot_incr_pin2(input$SET, pointsize = input$ptsize_multi)
+        a <- plot_incr_pin(data = incr_out_sub()$pin,
+                           set = input$SET, 
+                           pointsize = input$ptsize_multi)
         a
     })
     
@@ -233,7 +248,8 @@ server <- function(input, output) {
     # create plotly plot of cumulative change by SET
     output$plotly_cumu_set <- renderPlotly({
         req(input$SET)
-        b <- plot_cumu_set(columns = input$columns, 
+        b <- plot_cumu_set(data = cumu_out$set,
+                           columns = input$columns, 
                            pointsize = input$ptsize_multi)
         b
     })

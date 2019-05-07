@@ -166,17 +166,19 @@ hist_by_arm <- function(data, columns = 4){
 #### raw pin readings
 
 # by arm
-plot_raw_arm <- function(data, columns = 4, pointsize = 2){
+plot_raw_arm <- function(data, columns = 4, pointsize = 2, sdline = TRUE){
     data %>%
         group_by(set_id, arm_position, date) %>%
-        summarize(mean = mean(pin_height, na.rm = TRUE)) %>%
+        summarize(mean = mean(pin_height, na.rm = TRUE),
+                  sd = sd(pin_height, na.rm = TRUE)) %>%
         ggplot(aes(x = date, y = mean, col = as.factor(arm_position))) +
         geom_point(size = pointsize) +
         geom_line(alpha = 0.6) +
+        {if(sdline) geom_errorbar(aes(x = date, ymin = mean - sd, ymax = mean + sd, col = as.factor(arm_position)))} +
         facet_wrap(~set_id, ncol = columns, scales = 'free_y') +
-        labs(title = 'Pin Height (raw measurement)',
+        labs(title = 'Pin Height (raw measurement; averaged to arm level)',
              x = 'Date',
-             y = 'Average pin height (mm)') +
+             y = 'Mean pin height (mm)') +
         theme_bw() +
         scale_color_discrete(name = 'Arm Position') +
         theme(legend.position = 'bottom')
@@ -205,8 +207,9 @@ plot_raw_pin <- function(data, set, columns = 2, pointsize = 2){
 ##### cumulative change
 
 ## by arm
-plot_cumu_arm <- function(columns = 4, pointsize = 2) {
-    ggplot(change_cumu_arm, aes(x = date, y = mean_cumu, col = as.factor(arm_position))) +
+plot_cumu_arm <- function(data, columns = 4, pointsize = 2) {
+    # data needs to be the $arm piece of the output from calc_change_cumu
+    ggplot(data, aes(x = date, y = mean_cumu, col = as.factor(arm_position))) +
         geom_point(size = pointsize) +
         geom_line() +
         facet_wrap(~set_id, ncol = columns, scales = 'free_y') +
@@ -220,8 +223,9 @@ plot_cumu_arm <- function(columns = 4, pointsize = 2) {
 
 
 ## by set
-plot_cumu_set <- function(columns = 4, pointsize = 3.5, scales = "fixed"){
-    ggplot(change_cumu_set, aes(x = date, y = mean_cumu)) +
+plot_cumu_set <- function(data, columns = 4, pointsize = 3.5, scales = "fixed"){
+    # data needs to be the $set piece of the output from calc_change_cumu
+    ggplot(data, aes(x = date, y = mean_cumu)) +
         geom_line(col = 'lightsteelblue4') +
         geom_smooth(se = FALSE, method = 'lm', 
                     col = 'steelblue4', lty = 5, size = 1) +
@@ -238,9 +242,10 @@ plot_cumu_set <- function(columns = 4, pointsize = 3.5, scales = "fixed"){
 
 
 ###### incremental change
-plot_incr_arm <- function(columns = 4, set = NULL){
+plot_incr_arm <- function(data, columns = 4, set = NULL){
+    # data needs to be the $arm piece of the output from calc_change_inc
     if(is.null(set)){
-        ggplot(change_incr_arm, aes(x = date, y = mean_incr, col = as.factor(arm_position))) +
+        ggplot(data, aes(x = date, y = mean_incr, col = as.factor(arm_position))) +
             geom_point(size = 2) +
             geom_hline(yintercept = 25, col = "red", size = 1) +
             geom_hline(yintercept = -25, col = "red", size = 1) +
@@ -254,7 +259,7 @@ plot_incr_arm <- function(columns = 4, set = NULL){
             theme(legend.position = 'bottom')
     }
     else{
-        change_incr_arm %>%
+        data %>%
             filter(set_id == !!set) %>%
             ggplot(., aes(x = date, y = mean_incr, col = as.factor(arm_position))) +
             geom_point(size = 2) +
@@ -308,15 +313,15 @@ plot_incr_arm2 <- function(columns = 4, set = NULL){
 
 
 # by pin
-plot_incr_pin <- function(set, columns = 2){
-        change_incr_pin %>%
-            filter(set_id == !!set) %>%
-            ggplot(., aes(x = date, y = incr, col = as.factor(pin_number))) +
-            geom_point(size = 2) +
+plot_incr_pin <- function(data, set, columns = 2, pointsize = 2){
+    # data needs to be the $arm piece of the output from calc_change_inc
+        ggplot(data = filter(data, set_id == !!set), 
+               aes(x = date, y = incr, col = as.factor(pin_number))) +
+            geom_point(size = pointsize) +
             geom_hline(yintercept = 25, col = "red", size = 1) +
             geom_hline(yintercept = -25, col = "red", size = 1) +
             facet_wrap(~arm_position, ncol = columns, scales = 'free_y') +
-            labs(title = 'Incremental Change', 
+            labs(title = paste('Incremental Change at', set), 
                  subtitle = 'red lines at +/- 25 mm',
                  x = 'Date',
                  y = 'Change since previous reading (mm)') +
