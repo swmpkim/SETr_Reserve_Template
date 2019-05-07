@@ -32,18 +32,18 @@ if (length(filelist) > 1) {
     filelist <- filelist[1]
 }
 
-# generate the full path to the file; read it in and get pin heights to mm
+# generate the full path to the file; read it in, paste dates together, and get pin heights to mm
 filename <- paste0(path, "/", filelist)
 dat <- read_csv(filename) %>% 
     mutate(date = lubridate::ymd(paste(year, month, day)))
 dat <- height_to_mm(dat)
 
 
-
 # if the date column is datetime, posixct, or posixlt, change it to Date
 if (sum(class(dat$date) %in% c("datetime", "POSIXct", "POSIXlt")) > 0)
     dat$date <- as.Date(dat$date)
-    
+
+
 ###############################################################################
 
 
@@ -140,7 +140,9 @@ ui <- fluidPage(
                         ),
                         
                         tabPanel("Incremental Calcs",
-                                 plotlyOutput(outputId = "plotly_incr_pin")
+                                 plotlyOutput(outputId = "plotly_incr_pin"),
+                                 br(), br(),
+                                 plotlyOutput(outputId = "plotly_incr_arm")
                         ),
                         
                         tabPanel("Cumulative Calcs",
@@ -244,6 +246,16 @@ server <- function(input, output) {
         a
     })
     
+    
+    # create plotly plot of incremental change by arm
+    output$plotly_incr_arm <- renderPlotly({
+        req(input$SET)
+        req(input$date)
+        a <- plot_incr_arm(data = incr_out_sub()$arm,
+                           set = input$SET, 
+                           pointsize = input$ptsize_single)
+        a
+    })
     
     # create plotly plot of cumulative change by SET
     output$plotly_cumu_set <- renderPlotly({

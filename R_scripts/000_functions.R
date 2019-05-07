@@ -242,15 +242,15 @@ plot_cumu_set <- function(data, columns = 4, pointsize = 3.5, scales = "fixed"){
 
 
 ###### incremental change
-plot_incr_arm <- function(data, columns = 4, set = NULL){
+plot_incr_arm <- function(data, columns = 4, set = NULL, pointsize = 2){
     # data needs to be the $arm piece of the output from calc_change_inc
     if(is.null(set)){
         ggplot(data, aes(x = date, y = mean_incr, col = as.factor(arm_position))) +
-            geom_point(size = 2) +
+            geom_point(size = pointsize) +
             geom_hline(yintercept = 25, col = "red", size = 1) +
             geom_hline(yintercept = -25, col = "red", size = 1) +
             facet_wrap(~set_id, ncol = columns, scales = 'free_y') +
-            labs(title = 'Incremental Change', 
+            labs(title = 'Incremental Change by arm', 
                  subtitle = 'red lines at +/- 25 mm',
                  x = 'Date',
                  y = 'Change since previous reading (mm)') +
@@ -262,11 +262,11 @@ plot_incr_arm <- function(data, columns = 4, set = NULL){
         data %>%
             filter(set_id == !!set) %>%
             ggplot(., aes(x = date, y = mean_incr, col = as.factor(arm_position))) +
-            geom_point(size = 2) +
+            geom_point(size = pointsize) +
             geom_hline(yintercept = 25, col = "red", size = 1) +
             geom_hline(yintercept = -25, col = "red", size = 1) +
             facet_wrap(~set_id, ncol = columns, scales = 'free_y') +
-            labs(title = 'Incremental Change', 
+            labs(title = paste('Incremental Change by arm at', set), 
                  subtitle = 'red lines at +/- 25 mm',
                  x = 'Date',
                  y = 'Change since previous reading (mm)') +
@@ -321,7 +321,7 @@ plot_incr_pin <- function(data, set, columns = 2, pointsize = 2){
             geom_hline(yintercept = 25, col = "red", size = 1) +
             geom_hline(yintercept = -25, col = "red", size = 1) +
             facet_wrap(~arm_position, ncol = columns, scales = 'free_y') +
-            labs(title = paste('Incremental Change at', set), 
+            labs(title = paste('Incremental Change by pin at', set), 
                  subtitle = 'red lines at +/- 25 mm',
                  x = 'Date',
                  y = 'Change since previous reading (mm)') +
