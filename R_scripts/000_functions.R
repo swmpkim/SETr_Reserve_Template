@@ -156,9 +156,9 @@ hist_by_arm <- function(data, columns = 4){
         facet_wrap(~set_id, ncol = columns, scales = 'free_y') +
         labs(title = 'Histogram of raw pin heights by SET', 
              subtitle = 'colored by arm position; stacked',
-             x = 'Pin Height (mm)') +
+             x = 'Pin Height (mm)',
+             fill = 'Arm Position') +
         theme_bw() +
-        scale_fill_discrete(name = 'Arm Position') +
         theme(legend.position = 'bottom')
 }
 
@@ -178,9 +178,9 @@ plot_raw_arm <- function(data, columns = 4, pointsize = 2, sdline = TRUE){
         facet_wrap(~set_id, ncol = columns, scales = 'free_y') +
         labs(title = 'Pin Height (raw measurement; averaged to arm level)',
              x = 'Date',
-             y = 'Mean pin height (mm)') +
+             y = 'Mean pin height (mm)',
+             color = 'Arm Position') +
         theme_bw() +
-        scale_color_discrete(name = 'Arm Position') +
         theme(legend.position = 'bottom')
 }
 
@@ -197,9 +197,9 @@ plot_raw_pin <- function(data, set, columns = 2, pointsize = 2){
         labs(title = 'Pin Height (raw measurement)',
              subtitle = sym(set),
              x = 'Date',
-             y = 'Measured pin height (mm)') +
+             y = 'Measured pin height (mm)',
+             color = 'Pin') +
         theme_bw() +
-        scale_color_discrete(name = 'Pin') +
         theme(legend.position = 'bottom')
 }
 
@@ -215,9 +215,9 @@ plot_cumu_arm <- function(data, columns = 4, pointsize = 2) {
         facet_wrap(~set_id, ncol = columns, scales = 'free_y') +
         labs(title = 'Cumulative Change',
              x = 'Date',
-             y = 'Change since first reading (mm)') +
+             y = 'Change since first reading (mm)',
+             color = "Arm Position") +
         theme_bw() +
-        scale_color_discrete(name = 'Arm Position') +
         theme(legend.position = 'bottom')
 }
 
@@ -253,9 +253,9 @@ plot_incr_arm <- function(data, columns = 4, set = NULL, pointsize = 2){
             labs(title = 'Incremental Change by arm', 
                  subtitle = 'red lines at +/- 25 mm',
                  x = 'Date',
-                 y = 'Change since previous reading (mm)') +
+                 y = 'Change since previous reading (mm)',
+                 color = 'Arm Position') +
             theme_bw() +
-            scale_color_discrete(name = 'Arm Position') +
             theme(legend.position = 'bottom')
     }
     else{
@@ -269,9 +269,9 @@ plot_incr_arm <- function(data, columns = 4, set = NULL, pointsize = 2){
             labs(title = paste('Incremental Change by arm at', set), 
                  subtitle = 'red lines at +/- 25 mm',
                  x = 'Date',
-                 y = 'Change since previous reading (mm)') +
+                 y = 'Change since previous reading (mm)',
+                 color = 'Arm Position') +
             theme_bw() +
-            scale_color_discrete(name = 'Arm Position') +
             theme(legend.position = 'bottom')
     }
 }
@@ -288,9 +288,9 @@ plot_incr_arm2 <- function(columns = 4, set = NULL){
             labs(title = 'Incremental Change', 
                  subtitle = 'red lines at +/- 25 mm',
                  x = 'Date',
-                 y = 'Change since previous reading (mm)') +
+                 y = 'Change since previous reading (mm)',
+                 color = 'Arm Position') +
             theme_bw() +
-            scale_color_discrete(name = 'Arm Position') +
             theme(legend.position = 'bottom')
     }
     else{
@@ -304,9 +304,9 @@ plot_incr_arm2 <- function(columns = 4, set = NULL){
             labs(title = 'Incremental Change', 
                  subtitle = 'red lines at +/- 25 mm',
                  x = 'Date',
-                 y = 'Change since previous reading (mm)') +
+                 y = 'Change since previous reading (mm)',
+                 color = 'Arm Position') +
             theme_bw() +
-            scale_color_discrete(name = 'Arm Position') +
             theme(legend.position = 'bottom')
     }
 }
@@ -324,9 +324,9 @@ plot_incr_pin <- function(data, set, columns = 2, pointsize = 2){
             labs(title = paste('Incremental Change by pin at', set), 
                  subtitle = 'red lines at +/- 25 mm',
                  x = 'Date',
-                 y = 'Change since previous reading (mm)') +
+                 y = 'Change since previous reading (mm)',
+                 color = 'Pin') +
             theme_bw() +
-            scale_color_discrete(name = 'Pin') +
             theme(legend.position = 'bottom')
 }
 
@@ -343,9 +343,9 @@ plot_incr_pin2 <- function(set, columns = 2, pointsize = 2){
         labs(title = paste0('Incremental Change at ', set),
              subtitle = 'red lines at +/- 25 mm',
              x = 'Date',
-             y = 'Change since previous reading (mm)') +
+             y = 'Change since previous reading (mm)',
+             color = 'Pin') +
         theme_bw() +
-        scale_color_discrete(name = 'Pin') +
         theme(legend.position = 'bottom')
 }
 

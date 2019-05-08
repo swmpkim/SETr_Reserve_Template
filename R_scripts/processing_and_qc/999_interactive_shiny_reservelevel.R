@@ -44,6 +44,12 @@ if (sum(class(dat$date) %in% c("datetime", "POSIXct", "POSIXlt")) > 0)
     dat$date <- as.Date(dat$date)
 
 
+# change the default color scheme:
+scale_colour_discrete <- function(...) scale_color_brewer(palette = "Paired")
+shiny_palette <- c("#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", 
+                   "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00", "#cab2d6")
+
+
 ###############################################################################
 
 
@@ -192,9 +198,11 @@ server <- function(input, output) {
         # create the base plot
         p <- ggplot(dat_sub()) +
             geom_point(aes(x = date, y = pin_height, col = as.factor(arm_position))) +
-            labs(title = paste("Raw pin measurements at", input$SET), x = "Date", y = "pin height (mm)") +
+            labs(title = paste("Raw pin measurements at", input$SET), 
+                 x = "Date", 
+                 y = "pin height (mm)",
+                 color = "Arm Position") +
             theme_bw() +
-            scale_color_discrete(name = 'Arm Position') +
             theme(legend.position = 'bottom')
         
         
@@ -224,7 +232,7 @@ server <- function(input, output) {
         req(input$SET)
         req(input$date)
         q <- plot_raw_arm(dat_sub(), pointsize = input$ptsize_single)
-        q
+        q 
     }) 
     
     # create plotly plot of raw readings by pin
