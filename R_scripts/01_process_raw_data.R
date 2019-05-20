@@ -80,7 +80,7 @@ dat_long <- dat_long %>%
 
 # generate output and write out file
 file_in <- str_extract(file_path, "[a-z]+\\.xls")
-file_out <- paste0(substr(file_in, 1, nchar(file_in)-4), "_QC.csv")
+file_out <- paste0(substr(file_in, 1, nchar(file_in)-4), "_processed.csv")
 out_path <- here::here("data", "processed")
 file_out <- paste0(out_path, "/", file_out)
 write.csv(dat_long, file_out, row.names = FALSE)
