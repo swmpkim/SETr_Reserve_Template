@@ -22,13 +22,13 @@ source(here::here('R_scripts', '000_functions.R'))
 path <- here::here('data', 'processed')
 
 # in that folder, find the name of the file(s) that ends with 'set_QC.csv'
-filelist <- grep('set_QC.csv$', dir(path), value = TRUE)
+filelist <- grep('set_processed.csv$', dir(path), value = TRUE)
 
 # generate warnings if the folder is empty; if there are multiple matching files, select the first one
-if (length(filelist) == 0) stop("There are no files of the correct name/format (---set_QC.csv) in your processed data folder.")
+if (length(filelist) == 0) stop("There are no files of the correct name/format (---set_processed.csv) in your processed data folder.")
 
 if (length(filelist) > 1) {
-    warning("There is more than one file of the correct format (---set_QC.csv) in your data folder. The first file alphabetically will be used.")
+    warning("There is more than one file of the correct format (---set_processed.csv) in your data folder. The first file alphabetically will be used.")
     filelist <- filelist[1]
 }
 
@@ -43,11 +43,6 @@ dat <- height_to_mm(dat)
 if (sum(class(dat$date) %in% c("datetime", "POSIXct", "POSIXlt")) > 0)
     dat$date <- as.Date(dat$date)
 
-
-# change the default color scheme:
-scale_colour_discrete <- function(...) scale_color_brewer(palette = "Paired")
-shiny_palette <- c("#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", 
-                   "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00", "#cab2d6")
 
 
 ###############################################################################
@@ -94,6 +89,20 @@ ui <- fluidPage(
                         max = 4,
                         value = 1,
                         step = 0.5),
+            
+            # set threshold for incremental change plots
+            sliderInput(inputId = "incr_threshold", label = "threshold for incremental change",
+                        min = 10,
+                        max = 50,
+                        value = 25,
+                        step = 5),
+            
+            # select scales for faceting
+            selectInput(inputId = "scales_multi", 
+                        label = strong("fixed or flexible scales? \nmulti-panel plots"),
+                        choices = c("fixed", "free", "free_y", "free_x"),
+                        selected = "fixed"
+            ),
             
             # select whether to overlay a trend line
             checkboxInput(inputId = "lmsmooth", 
@@ -231,7 +240,9 @@ server <- function(input, output) {
     output$plotly_raw_arm <- renderPlotly({
         req(input$SET)
         req(input$date)
-        q <- plot_raw_arm(dat_sub(), pointsize = input$ptsize_single)
+        q <- plot_raw_arm(dat_sub(), 
+                          pointsize = input$ptsize_single,
+                          scales = input$scales_multi)
         q 
     }) 
     
@@ -239,7 +250,9 @@ server <- function(input, output) {
     output$plotly_raw_pin <- renderPlotly({
         req(input$SET)
         req(input$date)
-        z <- plot_raw_pin(dat_sub(), set = input$SET, pointsize = input$ptsize_multi)
+        z <- plot_raw_pin(dat_sub(), set = input$SET, 
+                          pointsize = input$ptsize_multi,
+                          scales = input$scales_multi)
         z
     })
     
@@ -248,9 +261,12 @@ server <- function(input, output) {
     output$plotly_incr_pin <- renderPlotly({
         req(input$SET)
         req(input$date)
+        req(input$incr_threshold)
         a <- plot_incr_pin(data = incr_out_sub()$pin,
-                           set = input$SET, 
-                           pointsize = input$ptsize_multi)
+                           set = input$SET,
+                           threshold = input$incr_threshold,
+                           pointsize = input$ptsize_multi,
+                           scales = input$scales_multi)
         a
     })
     
@@ -259,8 +275,10 @@ server <- function(input, output) {
     output$plotly_incr_arm <- renderPlotly({
         req(input$SET)
         req(input$date)
+        req(input$incr_threshold)
         a <- plot_incr_arm(data = incr_out_sub()$arm,
-                           set = input$SET, 
+                           set = input$SET,
+                           threshold = input$incr_threshold,
                            pointsize = input$ptsize_single)
         a
     })
@@ -270,7 +288,8 @@ server <- function(input, output) {
         req(input$SET)
         b <- plot_cumu_set(data = cumu_out$set,
                            columns = input$columns, 
-                           pointsize = input$ptsize_multi)
+                           pointsize = input$ptsize_multi,
+                           scales = input$scales_multi)
         b
     })
     

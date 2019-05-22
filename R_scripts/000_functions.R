@@ -186,14 +186,14 @@ plot_raw_arm <- function(data, columns = 4, pointsize = 2, sdline = TRUE, scales
 
 
 # individual pins; choose a SET (put in quotes in function call)
-plot_raw_pin <- function(data, set, columns = 2, pointsize = 2){
+plot_raw_pin <- function(data, set, columns = 2, pointsize = 2, scales = "fixed"){
     data %>%
         filter(set_id == !!set) %>%
         group_by(set_id, arm_position, pin_number, date) %>%
         ggplot(aes(x = date, y = pin_height, col = as.factor(pin_number))) +
         geom_point(size = pointsize) +
         geom_line(alpha = 0.6) +
-        facet_wrap(~arm_position, ncol = columns) +
+        facet_wrap(~arm_position, ncol = columns, scales = scales) +
         labs(title = 'Pin Height (raw measurement)',
              subtitle = sym(set),
              x = 'Date',
