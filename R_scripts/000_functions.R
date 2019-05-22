@@ -242,7 +242,8 @@ plot_cumu_set <- function(data, columns = 4, pointsize = 3.5, scales = "fixed"){
 
 
 ###### incremental change
-plot_incr_arm <- function(data, threshold = 25, columns = 4, set = NULL, pointsize = 2, scales = "fixed"){
+plot_incr_arm <- function(data, threshold = 25, columns = 4, set = NULL, 
+                          pointsize = 2, scales = "fixed"){
     # data needs to be the $arm piece of the output from calc_change_inc
     if(is.null(set)){
         to_plot <- data
@@ -274,9 +275,10 @@ plot_incr_arm <- function(data, threshold = 25, columns = 4, set = NULL, pointsi
 
 # by pin
 plot_incr_pin <- function(data, set, threshold = 25, columns = 2, pointsize = 2, scales = "fixed"){
-    # data needs to be the $arm piece of the output from calc_change_inc
+    # data needs to be the $pin piece of the output from calc_change_inc
         ggplot(data = filter(data, set_id == !!set), 
-               aes(x = date, y = incr, col = as.factor(pin_number))) +
+               aes(x = date, y = incr, 
+                   col = as.factor(pin_number))) +
             geom_point(size = pointsize) +
             geom_hline(yintercept = threshold, col = "red", size = 1) +
             geom_hline(yintercept = -1*threshold, col = "red", size = 1) +
