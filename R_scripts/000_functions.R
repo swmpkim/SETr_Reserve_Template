@@ -150,10 +150,10 @@ calc_change_incr <- function(dat){
 # maybe figure out how to make free y scales an option in the function call
 
 ## histogram, colored by arm
-hist_by_arm <- function(data, columns = 4){
+hist_by_arm <- function(data, columns = 4, scales = "free_y"){
     ggplot(data) +
         geom_histogram(aes(pin_height, fill = as.factor(arm_position)), color = 'black') +
-        facet_wrap(~set_id, ncol = columns, scales = 'free_y') +
+        facet_wrap(~set_id, ncol = columns, scales = scales) +
         labs(title = 'Histogram of raw pin heights by SET', 
              subtitle = 'colored by arm position; stacked',
              x = 'Pin Height (mm)',
@@ -166,7 +166,7 @@ hist_by_arm <- function(data, columns = 4){
 #### raw pin readings
 
 # by arm
-plot_raw_arm <- function(data, columns = 4, pointsize = 2, sdline = TRUE){
+plot_raw_arm <- function(data, columns = 4, pointsize = 2, sdline = TRUE, scales = "free_y"){
     data %>%
         group_by(set_id, arm_position, date) %>%
         summarize(mean = mean(pin_height, na.rm = TRUE),
@@ -175,7 +175,7 @@ plot_raw_arm <- function(data, columns = 4, pointsize = 2, sdline = TRUE){
         geom_point(size = pointsize) +
         geom_line(alpha = 0.6) +
         {if(sdline) geom_errorbar(aes(x = date, ymin = mean - sd, ymax = mean + sd, col = as.factor(arm_position)))} +
-        facet_wrap(~set_id, ncol = columns, scales = 'free_y') +
+        facet_wrap(~set_id, ncol = columns, scales = scales) +
         labs(title = 'Pin Height (raw measurement; averaged to arm level)',
              x = 'Date',
              y = 'Mean pin height (mm)',
@@ -207,12 +207,12 @@ plot_raw_pin <- function(data, set, columns = 2, pointsize = 2){
 ##### cumulative change
 
 ## by arm
-plot_cumu_arm <- function(data, columns = 4, pointsize = 2) {
+plot_cumu_arm <- function(data, columns = 4, pointsize = 2, scales = "fixed") {
     # data needs to be the $arm piece of the output from calc_change_cumu
     ggplot(data, aes(x = date, y = mean_cumu, col = as.factor(arm_position))) +
         geom_point(size = pointsize) +
         geom_line() +
-        facet_wrap(~set_id, ncol = columns, scales = 'free_y') +
+        facet_wrap(~set_id, ncol = columns, scales = scales) +
         labs(title = 'Cumulative Change',
              x = 'Date',
              y = 'Change since first reading (mm)',
@@ -242,14 +242,14 @@ plot_cumu_set <- function(data, columns = 4, pointsize = 3.5, scales = "fixed"){
 
 
 ###### incremental change
-plot_incr_arm <- function(data, columns = 4, set = NULL, pointsize = 2){
+plot_incr_arm <- function(data, threshold = 25, columns = 4, set = NULL, pointsize = 2, scales = "fixed"){
     # data needs to be the $arm piece of the output from calc_change_inc
     if(is.null(set)){
         ggplot(data, aes(x = date, y = mean_incr, col = as.factor(arm_position))) +
             geom_point(size = pointsize) +
-            geom_hline(yintercept = 25, col = "red", size = 1) +
-            geom_hline(yintercept = -25, col = "red", size = 1) +
-            facet_wrap(~set_id, ncol = columns, scales = 'free_y') +
+            geom_hline(yintercept = threshold, col = "red", size = 1) +
+            geom_hline(yintercept = -1*threshold, col = "red", size = 1) +
+            facet_wrap(~set_id, ncol = columns, scales = scales) +
             labs(title = 'Incremental Change by arm', 
                  subtitle = 'red lines at +/- 25 mm',
                  x = 'Date',
@@ -263,9 +263,9 @@ plot_incr_arm <- function(data, columns = 4, set = NULL, pointsize = 2){
             filter(set_id == !!set) %>%
             ggplot(., aes(x = date, y = mean_incr, col = as.factor(arm_position))) +
             geom_point(size = pointsize) +
-            geom_hline(yintercept = 25, col = "red", size = 1) +
-            geom_hline(yintercept = -25, col = "red", size = 1) +
-            facet_wrap(~set_id, ncol = columns, scales = 'free_y') +
+            geom_hline(yintercept = threshold, col = "red", size = 1) +
+            geom_hline(yintercept = -1*threshold, col = "red", size = 1) +
+            facet_wrap(~set_id, ncol = columns, scales = scales) +
             labs(title = paste('Incremental Change by arm at', set), 
                  subtitle = 'red lines at +/- 25 mm',
                  x = 'Date',
@@ -277,50 +277,16 @@ plot_incr_arm <- function(data, columns = 4, set = NULL, pointsize = 2){
 }
 
 
-# same thing, without free y scales
-plot_incr_arm2 <- function(columns = 4, set = NULL){
-    if(is.null(set)){
-        ggplot(change_incr_arm, aes(x = date, y = mean_incr, col = as.factor(arm_position))) +
-            geom_point(size = 2) +
-            geom_hline(yintercept = 25, col = "red", size = 1) +
-            geom_hline(yintercept = -25, col = "red", size = 1) +
-            facet_wrap(~set_id, ncol = columns) +
-            labs(title = 'Incremental Change', 
-                 subtitle = 'red lines at +/- 25 mm',
-                 x = 'Date',
-                 y = 'Change since previous reading (mm)',
-                 color = 'Arm Position') +
-            theme_bw() +
-            theme(legend.position = 'bottom')
-    }
-    else{
-        change_incr_arm %>%
-            filter(set_id == !!set) %>%
-            ggplot(., aes(x = date, y = mean_incr, col = as.factor(arm_position))) +
-            geom_point(size = 2) +
-            geom_hline(yintercept = 25, col = "red", size = 1) +
-            geom_hline(yintercept = -25, col = "red", size = 1) +
-            facet_wrap(~set_id, ncol = columns) +
-            labs(title = 'Incremental Change', 
-                 subtitle = 'red lines at +/- 25 mm',
-                 x = 'Date',
-                 y = 'Change since previous reading (mm)',
-                 color = 'Arm Position') +
-            theme_bw() +
-            theme(legend.position = 'bottom')
-    }
-}
-
 
 # by pin
-plot_incr_pin <- function(data, set, columns = 2, pointsize = 2){
+plot_incr_pin <- function(data, set, threshold = 25, columns = 2, pointsize = 2, scales = "fixed"){
     # data needs to be the $arm piece of the output from calc_change_inc
         ggplot(data = filter(data, set_id == !!set), 
                aes(x = date, y = incr, col = as.factor(pin_number))) +
             geom_point(size = pointsize) +
-            geom_hline(yintercept = 25, col = "red", size = 1) +
-            geom_hline(yintercept = -25, col = "red", size = 1) +
-            facet_wrap(~arm_position, ncol = columns, scales = 'free_y') +
+            geom_hline(yintercept = threshold, col = "red", size = 1) +
+            geom_hline(yintercept = -1*threshold, col = "red", size = 1) +
+            facet_wrap(~arm_position, ncol = columns, scales = scales) +
             labs(title = paste('Incremental Change by pin at', set), 
                  subtitle = 'red lines at +/- 25 mm',
                  x = 'Date',
@@ -329,23 +295,3 @@ plot_incr_pin <- function(data, set, columns = 2, pointsize = 2){
             theme_bw() +
             theme(legend.position = 'bottom')
 }
-
-
-# same thing, without free y scales
-plot_incr_pin2 <- function(set, columns = 2, pointsize = 2){
-    change_incr_pin %>%
-        filter(set_id == !!set) %>%
-        ggplot(., aes(x = date, y = incr, col = as.factor(pin_number))) +
-        geom_point(size = pointsize) +
-        geom_hline(yintercept = 25, col = "red", size = 1) +
-        geom_hline(yintercept = -25, col = "red", size = 1) +
-        facet_wrap(~arm_position, ncol = columns) +
-        labs(title = paste0('Incremental Change at ', set),
-             subtitle = 'red lines at +/- 25 mm',
-             x = 'Date',
-             y = 'Change since previous reading (mm)',
-             color = 'Pin') +
-        theme_bw() +
-        theme(legend.position = 'bottom')
-}
-

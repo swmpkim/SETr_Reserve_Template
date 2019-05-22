@@ -367,6 +367,8 @@ lmm_out %>%
 
 ## Graphical Comparison to Sea Level Rise  
 
+# TO-DO: PUT THESE IN ORDER ACCORDING TO SPECIFICATIONS IN METADATA
+
 ```{r plot_slr_ci_lmm, fig.width = 7, fig.height = 6}
 ggplot() +
     geom_blank(data = lmm_out, aes(x = set_id, y = rate)) +
