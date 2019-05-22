@@ -10,6 +10,7 @@ library(ggplot2)
 library(here)
 library(shiny)
 library(plotly)
+library(DT)
 source(here::here('R_scripts', '000_functions.R'))
 
 
@@ -93,7 +94,7 @@ ui <- fluidPage(
             # set threshold for incremental change plots
             sliderInput(inputId = "incr_threshold", label = "threshold for incremental change",
                         min = 10,
-                        max = 50,
+                        max = 100,
                         value = 25,
                         step = 5),
             
@@ -157,6 +158,11 @@ ui <- fluidPage(
                         tabPanel("Incremental Calcs",
                                  plotlyOutput(outputId = "plotly_incr_pin"),
                                  br(), br(),
+                                 # HTML(paste0("The following observations are above the selected threshold.")),
+                                 textOutput(outputId = "count_incr_pin"),
+                                 br(), 
+                                 tableOutput(outputId = "tbl_incr_pin"),
+                                 br(), br(),
                                  plotlyOutput(outputId = "plotly_incr_arm")
                         ),
                         
@@ -196,6 +202,21 @@ server <- function(input, output) {
         # apply that function to each piece of the incr_out list
         lapply(incr_out, datesub)
     })
+    
+    # 
+    # incr_out_sub_exceed <- reactive({
+    #     req(input$date)
+    #     req(input$SET)
+    #     req(input$threshold)
+    #     pins <- incr_out$pin %>% 
+    #         filter()
+    # })
+    
+    # filter the incremental subset based on the user selected threshold
+    # incr_out_sub2 <- reactive({
+    #     incr_out_sub()$pin %>% 
+    #         dplyr::filter(abs(incr) >= input$threshold)
+    # })
 
     
     # create plotly object
@@ -269,6 +290,23 @@ server <- function(input, output) {
                            scales = input$scales_multi)
         a
     })
+    
+    # count how many pins are outside the selected threshold
+    output$count_incr_pin <- renderText({
+        exceed <- incr_out_sub()$pin %>% 
+            filter(abs(incr) >= input$incr_threshold,
+                   set_id == input$SET)
+        paste0("There are ", nrow(exceed), " observations at this SET outside the selected threshold: ")
+    })
+    
+    # make a table of pins outside the selected threshold
+    output$tbl_incr_pin <- renderTable({
+        incr_out_sub()$pin %>% 
+            filter(abs(incr) >= input$incr_threshold,
+                   set_id == input$SET)},
+        striped = TRUE, spacing = "l", width = "90%",
+        caption = "Pin readings outside the selected threshold."
+    )
     
     
     # create plotly plot of incremental change by arm
