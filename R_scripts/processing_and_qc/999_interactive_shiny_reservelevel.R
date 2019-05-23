@@ -66,33 +66,38 @@ ui <- fluidPage(
             br(), br(),
             
             # select a SET to plot
-            selectInput(inputId = "SET", label = strong("SET ID"),
+            selectInput(inputId = "SET", 
+                        label = strong("SET ID"),
                         choices = unique(dat$set_id),
                         selected = unique(dat$set_id)[1]
             ),
             
             # select date range to plot
-            dateRangeInput("date", strong("Date range"), 
+            dateRangeInput("date", 
+                           label = strong("Date range"), 
                            start = min(dat$date, na.rm = TRUE), 
                            end = max(dat$date, na.rm = TRUE)
             ),
 
             # select size of points for single-panel plots
-            sliderInput(inputId = "ptsize_single", label = "point size, single plots",
+            sliderInput(inputId = "ptsize_single", 
+                        label = "point size, single plots",
                         min = 0.5,
                         max = 4,
                         value = 2,
                         step = 0.5),
             
             # select size of points for multi-panel plots
-            sliderInput(inputId = "ptsize_multi", label = "point size, multi-panel plots",
+            sliderInput(inputId = "ptsize_multi", 
+                        label = "point size, multi-panel plots",
                         min = 0.5,
                         max = 4,
                         value = 1,
                         step = 0.5),
             
             # set threshold for incremental change plots
-            sliderInput(inputId = "incr_threshold", label = "threshold for incremental change",
+            sliderInput(inputId = "incr_threshold", 
+                        label = "threshold for incremental change",
                         min = 10,
                         max = 100,
                         value = 25,
@@ -161,7 +166,7 @@ ui <- fluidPage(
                                  # HTML(paste0("The following observations are above the selected threshold.")),
                                  textOutput(outputId = "count_incr_pin"),
                                  br(), 
-                                 tableOutput(outputId = "tbl_incr_pin"),
+                                 DT::dataTableOutput(outputId = "tbl_incr_pin"),
                                  br(), br(),
                                  plotlyOutput(outputId = "plotly_incr_arm")
                         ),
@@ -203,22 +208,7 @@ server <- function(input, output) {
         lapply(incr_out, datesub)
     })
     
-    # 
-    # incr_out_sub_exceed <- reactive({
-    #     req(input$date)
-    #     req(input$SET)
-    #     req(input$threshold)
-    #     pins <- incr_out$pin %>% 
-    #         filter()
-    # })
-    
-    # filter the incremental subset based on the user selected threshold
-    # incr_out_sub2 <- reactive({
-    #     incr_out_sub()$pin %>% 
-    #         dplyr::filter(abs(incr) >= input$threshold)
-    # })
-
-    
+   
     # create plotly object
     output$plotlyscatter <- renderPlotly({
         
@@ -288,7 +278,7 @@ server <- function(input, output) {
                            threshold = input$incr_threshold,
                            pointsize = input$ptsize_multi,
                            scales = input$scales_multi)
-        a
+        ggplotly(a)
     })
     
     # count how many pins are outside the selected threshold
@@ -296,17 +286,28 @@ server <- function(input, output) {
         exceed <- incr_out_sub()$pin %>% 
             filter(abs(incr) >= input$incr_threshold,
                    set_id == input$SET)
-        paste0("There are ", nrow(exceed), " observations at this SET outside the selected threshold: ")
+        paste0(nrow(exceed), " observations at this SET, in this time period, have incremental changes outside the selected threshold. They are grouped by arm and pin below: ")
     })
     
     # make a table of pins outside the selected threshold
-    output$tbl_incr_pin <- renderTable({
-        incr_out_sub()$pin %>% 
+    output$tbl_incr_pin <- DT::renderDataTable({
+        tabdat <- incr_out_sub()$pin %>% 
             filter(abs(incr) >= input$incr_threshold,
-                   set_id == input$SET)},
-        striped = TRUE, spacing = "l", width = "90%",
-        caption = "Pin readings outside the selected threshold."
-    )
+                   set_id == input$SET) %>% 
+            arrange(arm_position, pin_number, date) %>% 
+            select(incr, year, month, day, 
+                   arm_position, pin_number, 
+                   qaqc_code, arm_qaqc_code, everything())
+        DT::datatable(data = tabdat, 
+                      rownames = FALSE,
+                      options = list(pageLength = 10,
+                                     autoWidth = TRUE,
+                                     columnDefs = list(list(
+                                         className = 'dt-center', 
+                                         targets = "_all"))
+                                     )
+                      )
+    })
     
     
     # create plotly plot of incremental change by arm
