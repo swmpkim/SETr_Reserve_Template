@@ -95,14 +95,6 @@ ui <- fluidPage(
                         value = 1,
                         step = 0.5),
             
-            # set threshold for incremental change plots
-            sliderInput(inputId = "incr_threshold", 
-                        label = "threshold for incremental change",
-                        min = 10,
-                        max = 100,
-                        value = 25,
-                        step = 5),
-            
             # select scales for faceting
             selectInput(inputId = "scales_multi", 
                         label = strong("fixed or flexible scales? \nmulti-panel plots"),
@@ -132,15 +124,6 @@ ui <- fluidPage(
                         max = 1.5,
                         value = 0.5,
                         step = 0.1)
-            ),
-            
-            
-            # select the number of columns to show
-            # in the cumulative change graph
-            selectInput(inputId = "columns", 
-                        label = strong("# columns in cumulative change graph"),
-                        choices = c(1, 2, 3, 4, 5),
-                        selected = 4
             )
             
             
@@ -161,9 +144,17 @@ ui <- fluidPage(
                         ),
                         
                         tabPanel("Incremental Calcs",
+                                 br(),
+                                 # set threshold for incremental change plots
+                                 sliderInput(inputId = "incr_threshold", 
+                                             label = "Choose threshold of interest (mm)",
+                                             min = 10,
+                                             max = 100,
+                                             value = 25,
+                                             step = 5),
+                                 br(),
                                  plotlyOutput(outputId = "plotly_incr_pin"),
                                  br(), br(),
-                                 # HTML(paste0("The following observations are above the selected threshold.")),
                                  textOutput(outputId = "count_incr_pin"),
                                  br(), 
                                  DT::dataTableOutput(outputId = "tbl_incr_pin"),
@@ -172,7 +163,21 @@ ui <- fluidPage(
                         ),
                         
                         tabPanel("Cumulative Calcs",
-                                 plotlyOutput(outputId = "plotly_cumu_set")
+                                 br(),
+                                 # select the number of columns to show
+                                 # in the cumulative change graph
+                                 selectInput(inputId = "columns", 
+                                             label = strong("Choose # columns for graph below"),
+                                             choices = c(1, 2, 3, 4, 5),
+                                             selected = 4
+                                 ),
+                                 # choose whether to overlay regression or not
+                                 checkboxInput(inputId = "cumu_smooth", 
+                                               label = strong("Overlay Linear Regression"),
+                                               value = FALSE
+                                 ),
+                                 plotlyOutput(outputId = "plotly_cumu_set",
+                                              height = 500)
                         )
             )
         )
@@ -263,7 +268,8 @@ server <- function(input, output) {
         req(input$date)
         z <- plot_raw_pin(dat_sub(), set = input$SET, 
                           pointsize = input$ptsize_multi,
-                          scales = input$scales_multi)
+                          scales = input$scales_multi) +
+            ylab("")
         z
     })
     
@@ -278,7 +284,8 @@ server <- function(input, output) {
                            threshold = input$incr_threshold,
                            pointsize = input$ptsize_multi,
                            scales = input$scales_multi)
-        ggplotly(a)
+            
+        a
     })
     
     # count how many pins are outside the selected threshold
@@ -328,7 +335,10 @@ server <- function(input, output) {
         b <- plot_cumu_set(data = cumu_out$set,
                            columns = input$columns, 
                            pointsize = input$ptsize_multi,
-                           scales = input$scales_multi)
+                           scales = input$scales_multi,
+                           smooth = input$cumu_smooth,
+                           lty_smooth = 1) 
+            
         b
     })
     

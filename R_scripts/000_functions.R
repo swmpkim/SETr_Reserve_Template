@@ -223,12 +223,12 @@ plot_cumu_arm <- function(data, columns = 4, pointsize = 2, scales = "fixed") {
 
 
 ## by set
-plot_cumu_set <- function(data, columns = 4, pointsize = 3.5, scales = "fixed"){
+plot_cumu_set <- function(data, columns = 4, pointsize = 3.5, scales = "fixed", smooth = TRUE, lty_smooth = 5){
     # data needs to be the $set piece of the output from calc_change_cumu
     ggplot(data, aes(x = date, y = mean_cumu)) +
         geom_line(col = 'lightsteelblue4') +
-        geom_smooth(se = FALSE, method = 'lm', 
-                    col = 'steelblue4', lty = 5, size = 1) +
+        {if(smooth) geom_smooth(se = FALSE, method = 'lm', 
+                    col = 'steelblue4', lty = lty_smooth, size = 1)} +
         geom_point(shape = 21, 
                    fill = 'lightsteelblue1', col = 'steelblue3', 
                    size = pointsize, alpha = 0.9) +
