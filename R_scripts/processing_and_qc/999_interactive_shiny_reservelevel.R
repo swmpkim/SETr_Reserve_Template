@@ -100,32 +100,7 @@ ui <- fluidPage(
                         label = strong("fixed or flexible scales? \nmulti-panel plots"),
                         choices = c("fixed", "free", "free_y", "free_x"),
                         selected = "fixed"
-            ),
-            
-            # select whether to overlay a trend line
-            checkboxInput(inputId = "lmsmooth", 
-                          label = strong("Overlay linear regression"),
-                          value = FALSE
-            ),
-            
-            # select whether to overlay a loess line
-            checkboxInput(inputId = "loesssmooth", 
-                          label = strong("Overlay loess smooth"),
-                          value = FALSE
-            ),
-            
-            # select the span for loess
-            # only if loess box is true
-            conditionalPanel(
-                condition = "input.loesssmooth == true",
-                sliderInput(inputId = "loess_span",
-                        label = "loess span",
-                        min = 0.1,
-                        max = 1.5,
-                        value = 0.5,
-                        step = 0.1)
             )
-            
             
             
         ),
@@ -136,8 +111,6 @@ ui <- fluidPage(
             tabsetPanel(type = "tabs",
             
                         tabPanel("Raw Data",
-                                 plotlyOutput(outputId = "plotlyscatter"),
-                                 br(), br(),
                                  plotlyOutput(outputId = "plotly_raw_arm"),
                                  br(), br(),
                                  plotlyOutput(outputId = "plotly_raw_pin")
@@ -214,44 +187,7 @@ server <- function(input, output) {
     })
     
    
-    # create plotly object
-    output$plotlyscatter <- renderPlotly({
-        
-        req(input$SET)
-        req(input$date)
-        
-        # create the base plot
-        p <- ggplot(dat_sub()) +
-            geom_point(aes(x = date, y = pin_height, col = as.factor(arm_position))) +
-            labs(title = paste("Raw pin measurements at", input$SET), 
-                 x = "Date", 
-                 y = "pin height (mm)",
-                 color = "Arm Position") +
-            theme_bw() +
-            theme(legend.position = 'bottom')
-        
-        
-        # add smoothing layers if checked
-        if (input$lmsmooth == TRUE) 
-            p <- p + geom_smooth(aes(x = date, y = pin_height), 
-                                 method = "lm", 
-                                 se = FALSE,
-                                 col = "red3",
-                                 alpha = 0.5)
-        
-        if (input$loesssmooth == TRUE) 
-            p <- p + geom_smooth(aes(x = date, y = pin_height), 
-                                 method = "loess", 
-                                 se = FALSE, 
-                                 span = input$loess_span,
-                                 alpha = 0.5)
-        
-        # return the plot
-        p
-        
-    })
-    
-    
+
     # create plotly plot of avg raw reading by arm
     output$plotly_raw_arm <- renderPlotly({
         req(input$SET)
