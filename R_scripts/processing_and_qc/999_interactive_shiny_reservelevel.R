@@ -97,7 +97,7 @@ ui <- fluidPage(
             
             # select scales for faceting
             selectInput(inputId = "scales_multi", 
-                        label = strong("fixed or flexible scales? \nmulti-panel plots"),
+                        label = strong("fixed or flexible scales in multi-panel plots"),
                         choices = c("fixed", "free", "free_y", "free_x"),
                         selected = "fixed"
             )
@@ -111,6 +111,12 @@ ui <- fluidPage(
             tabsetPanel(type = "tabs",
             
                         tabPanel("Raw Data",
+                                 br(),
+                                 # choose whether to include +/- a stdev
+                                 checkboxInput(inputId = "sdline", 
+                                               label = strong("Include error bars (+/- 1 stdev)"),
+                                               value = FALSE
+                                 ),
                                  plotlyOutput(outputId = "plotly_raw_arm"),
                                  br(), br(),
                                  plotlyOutput(outputId = "plotly_raw_pin")
@@ -194,7 +200,9 @@ server <- function(input, output) {
         req(input$date)
         q <- plot_raw_arm(dat_sub(), 
                           pointsize = input$ptsize_single,
-                          scales = input$scales_multi)
+                          scales = input$scales_multi,
+                          sdline = input$sdline,
+                          sdlinesize = 0.7)
         q 
     }) 
     

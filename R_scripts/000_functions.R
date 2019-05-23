@@ -166,7 +166,7 @@ hist_by_arm <- function(data, columns = 4, scales = "free_y"){
 #### raw pin readings
 
 # by arm
-plot_raw_arm <- function(data, columns = 4, pointsize = 2, sdline = TRUE, scales = "free_y"){
+plot_raw_arm <- function(data, columns = 4, pointsize = 2, sdline = TRUE, sdlinesize = 1, scales = "free_y"){
     data %>%
         group_by(set_id, arm_position, date) %>%
         summarize(mean = mean(pin_height, na.rm = TRUE),
@@ -174,7 +174,13 @@ plot_raw_arm <- function(data, columns = 4, pointsize = 2, sdline = TRUE, scales
         ggplot(aes(x = date, y = mean, col = as.factor(arm_position))) +
         geom_point(size = pointsize) +
         geom_line(alpha = 0.6) +
-        {if(sdline) geom_errorbar(aes(x = date, ymin = mean - sd, ymax = mean + sd, col = as.factor(arm_position)))} +
+        {if(sdline) geom_errorbar(aes(x = date, 
+                                      ymin = mean - sd, 
+                                      ymax = mean + sd, 
+                                      col = as.factor(arm_position)
+                                      ),
+                                  size = sdlinesize
+                                  )} +
         facet_wrap(~set_id, ncol = columns, scales = scales) +
         labs(title = 'Pin Height (raw measurement; averaged to arm level)',
              x = 'Date',
