@@ -65,19 +65,7 @@ ui <- fluidPage(
             paste("File in use is:", filelist),
             br(), br(),
             
-            # select a SET to plot
-            selectInput(inputId = "SET", 
-                        label = strong("SET ID"),
-                        choices = unique(dat$set_id),
-                        selected = unique(dat$set_id)[1]
-            ),
             
-            # select date range to plot
-            dateRangeInput("date", 
-                           label = strong("Date range"), 
-                           start = min(dat$date, na.rm = TRUE), 
-                           end = max(dat$date, na.rm = TRUE)
-            ),
 
             # select size of points for single-panel plots
             sliderInput(inputId = "ptsize_single", 
@@ -95,49 +83,28 @@ ui <- fluidPage(
                         value = 1,
                         step = 0.5),
             
-            # choose whether to include +/- a stdev
-            checkboxInput(inputId = "sdline", 
-                          label = strong("Include error bars (+/- 1 stdev)"),
-                          value = FALSE
-            ),
             
             # select scales for faceting
             selectInput(inputId = "scales_multi", 
                         label = strong("fixed or flexible scales in multi-panel plots"),
                         choices = c("fixed", "free", "free_y", "free_x"),
                         selected = "fixed"
-            ),
-            
-            # set threshold for incremental change plots
-            sliderInput(inputId = "incr_threshold", 
-                        label = "Choose threshold of interest (mm)",
-                        min = 10,
-                        max = 100,
-                        value = 25,
-                        step = 5),
-            
-            
-            conditionalPanel(
-                condition = "input.tabselected == 3",
-                sliderInput(inputId = "nothingImportant", 
-                            label = "pick a number; nothing will happen",
-                            min = 0.5,
-                            max = 4,
-                            value = 1,
-                            step = 0.5),
-                # select the number of columns to show
-                # in the cumulative change graph
-                selectInput(inputId = "columns", 
-                            label = strong("Choose # columns for graph below"),
-                            choices = c(1, 2, 3, 4, 5),
-                            selected = 4
-                ),
-                # choose whether to overlay regression or not
-                checkboxInput(inputId = "cumu_smooth", 
-                              label = strong("Overlay Linear Regression"),
-                              value = FALSE
-                )
             )
+            
+            
+            # conditionalPanel(
+            #     condition = "input.tabselected == 2",
+            #     # set threshold for incremental change plots
+            #     
+            # ),
+            
+            
+            # conditionalPanel(
+            #     condition = "input.tabselected == 3",
+            #     # select the number of columns to show
+            #     # in the cumulative change graph
+            #     
+            # )
             
             
         ),
@@ -145,12 +112,30 @@ ui <- fluidPage(
         
         mainPanel(
             
+            # select a SET to plot
+            selectInput(inputId = "SET", 
+                        label = strong("Select a SET to work with"),
+                        choices = unique(dat$set_id),
+                        selected = unique(dat$set_id)[1]
+            ),
+            
+            # select date range to plot
+            dateRangeInput("date", 
+                           label = strong("Date range"), 
+                           start = min(dat$date, na.rm = TRUE), 
+                           end = max(dat$date, na.rm = TRUE)
+            ),
+            
             tabsetPanel(type = "tabs",
                         id = "tabselected",
             
                         tabPanel("Raw Data", value = 1,
                                  br(),
-                                 
+                                 # choose whether to include +/- a stdev
+                                 checkboxInput(inputId = "sdline", 
+                                               label = strong("Include error bars (+/- 1 stdev)"),
+                                               value = FALSE
+                                 ),
                                  plotlyOutput(outputId = "plotly_raw_arm"),
                                  br(), br(),
                                  plotlyOutput(outputId = "plotly_raw_pin")
@@ -158,20 +143,39 @@ ui <- fluidPage(
                         
                         tabPanel("Incremental Calcs", value = 2,
                                  br(),
-                                 
+                                 sliderInput(inputId = "incr_threshold", 
+                                             label = "Choose threshold of interest (mm)",
+                                             min = 10,
+                                             max = 100,
+                                             value = 25,
+                                             step = 5),
                                  br(),
                                  plotlyOutput(outputId = "plotly_incr_pin"),
                                  br(), br(),
                                  textOutput(outputId = "count_incr_pin"),
+                                 checkboxInput(inputId = "incr_table",
+                                               label = "Show these points in a table",
+                                               value = FALSE),
+                                 conditionalPanel(condition = "input.incr_table == true",
+                                                  
                                  br(), 
-                                 DT::dataTableOutput(outputId = "tbl_incr_pin"),
+                                 DT::dataTableOutput(outputId = "tbl_incr_pin")),
                                  br(), br(),
                                  plotlyOutput(outputId = "plotly_incr_arm")
                         ),
                         
                         tabPanel("Cumulative Calcs", value = 3,
                                  br(),
-                                 
+                                 selectInput(inputId = "columns", 
+                                             label = strong("Choose # columns for graph below"),
+                                             choices = c(1, 2, 3, 4, 5),
+                                             selected = 4
+                                 ),
+                                 # choose whether to overlay regression or not
+                                 checkboxInput(inputId = "cumu_smooth", 
+                                               label = strong("Overlay Linear Regression"),
+                                               value = FALSE
+                                 ),
                                  plotlyOutput(outputId = "plotly_cumu_set",
                                               height = 500)
                         )
@@ -254,7 +258,7 @@ server <- function(input, output) {
         exceed <- incr_out_sub()$pin %>% 
             filter(abs(incr) >= input$incr_threshold,
                    set_id == input$SET)
-        paste0(nrow(exceed), " observations at this SET, in this time period, have incremental changes outside the selected threshold. They are grouped by arm and pin below: ")
+        paste0(nrow(exceed), " observations at this SET, in this time period, have incremental changes outside the selected threshold.")
     })
     
     # make a table of pins outside the selected threshold
@@ -294,7 +298,7 @@ server <- function(input, output) {
     output$plotly_cumu_set <- renderPlotly({
         req(input$SET)
         b <- plot_cumu_set(data = cumu_out$set,
-                           columns = input$columns, 
+                           columns = as.integer(input$columns), 
                            pointsize = input$ptsize_multi,
                            scales = input$scales_multi,
                            smooth = input$cumu_smooth,
