@@ -95,11 +95,48 @@ ui <- fluidPage(
                         value = 1,
                         step = 0.5),
             
+            # choose whether to include +/- a stdev
+            checkboxInput(inputId = "sdline", 
+                          label = strong("Include error bars (+/- 1 stdev)"),
+                          value = FALSE
+            ),
+            
             # select scales for faceting
             selectInput(inputId = "scales_multi", 
                         label = strong("fixed or flexible scales in multi-panel plots"),
                         choices = c("fixed", "free", "free_y", "free_x"),
                         selected = "fixed"
+            ),
+            
+            # set threshold for incremental change plots
+            sliderInput(inputId = "incr_threshold", 
+                        label = "Choose threshold of interest (mm)",
+                        min = 10,
+                        max = 100,
+                        value = 25,
+                        step = 5),
+            
+            
+            conditionalPanel(
+                condition = "input.tabselected == 3",
+                sliderInput(inputId = "nothingImportant", 
+                            label = "pick a number; nothing will happen",
+                            min = 0.5,
+                            max = 4,
+                            value = 1,
+                            step = 0.5),
+                # select the number of columns to show
+                # in the cumulative change graph
+                selectInput(inputId = "columns", 
+                            label = strong("Choose # columns for graph below"),
+                            choices = c(1, 2, 3, 4, 5),
+                            selected = 4
+                ),
+                # choose whether to overlay regression or not
+                checkboxInput(inputId = "cumu_smooth", 
+                              label = strong("Overlay Linear Regression"),
+                              value = FALSE
+                )
             )
             
             
@@ -109,28 +146,19 @@ ui <- fluidPage(
         mainPanel(
             
             tabsetPanel(type = "tabs",
+                        id = "tabselected",
             
-                        tabPanel("Raw Data",
+                        tabPanel("Raw Data", value = 1,
                                  br(),
-                                 # choose whether to include +/- a stdev
-                                 checkboxInput(inputId = "sdline", 
-                                               label = strong("Include error bars (+/- 1 stdev)"),
-                                               value = FALSE
-                                 ),
+                                 
                                  plotlyOutput(outputId = "plotly_raw_arm"),
                                  br(), br(),
                                  plotlyOutput(outputId = "plotly_raw_pin")
                         ),
                         
-                        tabPanel("Incremental Calcs",
+                        tabPanel("Incremental Calcs", value = 2,
                                  br(),
-                                 # set threshold for incremental change plots
-                                 sliderInput(inputId = "incr_threshold", 
-                                             label = "Choose threshold of interest (mm)",
-                                             min = 10,
-                                             max = 100,
-                                             value = 25,
-                                             step = 5),
+                                 
                                  br(),
                                  plotlyOutput(outputId = "plotly_incr_pin"),
                                  br(), br(),
@@ -141,20 +169,9 @@ ui <- fluidPage(
                                  plotlyOutput(outputId = "plotly_incr_arm")
                         ),
                         
-                        tabPanel("Cumulative Calcs",
+                        tabPanel("Cumulative Calcs", value = 3,
                                  br(),
-                                 # select the number of columns to show
-                                 # in the cumulative change graph
-                                 selectInput(inputId = "columns", 
-                                             label = strong("Choose # columns for graph below"),
-                                             choices = c(1, 2, 3, 4, 5),
-                                             selected = 4
-                                 ),
-                                 # choose whether to overlay regression or not
-                                 checkboxInput(inputId = "cumu_smooth", 
-                                               label = strong("Overlay Linear Regression"),
-                                               value = FALSE
-                                 ),
+                                 
                                  plotlyOutput(outputId = "plotly_cumu_set",
                                               height = 500)
                         )
