@@ -223,7 +223,8 @@ server <- function(input, output) {
                           pointsize = input$ptsize_single,
                           scales = input$scales_multi,
                           sdline = input$sdline,
-                          sdlinesize = 0.7)
+                          sdlinesize = 0.7) +
+            ylab("mm")
         q 
     }) 
     
@@ -234,7 +235,7 @@ server <- function(input, output) {
         z <- plot_raw_pin(dat_sub(), set = input$SET, 
                           pointsize = input$ptsize_multi,
                           scales = input$scales_multi) +
-            ylab("")
+            ylab("mm")
         z
     })
     
@@ -248,7 +249,8 @@ server <- function(input, output) {
                            set = input$SET,
                            threshold = input$incr_threshold,
                            pointsize = input$ptsize_multi,
-                           scales = input$scales_multi)
+                           scales = input$scales_multi) +
+            ylab("mm")
             
         a
     })
@@ -266,7 +268,7 @@ server <- function(input, output) {
         tabdat <- incr_out_sub()$pin %>% 
             filter(abs(incr) >= input$incr_threshold,
                    set_id == input$SET) %>% 
-            arrange(arm_position, pin_number, date) %>% 
+            arrange(date, desc(incr)) %>% 
             select(incr, year, month, day, 
                    arm_position, pin_number, 
                    qaqc_code, arm_qaqc_code, everything())
@@ -290,7 +292,8 @@ server <- function(input, output) {
         a <- plot_incr_arm(data = incr_out_sub()$arm,
                            set = input$SET,
                            threshold = input$incr_threshold,
-                           pointsize = input$ptsize_single)
+                           pointsize = input$ptsize_single)+
+            ylab("mm")
         a
     })
     
@@ -302,10 +305,12 @@ server <- function(input, output) {
                            pointsize = input$ptsize_multi,
                            scales = input$scales_multi,
                            smooth = input$cumu_smooth,
-                           lty_smooth = 1) 
+                           lty_smooth = 1) +
+            ylab("mm")
             
         b
     })
+    
     
 }
 
