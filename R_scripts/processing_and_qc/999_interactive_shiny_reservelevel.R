@@ -1,6 +1,5 @@
-# just working with one dataset until this all works
-# basically copied and adapted code from this app:
-# https://shiny.rstudio.com/#code-app
+# Interactive app to help with QA/QC of NERRS SET data
+
 
 # load packages and function script
 library(dplyr)
@@ -47,7 +46,8 @@ if (sum(class(dat$date) %in% c("datetime", "POSIXct", "POSIXlt")) > 0)
 
 
 ###############################################################################
-
+# calculate cumulative and incremental change
+###############################################################################
 
 # cumulative change
 cumu_out <- calc_change_cumu(dat)
@@ -55,9 +55,14 @@ cumu_out <- calc_change_cumu(dat)
 incr_out <- calc_change_incr(dat)
 
 
+###############################################################################
 ### define UI
+###############################################################################
+
 ui <- fluidPage(
-    titlePanel("SET graphing"),
+   
+     titlePanel("SET graphing"),
+    
     sidebarLayout(
         sidebarPanel(
             
@@ -90,23 +95,7 @@ ui <- fluidPage(
                         choices = c("fixed", "free", "free_y", "free_x"),
                         selected = "fixed"
             )
-            
-            
-            # conditionalPanel(
-            #     condition = "input.tabselected == 2",
-            #     # set threshold for incremental change plots
-            #     
-            # ),
-            
-            
-            # conditionalPanel(
-            #     condition = "input.tabselected == 3",
-            #     # select the number of columns to show
-            #     # in the cumulative change graph
-            #     
-            # )
-            
-            
+           
         ),
         
         
@@ -187,9 +176,17 @@ ui <- fluidPage(
 
 
 
+###############################################################################
 # Define server function
+###############################################################################
+
+
 server <- function(input, output) {
     
+    
+    ##############################################
+    # reactive data operations
+    ##############################################
     
     # subset data, reactively
     dat_sub <- reactive({
@@ -215,6 +212,11 @@ server <- function(input, output) {
     
    
 
+    ##############################################
+    # Plots
+    ##############################################
+    
+    
     # create plotly plot of avg raw reading by arm
     output$plotly_raw_arm <- renderPlotly({
         req(input$SET)
@@ -314,5 +316,7 @@ server <- function(input, output) {
     
 }
 
+###############################################################################
 # Create Shiny object
+###############################################################################
 shinyApp(ui = ui, server = server)
