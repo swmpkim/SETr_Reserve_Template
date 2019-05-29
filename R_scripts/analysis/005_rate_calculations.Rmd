@@ -209,7 +209,7 @@ dat %>%
   group_by(set_id) %>% 
   summarize(first_sampled = min(date),
             last_sampled = max(date),
-            years_sampled = as.double(max(dat$date) - min(dat$date)) / 365.25,
+            years_sampled = as.double(max(date) - min(date)) / 365.25,
             sample_events = length(unique(date))) %>% 
   flextable() %>% 
   theme_booktabs() %>% 
