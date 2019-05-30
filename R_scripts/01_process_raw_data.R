@@ -1,5 +1,5 @@
 # Script to read in excel sheet of raw data, which has 
-# one worksheet for each SET;
+# one worksheet for each SET; 
 # and turn it into a _processed.csv file, with
 # all SETs in one table
 
