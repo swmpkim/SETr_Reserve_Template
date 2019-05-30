@@ -21,6 +21,7 @@ The following R packages are required to generate this report:
 
 ```{r load_libraries, echo = TRUE}
 library(knitr)
+library(forcats)
 library(readr)
 library(janitor)
 library(dplyr)
@@ -382,6 +383,32 @@ ggplot() +
     coord_flip()
 ```
 
+In order, hopefully with user-friendly names:
+
+```{r plot_slr_ci_lmm, fig.width = 7, fig.height = 6}
+# make the set id a factor
+lmm_out_ordered <- mdat %>% 
+  select(unique_set_id, user_friendly_set_name, numerical_order) %>%
+  left_join(lmm_out, ., by = c("set_id" = "unique_set_id")) 
+
+a <- forcats::fct_reorder(lmm_out_ordered$user_friendly_set_name, desc(lmm_out_ordered$numerical_order))
+
+b <- forcats::fct_reorder(lmm_out_ordered$set_id, desc(lmm_out_ordered$numerical_order))
+
+lmm_out_ordered$user_friendly_set_name <- a
+lmm_out_ordered$set_id2 <- b
+
+ggplot() +
+    geom_blank(data = lmm_out_ordered, aes(x = user_friendly_set_name, y = rate)) +
+    geom_ribbon(aes(x = 0:(nrow(lmm_out_ordered)+1), ymin = slr-slr_ci, ymax = slr+slr_ci), fill = "navyblue", alpha = 0.1) +
+    geom_hline(aes(yintercept = slr), col = "navyblue", size = 1, alpha = 0.9) +
+    geom_hline(aes(yintercept = 0), col = "gray70") +
+    geom_errorbar(data = lmm_out_ordered, aes(x = user_friendly_set_name, ymin = CI_low, ymax = CI_high), col = "gray55", size = 1) +
+    geom_point(data = lmm_out_ordered, aes(x = user_friendly_set_name, y = rate), size = 3, col = "red3") +
+    theme_classic() + 
+    labs(title = "Elevation Change, 95% Confidence Intervals (LMM)", subtitle = paste0("Local SLR in blue: ", slr, " +/- ", slr_ci, " mm/yr"), x = "SET", y = "Rate of change (mm/yr)") +
+    coord_flip()
+```
 
 ### Cumulative change snapshot  
 
