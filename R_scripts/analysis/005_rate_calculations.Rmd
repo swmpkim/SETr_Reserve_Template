@@ -282,9 +282,9 @@ models2 <- dat %>%
     do(mod = lme(pin_height ~ date, data = ., random = ~1|arm_position/pin_number, na.action = na.omit))
 
 lmm_out <- models2 %>% 
-  mutate(rate = intervals(mod)$fixed["date", 2] * 365.25,
-         CI_low = intervals(mod)$fixed["date", 1] * 365.25,
-         CI_high = intervals(mod)$fixed["date", 3] * 365.25) %>% 
+  mutate(rate = intervals(mod, which = "fixed")$fixed["date", 2] * 365.25,
+         CI_low = intervals(mod, which = "fixed")$fixed["date", 1] * 365.25,
+         CI_high = intervals(mod, which = "fixed")$fixed["date", 3] * 365.25) %>% 
   select(-mod)
 
 lmm_out %>% 
