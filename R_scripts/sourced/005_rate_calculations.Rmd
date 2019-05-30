@@ -385,7 +385,7 @@ ggplot() +
 
 In order, according to specifications in the metadata; and labeled with user-friendly names:  
 
-```{r plot_slr_ci_lmm, fig.width = 7, fig.height = 6}
+```{r plot_slr_ci_lmm_ordered, fig.width = 7, fig.height = 6}
 # make the set id a factor
 lmm_out_ordered <- mdat %>% 
   select(unique_set_id, user_friendly_set_name, numerical_order) %>%
