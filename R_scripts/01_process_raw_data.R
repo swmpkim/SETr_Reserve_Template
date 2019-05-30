@@ -1,5 +1,4 @@
 # Script to read in excel sheet of raw data, which has 
-# one worksheet for each SET; 
 # and turn it into a _processed.csv file, with
 # all SETs in one table
 
@@ -12,6 +11,7 @@
 # Windows keyboard shortcut is Ctrl + Shift + F10
 
 # 2:
+
 # Select this entire script. 
 # Keyboard shortcut is Ctrl + a on windows or Cmd + a on Mac
 # Run it: either using the "Run" button in the upper right corner
