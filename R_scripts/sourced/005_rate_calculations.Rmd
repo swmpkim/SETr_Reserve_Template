@@ -32,7 +32,7 @@ library(here)
 library(flextable)
 library(readxl)
 library(lubridate)
-source(here::here('R_scripts', '000_functions.R'))
+source(here::here('R_scripts', 'sourced', '000_functions.R'))
 ```
 
 
