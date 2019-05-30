@@ -1,7 +1,8 @@
 ## map-making
 
-## first run 005_rate_calculations.Rmd to get all the objects into the environment
-## (eventually this will be tacked on to the end of that Rmd)
+
+#### INSTRUCTIONS ####
+# Don't use this right now; it doesn't sync up with any other scripts
 
 library(leaflet)
 library(here)

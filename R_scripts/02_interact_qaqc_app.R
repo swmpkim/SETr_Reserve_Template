@@ -1,6 +1,20 @@
 # Interactive app to help with QA/QC of NERRS SET data
 
 
+#### INSTRUCTIONS ####
+
+# 1:
+# Re-start your R session to make sure there's no interference:
+# From the menu bar, select 'Session', then 'Restart R'
+# Windows keyboard shortcut is Ctrl + Shift + F10
+
+# 2:
+# In the upper right-hand corner of this (source) window,
+# there is a button that says "Run App".
+# Push it.
+# Make sure pop-ups are enabled; the app comes up in a browser window.
+
+
 # load packages and function script
 library(dplyr)
 library(readr)

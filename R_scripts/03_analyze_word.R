@@ -1,5 +1,19 @@
-# Use this script as a wrapper to run the analysis script, but put output where we want it
-# and choose its name
+# Generate Microsoft Word report of basic SET data analyses
+
+#### INSTRUCTIONS ####
+
+# 1:
+# Re-start your R session to make sure there's no interference:
+# From the menu bar, select 'Session', then 'Restart R'
+# Windows keyboard shortcut is Ctrl + Shift + F10
+
+# 2:
+# Select this entire script. 
+# Keyboard shortcut is Ctrl + a on windows or Cmd + a on Mac
+# Run it: either using the "Run" button in the upper right corner
+# or the keyboard shortcut Ctrl/Cmd + Enter
+
+
 
 library(here)
 library(rmarkdown)
