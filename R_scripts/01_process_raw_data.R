@@ -1,3 +1,18 @@
+# Script to read in excel sheet of raw data, which has 
+# one worksheet for each SET;
+# and turn it into a _processed.csv file, with
+# all SETs in one table
+
+
+#### INSTRUCTIONS ####
+# Select this entire script. 
+# Keyboard shortcut is Ctrl + a on windows or Cmd + a on Mac
+# Run it: either using the "Run" button in the upper right corner
+# or the keyboard shortcut Ctrl/Cmd + Enter
+
+
+
+
 # this script is modified from SETr_data_transformations/R/01_NEW_wide_to_long.R
 # it has been made to automatically select the excel file that ends with set.xlsx
 # and transform it into the longer format that can be used in the downstream scripts

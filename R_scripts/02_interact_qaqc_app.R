@@ -1,6 +1,13 @@
 # Interactive app to help with QA/QC of NERRS SET data
 
 
+#### INSTRUCTIONS ####
+# In the upper right-hand corner of this (source) window,
+# there is a button that says "Run App".
+# Push it.
+# Make sure pop-ups are enabled; the app comes up in a browser window.
+
+
 # load packages and function script
 library(dplyr)
 library(readr)
