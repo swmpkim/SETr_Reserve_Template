@@ -2,65 +2,55 @@
 
 
 #### INSTRUCTIONS ####
-# Don't use this right now; it doesn't sync up with any other scripts
+
 
 library(leaflet)
 library(here)
+library(dplyr)
 
 
-
-# pull together rates, p-values, and lat/long coords for mapping
-# include reserve and set_id as identifiers
-# weed out everything else
-to_map1 <- modelcoef2 %>%
-    select(reserve, set_id, rate_mm.yr, se_mm.yr, p_value)
-
-## MESS WITH THE DATASET TO MAKE SURE ALL DIRECTIONS and different p values APPEAR
-## REMOVE THIS BEFORE USING ON REAL DATA!!!!!!!!!
-to_map1 <- to_map1 %>%
-    mutate(rate_mm.yr = case_when(set_id %in% c("SPALT-1", "SPALT-2", "SPALT-3") ~ -rate_mm.yr,
-                                  TRUE ~ rate_mm.yr),
-           p_value = case_when(set_id %in% c("JURO_Mid-1", "JURO_High-1") ~ 0.08,
-                               TRUE ~ p_value))
-    
+dat <- read.csv(here::here("data", "intermediate", "rate_summary.csv"))
 
 
-# pull coordinates from the metadata
-coords <- mdat %>%
-    select(reserve,
-           set_id = unique_set_id,
-           lat = latitude_dec_deg,
-           long = longitude_dec_deg) %>%
-    mutate(set_id = as.character(set_id))
-
-# make cutoffs for the size classes (split dataset into 3)
-cut_low <- quantile(abs(to_map1$rate_mm.yr), probs = 0.33)
-cut_high <- quantile(abs(to_map1$rate_mm.yr), probs = 0.67)
-
+# map difference from 0
+# arrow for direction; color for whether CI excludes 0?
 # join coordinates with the rate results, and categorize the rates
-to_map <- left_join(to_map1, coords) %>%
-    mutate(dir_sig = case_when(rate_mm.yr < 0 & p_value <= 0.05 ~ "dec",
-                               rate_mm.yr > 0 & p_value <= 0.05 ~ "inc",
-                               TRUE ~ "nonsig"),
-           circle_size = case_when(abs(rate_mm.yr) < cut_low ~ 5,
-                                   abs(rate_mm.yr) > cut_high ~ 14,
-                                   TRUE ~ 10))
-inc_index <- which(to_map$dir_sig == "inc")
-dec_index <- which(to_map$dir_sig == "dec")
+# if confidence intervals don't overlap 0, it's a significant increase or decrease
+# if CIs do overlap 0, it's nonsig increase or decrease based on sign of rate
+to_map <- dat %>%
+    mutate(dir_sig = case_when(CI_high < 0 ~ "dec_sig",
+                               CI_low > 0  ~ "inc_sig",
+                               rate < 0 ~ "dec_nonsig",
+                               rate > 0 ~ "inc_nonsig",
+                               TRUE ~ "nonsig")) %>% 
+    rename(lat = latitude_dec_deg,
+           long = longitude_dec_deg)
+
+# set up the indices of which SET gets which icon, based on diff or not
+inc_sig_index <- which(to_map$dir_sig == "inc_sig")
+dec_sig_index <- which(to_map$dir_sig == "dec_sig")
+inc_nonsig_index <- which(to_map$dir_sig == "inc_nonsig")
+dec_nonsig_index <- which(to_map$dir_sig == "dec_nonsig")
 nonsig_index <- which(to_map$dir_sig == "nonsig")
 
 
 # read in images to use as map icons
-icon_incr_path <- here::here("img", "blue_up_arrow.png")
-icon_decr_path <- here::here("img", "red_down_arrow.png")
+icon_inc_sig_path <- here::here("img", "blue_up_arrow.png")
+icon_dec_sig_path <- here::here("img", "red_down_arrow.png")
+icon_inc_nonsig_path <- here::here("img", "gray_up_arrow.png")
+icon_dec_nonsig_path <- here::here("img", "gray_down_arrow.png")
 icon_nonsig_path <- here::here("img", "gray_dash.png")
 
 
 # turn them into icons
-icon_incr <- makeIcon(iconUrl = icon_incr_path, 
+icon_inc_sig <- makeIcon(iconUrl = icon_inc_sig_path, 
                       iconWidth = 30, iconHeight = 35)
-icon_decr <- makeIcon(iconUrl = icon_decr_path, 
+icon_dec_sig <- makeIcon(iconUrl = icon_dec_sig_path, 
                       iconWidth = 30, iconHeight = 35)
+icon_inc_nonsig <- makeIcon(iconUrl = icon_inc_nonsig_path, 
+                         iconWidth = 30, iconHeight = 35)
+icon_dec_nonsig <- makeIcon(iconUrl = icon_dec_nonsig_path, 
+                         iconWidth = 30, iconHeight = 35)
 icon_nonsig <- makeIcon(iconUrl = icon_nonsig_path, 
                         iconWidth = 25, iconHeight = 12)
 
@@ -68,28 +58,23 @@ icon_nonsig <- makeIcon(iconUrl = icon_nonsig_path,
 # make the map template
 m <- leaflet(to_map,
              options = leafletOptions(minZoom = 0, maxZoom = 25)) %>%
-    # addCircleMarkers(lng = ~long, 
-    #                  lat = ~lat,
-    #                  radius = ~circle_size,
-    #                  color = ~dir_sig,
-    #                  fill = FALSE) %>%
-    addScaleBar() %>%
-    # addMarkers(icon = icon_nonsig,
-    #            lng = ~long[nonsig_index],
-    #            lat = ~lat[nonsig_index]) %>%
-    addCircleMarkers(lng = ~long[nonsig_index],
-               lat = ~lat[nonsig_index],
-               radius = 8,
-               color = "gray40") %>%
-    addMarkers(icon = icon_incr,
-               lng = ~long[inc_index],
-               lat = ~lat[inc_index]) %>%
-    addMarkers(icon = icon_decr,
-               lng = ~long[dec_index],
-               lat = ~lat[dec_index])
-
-
-
+        addScaleBar() %>%
+        addCircleMarkers(lng = ~long[nonsig_index],
+                     lat = ~lat[nonsig_index],
+                     radius = 8,
+                     color = "gray40") %>%
+    addMarkers(icon = icon_inc_sig,
+               lng = ~long[inc_sig_index],
+               lat = ~lat[inc_sig_index]) %>%
+    addMarkers(icon = icon_dec_sig,
+               lng = ~long[dec_sig_index],
+               lat = ~lat[dec_sig_index]) %>% 
+    addMarkers(icon = icon_inc_nonsig,
+               lng = ~long[inc_nonsig_index],
+               lat = ~lat[inc_nonsig_index]) %>%  
+    addMarkers(icon = icon_dec_nonsig,
+               lng = ~long[dec_nonsig_index],
+               lat = ~lat[dec_nonsig_index])
 
 
 ## print the map with some different backgrounds:
@@ -97,6 +82,7 @@ m <- leaflet(to_map,
 # Esri World Gray Canvas tiles
 m %>%
     addProviderTiles(leaflet::providers$Esri.WorldGrayCanvas) 
+
 
 # Esri topo map (kim's favorite, but might not work everywhere)
 m %>%
