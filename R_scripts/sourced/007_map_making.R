@@ -56,66 +56,87 @@ m <- leaflet(to_map,
              options = leafletOptions(minZoom = 0, maxZoom = 25)) %>%
     ### base layer options
     addProviderTiles(leaflet::providers$Esri.WorldGrayCanvas, 
-                     group = "ESRI World Gray Canvas") %>% 
+                     group = "Esri World Gray Canvas") %>% 
     addProviderTiles(leaflet::providers$Esri.WorldTopoMap, 
-                     group = "ESRI World Topo Map") %>% 
+                     group = "Esri World Topo Map") %>% 
     addProviderTiles(leaflet::providers$Esri, 
-                     group = "ESRI default")%>% 
+                     group = "Esri default")%>% 
     ### Compared to 0 
     addMarkers(icon = icon_nonsig,
                lng = ~long[to_map$dir_0 == "nonsig"],
                lat = ~lat[to_map$dir_0 == "nonsig"],
                group = "Compared to 0",
-               label = ~map_lab) %>%
+               # this ifelse is necessary because it freaks out if you get an empty vector of labels
+               label = ~ifelse(sum(to_map$dir_0 == "nonsig") == 0,
+                               "nothing to label", 
+                               map_lab[to_map$dir_0 == "nonsig"])) %>%
     addMarkers(icon = icon_inc_sig,
                lng = ~long[to_map$dir_0 == "inc_sig"],
                lat = ~lat[to_map$dir_0 == "inc_sig"],
                group = "Compared to 0",
-               label = ~map_lab) %>%
+               label = ~ifelse(sum(to_map$dir_0 == "inc_sig") == 0,
+                               "nothing to label", 
+                               map_lab[to_map$dir_0 == "inc_sig"])) %>%
     addMarkers(icon = icon_dec_sig,
                lng = ~long[to_map$dir_0 == "dec_sig"],
                lat = ~lat[to_map$dir_0 == "dec_sig"],
                group = "Compared to 0",
-               label = ~map_lab) %>% 
+               label = ~ifelse(sum(to_map$dir_0 == "dec_sig") == 0,
+                               "nothing to label",
+                               map_lab[to_map$dir_0 == "dec_sig"])) %>% 
     addMarkers(icon = icon_inc_nonsig,
                lng = ~long[to_map$dir_0 == "inc_nonsig"],
                lat = ~lat[to_map$dir_0 == "inc_nonsig"],
                group = "Compared to 0",
-               label = ~map_lab) %>%  
+               label = ~ifelse(sum(to_map$dir_0 == "inc_nonsig") == 0,
+                               "nothing to label",
+                               map_lab[to_map$dir_0 == "inc_nonsig"])) %>%  
     addMarkers(icon = icon_dec_nonsig,
                lng = ~long[to_map$dir_0 == "dec_nonsig"],
                lat = ~lat[to_map$dir_0 == "dec_nonsig"],
                group = "Compared to 0",
-               label = ~map_lab) %>% 
+               label = ~ifelse(sum(to_map$dir_0 == "dec_nonsig") == 0,
+                               "nothing to label",
+                               map_lab[to_map$dir_0 == "dec_nonsig"])) %>% 
     ### Compared to SLR 
-    addMarkers(icon = icon_nonsig,
-               lng = ~long[to_map$dir_slr == "nonsig"],
-               lat = ~lat[to_map$dir_slr == "nonsig"],
-               group = "Compared to SLR",
-               label = ~map_lab) %>%
+        addMarkers(icon = icon_nonsig,
+                   lng = ~long[to_map$dir_slr == "nonsig"],
+                   lat = ~lat[to_map$dir_slr == "nonsig"],
+                   group = "Compared to SLR",
+                   label = ~ifelse(sum(to_map$dir_slr == "nonsig") == 0,
+                                   "nothing to label",
+                                   map_lab[to_map$dir_slr == "nonsig"])) %>%
     addMarkers(icon = icon_inc_sig,
                lng = ~long[to_map$dir_slr == "inc_sig"],
                lat = ~lat[to_map$dir_slr == "inc_sig"],
                group = "Compared to SLR",
-               label = ~map_lab) %>%
+               label = ~ifelse(sum(to_map$dir_slr == "inc_sig") == 0,
+                               "nothing to label",
+                               map_lab[to_map$dir_slr == "inc_sig"])) %>%
     addMarkers(icon = icon_dec_sig,
                lng = ~long[to_map$dir_slr == "dec_sig"],
                lat = ~lat[to_map$dir_slr == "dec_sig"],
                group = "Compared to SLR",
-               label = ~map_lab) %>% 
+               label = ~ifelse(sum(to_map$dir_slr == "dec_sig") == 0,
+                               "nothing to label",
+                               map_lab[to_map$dir_slr == "dec_sig"])) %>% 
     addMarkers(icon = icon_inc_nonsig,
                lng = ~long[to_map$dir_slr == "inc_nonsig"],
                lat = ~lat[to_map$dir_slr == "inc_nonsig"],
                group = "Compared to SLR",
-               label = ~map_lab) %>%  
+               label = ~ifelse(sum(to_map$dir_slr == "inc_nonsig") == 0,
+                               "nothing to label",
+                               map_lab[to_map$dir_slr == "inc_nonsig"])) %>%  
     addMarkers(icon = icon_dec_nonsig,
                lng = ~long[to_map$dir_slr == "dec_nonsig"],
                lat = ~lat[to_map$dir_slr == "dec_nonsig"],
                group = "Compared to SLR",
-               label = ~map_lab) %>%
+               label = ~ifelse(sum(to_map$dir_slr == "dec_nonsig") == 0,
+                               "nothing to label",
+                               map_lab[to_map$dir_slr == "dec_nonsig"])) %>%
     ### control which layers can be shown
     addLayersControl(
-        baseGroups = c("ESRI World Gray Canvas", "ESRI World Topo Map", "ESRI default"),
+        baseGroups = c("Esri World Gray Canvas", "Esri World Topo Map", "Esri default"),
         overlayGroups = c("Compared to 0", "Compared to SLR"),
         options = layersControlOptions(collapsed = FALSE)
     ) %>% 

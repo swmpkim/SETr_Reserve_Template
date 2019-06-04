@@ -37,6 +37,6 @@ if(!file.exists(file_in)){
     stop("The necessary input file was not found. Please run 'R_scripts/03_analyze_word.R' and then try again.")
 } else {
     source(here::here("R_scripts", "sourced", "007_map_making.R"))
-    message("If you do not see a map, click on the 'Viewer' tab that is near the 'Files' pane in RStudio. \n \n The map can be saved by clicking on 'Export' above it.")
+    message("If you do not see a map, click on the 'Viewer' tab that is near the 'Files' pane in RStudio. \n \nThe map can be saved by clicking on 'Export' above it.")
     m
 }
