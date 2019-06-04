@@ -1,6 +1,9 @@
 # script that has the muscle for making interactive maps
 # sourced by R_scripts/04_interact_maps.R
 
+# libraries leaflet, dplyr, and here loaded in parent script
+# file_in also generated in parent script
+
 dat <- read.csv(file_in)
 
 
@@ -62,78 +65,57 @@ m <- leaflet(to_map,
     addProviderTiles(leaflet::providers$Esri, 
                      group = "Esri default")%>% 
     ### Compared to 0 
-    addMarkers(icon = icon_nonsig,
+    addMarkers(icon = icon_nonsiga,
                lng = ~long[to_map$dir_0 == "nonsig"],
                lat = ~lat[to_map$dir_0 == "nonsig"],
                group = "Compared to 0",
-               # this ifelse is necessary because it freaks out if you get an empty vector of labels
-               label = ~ifelse(sum(to_map$dir_0 == "nonsig") == 0,
-                               "nothing to label", 
-                               map_lab[to_map$dir_0 == "nonsig"])) %>%
-    addMarkers(icon = icon_inc_sig,
+               popup = ~map_lab[to_map$dir_0 == "nonsig"]) %>%
+    addMarkers(icon = icon_inc_siga,
                lng = ~long[to_map$dir_0 == "inc_sig"],
                lat = ~lat[to_map$dir_0 == "inc_sig"],
                group = "Compared to 0",
-               label = ~ifelse(sum(to_map$dir_0 == "inc_sig") == 0,
-                               "nothing to label", 
-                               map_lab[to_map$dir_0 == "inc_sig"])) %>%
-    addMarkers(icon = icon_dec_sig,
+               popup = ~map_lab[to_map$dir_0 == "inc_sig"]) %>%
+    addMarkers(icon = icon_dec_siga,
                lng = ~long[to_map$dir_0 == "dec_sig"],
                lat = ~lat[to_map$dir_0 == "dec_sig"],
                group = "Compared to 0",
-               label = ~ifelse(sum(to_map$dir_0 == "dec_sig") == 0,
-                               "nothing to label",
-                               map_lab[to_map$dir_0 == "dec_sig"])) %>% 
-    addMarkers(icon = icon_inc_nonsig,
+               popup = ~map_lab[to_map$dir_0 == "dec_sig"]) %>% 
+    addMarkers(icon = icon_inc_nonsiga,
                lng = ~long[to_map$dir_0 == "inc_nonsig"],
                lat = ~lat[to_map$dir_0 == "inc_nonsig"],
                group = "Compared to 0",
-               label = ~ifelse(sum(to_map$dir_0 == "inc_nonsig") == 0,
-                               "nothing to label",
-                               map_lab[to_map$dir_0 == "inc_nonsig"])) %>%  
-    addMarkers(icon = icon_dec_nonsig,
+               popup = ~map_lab[to_map$dir_0 == "inc_nonsig"]) %>%  
+    addMarkers(icon = icon_dec_nonsiga,
                lng = ~long[to_map$dir_0 == "dec_nonsig"],
                lat = ~lat[to_map$dir_0 == "dec_nonsig"],
                group = "Compared to 0",
-               label = ~ifelse(sum(to_map$dir_0 == "dec_nonsig") == 0,
-                               "nothing to label",
-                               map_lab[to_map$dir_0 == "dec_nonsig"])) %>% 
+               popup = ~map_lab[to_map$dir_0 == "dec_nonsig"]) %>% 
     ### Compared to SLR 
-        addMarkers(icon = icon_nonsig,
-                   lng = ~long[to_map$dir_slr == "nonsig"],
-                   lat = ~lat[to_map$dir_slr == "nonsig"],
-                   group = "Compared to SLR",
-                   label = ~ifelse(sum(to_map$dir_slr == "nonsig") == 0,
-                                   "nothing to label",
-                                   map_lab[to_map$dir_slr == "nonsig"])) %>%
+    addMarkers(icon = icon_nonsig,
+               lng = ~long[to_map$dir_slr == "nonsig"],
+               lat = ~lat[to_map$dir_slr == "nonsig"],
+               group = "Compared to SLR",
+               popup = ~map_lab[to_map$dir_slr == "nonsig"]) %>%
     addMarkers(icon = icon_inc_sig,
                lng = ~long[to_map$dir_slr == "inc_sig"],
                lat = ~lat[to_map$dir_slr == "inc_sig"],
                group = "Compared to SLR",
-               label = ~ifelse(sum(to_map$dir_slr == "inc_sig") == 0,
-                               "nothing to label",
-                               map_lab[to_map$dir_slr == "inc_sig"])) %>%
+               popup = ~map_lab[to_map$dir_slr == "inc_sig"]) %>%
     addMarkers(icon = icon_dec_sig,
                lng = ~long[to_map$dir_slr == "dec_sig"],
                lat = ~lat[to_map$dir_slr == "dec_sig"],
                group = "Compared to SLR",
-               label = ~ifelse(sum(to_map$dir_slr == "dec_sig") == 0,
-                               "nothing to label",
-                               map_lab[to_map$dir_slr == "dec_sig"])) %>% 
+               popup = ~map_lab[to_map$dir_slr == "dec_sig"]) %>% 
     addMarkers(icon = icon_inc_nonsig,
                lng = ~long[to_map$dir_slr == "inc_nonsig"],
                lat = ~lat[to_map$dir_slr == "inc_nonsig"],
                group = "Compared to SLR",
-               label = ~ifelse(sum(to_map$dir_slr == "inc_nonsig") == 0,
-                               "nothing to label",
-                               map_lab[to_map$dir_slr == "inc_nonsig"])) %>%  
+               popup = ~map_lab[to_map$dir_slr == "inc_nonsig"]) %>%  
     addMarkers(icon = icon_dec_nonsig,
                lng = ~long[to_map$dir_slr == "dec_nonsig"],
                lat = ~lat[to_map$dir_slr == "dec_nonsig"],
                group = "Compared to SLR",
-               label = ~ifelse(sum(to_map$dir_slr == "dec_nonsig") == 0,
-                               "nothing to label",
-                               map_lab[to_map$dir_slr == "dec_nonsig"])) %>%
+               popup = ~map_lab[to_map$dir_slr == "dec_nonsig"]) %>%
     ### control which layers can be shown
     addLayersControl(
         baseGroups = c("Esri World Gray Canvas", "Esri World Topo Map", "Esri default"),
