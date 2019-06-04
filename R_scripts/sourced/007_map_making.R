@@ -38,16 +38,27 @@ icon_dec_nonsig_path <- here::here("img", "gray_down_arrow.png")
 icon_nonsig_path <- here::here("img", "gray_dash.png")
 
 # turn them into icons
-icon_inc_sig <- makeIcon(iconUrl = icon_inc_sig_path, 
-                         iconWidth = 30, iconHeight = 35)
-icon_dec_sig <- makeIcon(iconUrl = icon_dec_sig_path, 
-                         iconWidth = 30, iconHeight = 35)
-icon_inc_nonsig <- makeIcon(iconUrl = icon_inc_nonsig_path, 
-                            iconWidth = 30, iconHeight = 35)
-icon_dec_nonsig <- makeIcon(iconUrl = icon_dec_nonsig_path, 
-                            iconWidth = 30, iconHeight = 35)
-icon_nonsig <- makeIcon(iconUrl = icon_nonsig_path, 
-                        iconWidth = 25, iconHeight = 12)
+icon_inc_siga <- makeIcon(iconUrl = icon_inc_sig_path, 
+                          iconWidth = 30, iconHeight = 35)
+icon_dec_siga <- makeIcon(iconUrl = icon_dec_sig_path, 
+                          iconWidth = 30, iconHeight = 35)
+icon_inc_nonsiga <- makeIcon(iconUrl = icon_inc_nonsig_path, 
+                             iconWidth = 30, iconHeight = 35)
+icon_dec_nonsiga <- makeIcon(iconUrl = icon_dec_nonsig_path, 
+                             iconWidth = 30, iconHeight = 35)
+icon_nonsiga <- makeIcon(iconUrl = icon_nonsig_path, 
+                         iconWidth = 25, iconHeight = 12)
+
+icon_inc_sigb <- makeIcon(iconUrl = icon_inc_sig_path, 
+                          iconWidth = 30, iconHeight = 35)
+icon_dec_sigb <- makeIcon(iconUrl = icon_dec_sig_path, 
+                          iconWidth = 30, iconHeight = 35)
+icon_inc_nonsigb <- makeIcon(iconUrl = icon_inc_nonsig_path, 
+                             iconWidth = 30, iconHeight = 35)
+icon_dec_nonsigb <- makeIcon(iconUrl = icon_dec_nonsig_path, 
+                             iconWidth = 30, iconHeight = 35)
+icon_nonsigb <- makeIcon(iconUrl = icon_nonsig_path, 
+                         iconWidth = 25, iconHeight = 12)
 
 # specify what these colors are, for the legends
 map_pal <- c("red", "blue", "gray")
