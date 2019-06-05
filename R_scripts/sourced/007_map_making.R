@@ -102,27 +102,27 @@ m <- leaflet(to_map,
                group = "Compared to 0",
                popup = ~map_lab[to_map$dir_0 == "dec_nonsig"]) %>% 
     ### Compared to SLR 
-    addMarkers(icon = icon_nonsig,
+    addMarkers(icon = icon_nonsigb,
                lng = ~long[to_map$dir_slr == "nonsig"],
                lat = ~lat[to_map$dir_slr == "nonsig"],
                group = "Compared to SLR",
                popup = ~map_lab[to_map$dir_slr == "nonsig"]) %>%
-    addMarkers(icon = icon_inc_sig,
+    addMarkers(icon = icon_inc_sigb,
                lng = ~long[to_map$dir_slr == "inc_sig"],
                lat = ~lat[to_map$dir_slr == "inc_sig"],
                group = "Compared to SLR",
                popup = ~map_lab[to_map$dir_slr == "inc_sig"]) %>%
-    addMarkers(icon = icon_dec_sig,
+    addMarkers(icon = icon_dec_sigb,
                lng = ~long[to_map$dir_slr == "dec_sig"],
                lat = ~lat[to_map$dir_slr == "dec_sig"],
                group = "Compared to SLR",
                popup = ~map_lab[to_map$dir_slr == "dec_sig"]) %>% 
-    addMarkers(icon = icon_inc_nonsig,
+    addMarkers(icon = icon_inc_nonsigb,
                lng = ~long[to_map$dir_slr == "inc_nonsig"],
                lat = ~lat[to_map$dir_slr == "inc_nonsig"],
                group = "Compared to SLR",
                popup = ~map_lab[to_map$dir_slr == "inc_nonsig"]) %>%  
-    addMarkers(icon = icon_dec_nonsig,
+    addMarkers(icon = icon_dec_nonsigb,
                lng = ~long[to_map$dir_slr == "dec_nonsig"],
                lat = ~lat[to_map$dir_slr == "dec_nonsig"],
                group = "Compared to SLR",
