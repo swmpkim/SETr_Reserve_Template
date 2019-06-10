@@ -61,7 +61,7 @@ icon_nonsigb <- makeIcon(iconUrl = icon_nonsig_path,
                          iconWidth = 25, iconHeight = 12)
 
 # specify what these colors are, for the legends
-map_pal <- c("#C00000", "#2F5597", "#7F7F7F")
+map_pal <- c("#c00000", "#2f5597", "#7f7f7f")
 
 
 
@@ -139,7 +139,8 @@ m <- leaflet(to_map,
     addLegend(position = "bottomright",
               colors = map_pal,
               values = c(1:length(map_pal)),
-              labels = c("lower; CIs don't overlap", "higher; CIs don't overlap", "CIs overlap")) 
+              labels = c("lower; CIs don't overlap", "higher; CIs don't overlap", "CIs overlap"),
+              opacity = 0.8) 
 
 # print the map
 # actually will do this in the calling script so it shows up
