@@ -32,3 +32,6 @@ outdir <- here::here("R_output", "analysis")
 outfile <- paste0("SET_Analyses_", Sys.Date(), ".docx")
 rmarkdown::render(infile, output_dir = outdir, output_file = outfile)
 
+
+message(paste0("\n \nYour report has been generated. Navigate to R_output/analysis and you will find '", outfile, "'. \n \n"))
+
