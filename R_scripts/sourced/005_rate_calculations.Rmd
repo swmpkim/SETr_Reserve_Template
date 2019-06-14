@@ -493,15 +493,23 @@ plot_cumu_set(dat_cumu$set)
 ```
 
 
-### NAVD88 graph if we can figure it out  
 
-## MAP  
-
-arrows for increasing/decreasing  
-make size of arrows relate to the magnitude of increase or decrease  (also color)  
+## MAPS  
 
 ```{r}
-to_map1 <- lmm_out %>%
-    select(reserve, set_id, rate, CI_low, CI_high)
+source(here::here("R_scripts", "sourced", "006_map_making_static.R"))
+```
+
+
+### Comparisons to 0  
+
+```{r}
+m0
+```
+
+### Comparisons to SLR  
+
+```{r}
+mSLR
 ```
 
