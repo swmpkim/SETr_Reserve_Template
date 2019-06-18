@@ -17,9 +17,9 @@ Also, be aware that linear models are not appropriate for calculating rates of c
 
 # Setup  
 
-The following R packages are required to generate this report:  
 
-```{r load_libraries, echo = TRUE}
+
+```{r load_libraries}
 library(knitr)
 library(forcats)
 library(readr)
@@ -87,8 +87,10 @@ dat <- dat %>%
 
 ### Sanity checks  
 
-This analysis was run on `r filelist[1]` on `r Sys.Date()`.
+This analysis was run on `r filelist[1]` on `r Sys.Date()`.  
 
+
+Make sure a metadata file exists:  
 
 ```{r read_metadata, warning = TRUE}
 ################################################################################
@@ -120,7 +122,7 @@ mdat <- read_excel(filename) %>%
 ```
 
 
-Make sure the same SET IDs exist in both the data and metadata file.   
+Make sure the same SET IDs exist in both the data and metadata file:     
 
 ```{r verify_setid, warning = TRUE}
 # first pull out set_id from both data frames
@@ -219,9 +221,9 @@ dat %>%
 ```
 
 
+Still on wish list to include:  
 
 +  NAVD88 elevation (and year determined)  
-+  Years of data collection  
 +  Distance from closest water body 
 
 
@@ -229,9 +231,13 @@ dat %>%
 
 # Rate Calculations  
 
-These rates were generated using linear mixed models. See Zuur et al. 2009 and Cahoon et al. 2018 for details.  
+These rates were generated using linear mixed models. See Zuur et al. 2009 and Cahoon et al. 2019 for details.
 
-The following is directly excerpted from Cahoon et al. 2018:
+Cahoon, D.R., Lynch, J.C., Roman, C.T. et al. Estuaries and Coasts (2019) 42: 1. https://doi.org/10.1007/s12237-018-0448-x  
+
+Zuur, A.F., E.N. Ieno, N.J. Walker, A.A. Saveliev, and G.M. Smith. 2009. Mixed effects models and extensions in ecology with R. New York: Springer.  
+
+The following is directly excerpted from Cahoon et al. 2019:
 
 > Linear mixed models (LMMs, Zuur et al. 2009) were chosen
 to analyze the surface elevation data. LMMs are ideal for
@@ -332,59 +338,146 @@ write.csv(rate_summary,
 ```
 
 
+
+
+```{r slr_comp_assignment}
+rates_slr_comp <- rate_summary %>%
+    mutate(dir_0 = case_when(CI_high < 0 ~ "dec_sig",
+                             CI_low > 0  ~ "inc_sig",
+                             rate < 0 ~ "dec_nonsig",
+                             rate > 0 ~ "inc_nonsig",
+                             TRUE ~ "nonsig"),
+           dir_slr = case_when(CI_high < slr_CI_low ~ "dec_sig",
+                               CI_low > slr_CI_high  ~ "inc_sig",
+                               rate < slr_rate ~ "dec_nonsig",
+                               rate > slr_rate ~ "inc_nonsig",
+                               TRUE ~ "nonsig")) %>% 
+  select(reserve, set_id, rate, CI_low, CI_high, set_slr_ratio, dir_0, dir_slr)
+```
+
+
+
+# Increasing/Decreasing (Comparison to 0)  
+
+The following tables break the SETs into groups where the rate of SET elevation change is *lower than* / *higher than* / *not different from* 0. *Lower than* and *higher than* tables imply that the 95% confidence intervals for the SET's rate of change do not include 0. *Not different from* means that 0 *is* included.  
+
+
+
+<br>
+
+***
+
+## SET Elevation Change < 0 mm/yr  
+
+<br>
+
+```{r zero_comp_lower}
+rates_slr_comp %>%
+    filter(dir_0 == "dec_sig") %>%
+    select(-dir_0, -dir_slr, -set_slr_ratio) %>% 
+    flextable() %>% 
+    theme_booktabs() %>% 
+    autofit()
+```
+
+<br>
+
+***
+
+## SET Elevation Change > 0 mm/yr  
+
+<br>
+
+```{r zero_comp_higher}
+rates_slr_comp %>%
+    filter(dir_0 == "inc_sig") %>%
+    select(-dir_0, -dir_slr, -set_slr_ratio) %>% 
+    flextable() %>% 
+    theme_booktabs() %>% 
+    autofit()
+```
+
+<br>
+
+***
+
+## SET Elevation Change 95% CI Includes 0 mm/yr  
+<br>
+
+```{r zero_comp_same}
+rates_slr_comp %>%
+    filter(dir_0 %in% c("dec_nonsig", "inc_nonsig")) %>%
+    select(-dir_0, -dir_slr, -set_slr_ratio) %>% 
+    flextable() %>% 
+    theme_booktabs() %>% 
+    autofit()
+```
+
+
+
+
 # Sea Level Rise Comparisons  
 
 The long-term local rate of sea level rise is **`r slr` +/- `r slr_ci` mm/yr** .  
 
 This rate is reported by `r slr_res$nearest_nwlon_station`, NWLON station number `r as.character(slr_res$nwlon_station_number)` based on data from *`r slr_res$data_start`* to *`r slr_res$data_end`*.  
 
-The following tables break the SETs into groups where the rate of SET elevation change is *lower than* / *higher than* / *not different from* this SLR rate.
+The following tables break the SETs into groups where the rate of SET elevation change is *lower than* / *higher than* / *not different from* this SLR rate. *Lower than* and *higher than* tables imply that 95% confidence intervals do not overlap between the SET and SLR. *Not different from* means that confidence intervals *do* overlap.  
 
  
+<br>
 
 <br>
 
 ***
+
+## SET Elevation Change < SLR; CIs don't overlap  
+
 
 <br>
 
 ```{r slr_comp_lower}
-lmm_out %>%
-    filter(CI_high < slr) %>%
-    knitr::kable(caption = "SETs where elevation change is lower than SLR",
-                 col.names = c("Reserve", "SET ID", "Rate (mm/yr)", "95% CI lower bound", "95% CI upper bound"),
-                 digits = 3,
-                 align = 'c')
+rates_slr_comp %>%
+    filter(dir_slr == "dec_sig") %>%
+    select(-dir_0, -dir_slr) %>% 
+    flextable() %>% 
+    theme_booktabs() %>% 
+    autofit()
 ```
 
 <br>
 
+
+
 ***
+
+## SET Elevation Change > SLR; CIs don't overlap
 
 <br>
 
 ```{r slr_comp_higher}
-lmm_out %>%
-    filter(CI_low > slr) %>%
-    knitr::kable(caption = "SETs where elevation change is higher than SLR",
-                 col.names = c("Reserve", "SET ID", "Rate (mm/yr)", "95% CI lower bound", "95% CI upper bound"),
-                 digits = 3,
-                 align = 'c')
+rates_slr_comp %>%
+    filter(dir_slr == "inc_sig") %>%
+    select(-dir_0, -dir_slr) %>% 
+    flextable() %>% 
+    theme_booktabs() %>% 
+    autofit()
 ```
 
 <br>
 
 ***
 
+## SET Elevation Change and SLR CIs overlap  
 <br>
 
 ```{r slr_comp_same}
-lmm_out %>%
-    filter(CI_low < slr & CI_high > slr) %>%
-    knitr::kable(caption = "SETs where the 95% CI for elevation change rate includes SLR",
-                 col.names = c("Reserve", "SET ID", "Rate (mm/yr)", "95% CI lower bound", "95% CI upper bound"),
-                 digits = 3,
-                 align = 'c')
+rates_slr_comp %>%
+    filter(dir_slr %in% c("dec_nonsig", "inc_nonsig")) %>%
+    select(-dir_0, -dir_slr) %>% 
+    flextable() %>% 
+    theme_booktabs() %>% 
+    autofit()
 ```
 
 
@@ -392,9 +485,8 @@ lmm_out %>%
 ***
 
 
-## Graphical Comparison to Sea Level Rise  
+## Graphical Comparison to Sea Level Rise and 0  
 
-# TO-DO: PUT THESE IN ORDER ACCORDING TO SPECIFICATIONS IN METADATA
 
 ```{r plot_slr_ci_lmm, fig.width = 7, fig.height = 6}
 ggplot() +
