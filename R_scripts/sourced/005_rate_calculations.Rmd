@@ -2,6 +2,7 @@
 title: "SET Rate Calculations"
 date: "`r Sys.Date()`"
 output: word_document
+always_allow_html: yes
 editor_options: 
   chunk_output_type: console
 ---
@@ -355,12 +356,13 @@ rates_slr_comp <- rate_summary %>%
   select(reserve, set_id, rate, CI_low, CI_high, set_slr_ratio, dir_0, dir_slr)
 ```
 
+***
+***
 
 
 # Increasing/Decreasing (Comparison to 0)  
 
 The following tables break the SETs into groups where the rate of SET elevation change is *lower than* / *higher than* / *not different from* 0. *Lower than* and *higher than* tables imply that the 95% confidence intervals for the SET's rate of change do not include 0. *Not different from* means that 0 *is* included.  
-
 
 
 <br>
@@ -369,7 +371,6 @@ The following tables break the SETs into groups where the rate of SET elevation 
 
 ## SET Elevation Change < 0 mm/yr  
 
-<br>
 
 ```{r zero_comp_lower}
 rates_slr_comp %>%
@@ -386,7 +387,6 @@ rates_slr_comp %>%
 
 ## SET Elevation Change > 0 mm/yr  
 
-<br>
 
 ```{r zero_comp_higher}
 rates_slr_comp %>%
@@ -402,7 +402,7 @@ rates_slr_comp %>%
 ***
 
 ## SET Elevation Change 95% CI Includes 0 mm/yr  
-<br>
+
 
 ```{r zero_comp_same}
 rates_slr_comp %>%
@@ -414,6 +414,8 @@ rates_slr_comp %>%
 ```
 
 
+***
+***
 
 
 # Sea Level Rise Comparisons  
@@ -434,8 +436,6 @@ The following tables break the SETs into groups where the rate of SET elevation 
 ## SET Elevation Change < SLR; CIs don't overlap  
 
 
-<br>
-
 ```{r slr_comp_lower}
 rates_slr_comp %>%
     filter(dir_slr == "dec_sig") %>%
@@ -448,12 +448,10 @@ rates_slr_comp %>%
 <br>
 
 
-
 ***
 
 ## SET Elevation Change > SLR; CIs don't overlap
 
-<br>
 
 ```{r slr_comp_higher}
 rates_slr_comp %>%
@@ -469,7 +467,7 @@ rates_slr_comp %>%
 ***
 
 ## SET Elevation Change and SLR CIs overlap  
-<br>
+
 
 ```{r slr_comp_same}
 rates_slr_comp %>%
@@ -522,6 +520,9 @@ ggplot() +
          y = "Rate of change (mm/yr)") +
     coord_flip()
 ```
+
+
+***
 
 In order, according to specifications in the metadata; and labeled with user-friendly names. Note that no plot will be produced if there are any NAs in the metadata fields `numerical_order` or `user_friendly_set_name`.    
 
@@ -576,6 +577,9 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
     coord_flip()
 }
 ```
+
+
+***
 
 ### Cumulative change snapshot  
 
