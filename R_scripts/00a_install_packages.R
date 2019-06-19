@@ -18,6 +18,17 @@ pkg_analyze <- c("rmarkdown", "broom", "flextable")
 # install packages
 install.packages(c(pkg_wrangle, pkg_interact, pkg_analyze))
 
-# also need dev version of tidyr
+# also need dev versions of tidyr and webshot
+# somewhere in here though rtools is being installed
 install.packages("devtools")
 devtools::install_github("tidyverse/tidyr")
+devtools::install_github("wch/webshot")
+
+# and phantomjs for static maps in the analysis output
+# install through webshot package;
+# first can check to see if it's already installed (from, e.g., SWMP status reports)
+# and if it's not, then install it
+library(webshot)
+if(!is_phantomjs_installed()){
+    install_phantomjs()
+}

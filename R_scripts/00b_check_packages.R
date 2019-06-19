@@ -17,7 +17,7 @@
 # list of packages we need to have installed for our workflow
 pkg_wrangle <- c("dplyr", "here", "janitor", "lubridate", "purrr", "forcats", "readr", "readxl", "stringr")
 pkg_interact <- c("DT", "ggplot2", "plotly", "shiny", "leaflet")
-pkg_analyze <- c("rmarkdown", "broom", "flextable")
+pkg_analyze <- c("rmarkdown", "broom", "flextable", "webshot")
 
 
 # glue the sub-categories together into one vector of packages we need
@@ -45,3 +45,8 @@ pkgs_missing <- pkgs_needed[!pkg_result]
 if(length(pkgs_missing) == 0){
     message("\n \nAll required packages are installed and loading properly! \n \n")
 } else{ message("\n \nYou need to install the following packages: "); cat(pkgs_missing, sep="\n") }
+
+# also check for phantomjs and if it's not there, give some advice
+if(!webshot::is_phantomjs_installed()){
+    message("\nA software component called 'phantomjs' is missing. \n---If the 'webshot' package was in your list of missing packages, install it using devtools::install_github('wch/webshot')  \n---Once 'webshot' is installed, run the line webshot::install_phantomjs()  \n---If it is still not installed, you may need to download it manually from http://phantomjs.org/download.html and put it in the same directory path as your other R packages")
+}
