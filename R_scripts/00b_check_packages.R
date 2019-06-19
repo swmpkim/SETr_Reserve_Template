@@ -39,14 +39,24 @@ for(i in seq_along(pkgs_needed)){
 # make a vector of missing packages:
 # pkgs_needed that failed to load
 pkgs_missing <- pkgs_needed[!pkg_result]
+# find out if phantomjs is missing
+phantomjs_missing <- !webshot::is_phantomjs_installed()
 
 
-# print the results to the console
-if(length(pkgs_missing) == 0){
-    message("\n \nAll required packages are installed and loading properly! \n \n")
-} else{ message("\n \nYou need to install the following packages: "); cat(pkgs_missing, sep="\n") }
+# set up the pieces of messages to print to the console
+msg_pkgs_good <- "\n \nAll required packages are installed and loading properly! \n \n"
+msg_some_pkgs_missing <- "\n \nYou need to install the following packages: "
+msg_phantomjs_missing <- "\nA software component called 'phantomjs' is missing. \n---If the 'webshot' package is in your list of missing packages, install it using devtools::install_github('wch/webshot')  \n---Once 'webshot' is installed, run the line webshot::install_phantomjs()  \n---If it is still not installed, you may need to download it manually from http://phantomjs.org/download.html and put it in the same directory path as your other R packages"
 
-# also check for phantomjs and if it's not there, give some advice
-if(!webshot::is_phantomjs_installed()){
-    message("\nA software component called 'phantomjs' is missing. \n---If the 'webshot' package was in your list of missing packages, install it using devtools::install_github('wch/webshot')  \n---Once 'webshot' is installed, run the line webshot::install_phantomjs()  \n---If it is still not installed, you may need to download it manually from http://phantomjs.org/download.html and put it in the same directory path as your other R packages")
-}
+
+
+# print messages to the console based on exactly what's working / missing
+if(length(pkgs_missing) == 0 && !phantomjs_missing){
+    message(msg_pkgs_good)
+} else if(length(pkgs_missing) == 0 && phantomjs_missing){
+    message(paste0(msg_pkgs_good, "BUT \n", msg_phantomjs_missing))
+} else if(length(pkgs_missing) != 0 && phantomjs_missing){
+    message(msg_some_pkgs_missing); cat(pkgs_missing, sep = "\n"); message(paste("\nAND \n", msg_phantomjs_missing))
+} else { message(msg_some_pkgs_missing); cat(pkgs_missing, sep="\n") }
+
+
