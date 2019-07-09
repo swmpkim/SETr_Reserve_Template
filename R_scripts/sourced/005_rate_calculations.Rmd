@@ -44,16 +44,11 @@ source(here::here('R_scripts', 'sourced', '000_functions.R'))
 This reads in the long dataset, converted from other formats by earlier scripts. It also converts pin heights to mm if they weren't already in those units.    
 
 ```{r read_data, warning = TRUE}
-################################################################################
-# get the data in
-################################################################################
-
 # find the folder with processed data
 path <- here::here('data', 'processed')
 
-# in that folder, find the name of the file(s) that ends with 'set.csv'
-filelist <- grep('set_processed.csv$', dir(path), value = TRUE)
-
+# in that folder, find the name of the file(s) that ends with 'set_processed.csv'
+filelist <- dir(path, pattern = "set_processed.csv$")
 
 
 # generate warnings if the folder is empty; if there are multiple matching files, select the first one
@@ -72,8 +67,6 @@ dat <- read_csv(filename)
 dat <- height_to_mm(dat)
 
 
-
-###############################################################################
 
 # get rid of any placeholders; make sure set_id is a factor;
 # paste year, month, and day together into "date"
@@ -94,15 +87,11 @@ This analysis was run on `r filelist[1]` on `r Sys.Date()`.
 Make sure a metadata file exists:  
 
 ```{r read_metadata, warning = TRUE}
-################################################################################
-# get the metadata in
-################################################################################
-
 # find the folder with metadata
 path <- here::here('metadata')
 
 # in that folder, find the name of the file(s) that ends with 'setm.csv'
-filelist <- grep('set_metadata.xls', dir(path), value = TRUE)
+filelist <- dir(path, pattern = 'set_metadata.xls')
 
 # generate warnings if the folder is empty; if there are multiple matching files, select the first one
 if (length(filelist) == 0) stop("There are no files of the correct name/format (---set_metadata.xls or .xlsx) in your metadata folder.")
@@ -115,11 +104,8 @@ if (length(filelist) > 1) {
 # generate the full path to the file; read it in, clean the names, get rid of empty rows and columns
 filename <- paste0(path, "/", filelist)
 mdat <- read_excel(filename) %>%
-    clean_names() %>%
+    janitor::clean_names() %>%
     janitor::remove_empty(which = c("rows", "cols"))
-
-###############################################################################
-
 ```
 
 
@@ -149,16 +135,26 @@ if (length(dat_not_m) + length(m_not_dat) == 0) {
     print("SET IDs match in your data and metadata files.")
 }
 
+# go ahead and order the set_ids in dat and unique_set_id in mdat by the metadata's numerical_order, if available
+if (!anyNA(mdat$numerical_order)){
+  mdat_sub <- select(mdat, unique_set_id, numerical_order)
+  dat <- left_join(dat, mdat_sub, by = c("set_id" = "unique_set_id")) %>% 
+    mutate(set_id = fct_reorder(set_id, numerical_order)) %>% 
+    select(-numerical_order)
+  mdat <- mdat %>% 
+    mutate(unique_set_id = fct_reorder(unique_set_id, numerical_order))
+}
+
 # cleanup
-rm(dat_not_m, m_not_dat, metadata_setid, data_setid, filelist, filename, path)
+rm(dat_not_m, m_not_dat, mdat_sub, metadata_setid, data_setid, filelist, filename, path)
 ```
+
 
 
 Read in general sea-level rates sheet and pull out the rate that matches the reserve.  
 
 ```{r read_slr}
-slr_path <- here::here('metadata')
-slr_file <- paste0(slr_path, "/slr_rates.csv")
+slr_file <- here::here('metadata', 'slr_rates.csv')
 slr_rates <- read_csv(slr_file) %>%
     clean_names() %>%
     janitor::remove_empty(which = c("rows", "cols"))
@@ -195,10 +191,12 @@ if (res_to_match %in% unique(slr_rates$reserve)) {
 ### setting  
 
 
-```{r}
-mdat %>%
-    select(unique_set_id, set_type, latitude_dec_deg, 
+```{r set_info_table}
+# print the table
+mdat %>% 
+  select(unique_set_id, set_type, latitude_dec_deg, 
            longitude_dec_deg, co_dominant_species1) %>% 
+  arrange(unique_set_id) %>% 
   setNames(c("SET_ID", "Type", "Lat", "Long", "Main_Veg")) %>% 
   flextable() %>% 
   theme_booktabs() %>% 
@@ -209,7 +207,7 @@ mdat %>%
 
 ### sampling information  
 
-```{r}
+```{r sampling_info_table}
 dat %>% 
   group_by(set_id) %>% 
   summarize(first_sampled = min(date),
