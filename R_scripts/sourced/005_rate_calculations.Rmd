@@ -98,16 +98,14 @@ if (excl_exist) {
   to_excl <- c(pin_to_excl, arm_to_excl)
   excluded <- dat[to_excl, ]
   
-  excluded %>% 
-    flextable() %>% 
-    theme_booktabs() %>% 
-    autofit()
+  knit_print(excluded)
+  
   
   # turn the heights into NAs
   dat$pin_height[to_excl] <- NA 
   
   # clean up
-  rm(list = c("excluded", "arm_to_excl", "pin_to_excl", "to_excl"))
+  # rm(list = c("excluded", "arm_to_excl", "pin_to_excl", "to_excl"))
 }
 ```
 

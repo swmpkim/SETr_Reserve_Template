@@ -1,6 +1,6 @@
 # Generate Microsoft Word report of basic SET data analyses
 
-#### INSTRUCTIONS ####
+#### INSTRUCTIONS ############################################################
 
 # 1:
 # Re-start your R session to make sure there's no interference:
@@ -14,6 +14,7 @@
 # Run it: either using the "Run" button in the upper right corner
 # or the keyboard shortcut Ctrl/Cmd + Enter
 
+##############################################################################
 
 
 library(here)
