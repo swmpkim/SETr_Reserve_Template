@@ -1,5 +1,6 @@
 # run this at the end of the Word report script (after 005)
 library(leaflet)
+library(mapview)
 
 # map differences
 # dir_0 is comparison to 0
@@ -33,15 +34,15 @@ icon_nonsig_path <- here::here("img", "gray_dash.png")
 
 # turn them into icons
 icon_inc_siga <- icon_inc_sigb <- makeIcon(iconUrl = icon_inc_sig_path, 
-                          iconWidth = 30, iconHeight = 35)
+                                           iconWidth = 30, iconHeight = 35)
 icon_dec_siga <- icon_dec_sigb <- makeIcon(iconUrl = icon_dec_sig_path, 
-                          iconWidth = 30, iconHeight = 35)
+                                           iconWidth = 30, iconHeight = 35)
 icon_inc_nonsiga <- icon_inc_nonsigb <- makeIcon(iconUrl = icon_inc_nonsig_path, 
-                             iconWidth = 30, iconHeight = 35)
+                                                 iconWidth = 30, iconHeight = 35)
 icon_dec_nonsiga <- icon_dec_nonsigb <- makeIcon(iconUrl = icon_dec_nonsig_path, 
-                             iconWidth = 30, iconHeight = 35)
+                                                 iconWidth = 30, iconHeight = 35)
 icon_nonsiga <- icon_nonsigb <- makeIcon(iconUrl = icon_nonsig_path, 
-                         iconWidth = 25, iconHeight = 12)
+                                         iconWidth = 25, iconHeight = 12)
 
 
 # specify what these colors are, for the legends
@@ -55,86 +56,68 @@ map_pal <- c("#c00000", "#2f5597", "#7f7f7f")
 m0 <- leaflet(to_map,
               options = leafletOptions(zoomControl = FALSE)) %>%
     ### base layer options
-    addProviderTiles(leaflet::providers$Esri.WorldGrayCanvas, 
-                     group = "Esri World Gray Canvas") %>% 
+    addProviderTiles(leaflet::providers$Esri.WorldGrayCanvas) %>% 
     ### Compared to 0 
     addMarkers(icon = icon_nonsiga,
                lng = ~long[to_map$dir_0 == "nonsig"],
-               lat = ~lat[to_map$dir_0 == "nonsig"],
-               group = "Compared to 0",
-               popup = ~map_lab[to_map$dir_0 == "nonsig"]) %>%
+               lat = ~lat[to_map$dir_0 == "nonsig"]) %>%
     addMarkers(icon = icon_inc_siga,
                lng = ~long[to_map$dir_0 == "inc_sig"],
-               lat = ~lat[to_map$dir_0 == "inc_sig"],
-               group = "Compared to 0",
-               popup = ~map_lab[to_map$dir_0 == "inc_sig"]) %>%
+               lat = ~lat[to_map$dir_0 == "inc_sig"]) %>%
     addMarkers(icon = icon_dec_siga,
                lng = ~long[to_map$dir_0 == "dec_sig"],
-               lat = ~lat[to_map$dir_0 == "dec_sig"],
-               group = "Compared to 0",
-               popup = ~map_lab[to_map$dir_0 == "dec_sig"]) %>% 
+               lat = ~lat[to_map$dir_0 == "dec_sig"]) %>% 
     addMarkers(icon = icon_inc_nonsiga,
                lng = ~long[to_map$dir_0 == "inc_nonsig"],
-               lat = ~lat[to_map$dir_0 == "inc_nonsig"],
-               group = "Compared to 0",
-               popup = ~map_lab[to_map$dir_0 == "inc_nonsig"]) %>%  
+               lat = ~lat[to_map$dir_0 == "inc_nonsig"]) %>%  
     addMarkers(icon = icon_dec_nonsiga,
                lng = ~long[to_map$dir_0 == "dec_nonsig"],
-               lat = ~lat[to_map$dir_0 == "dec_nonsig"],
-               group = "Compared to 0",
-               popup = ~map_lab[to_map$dir_0 == "dec_nonsig"]) %>% 
+               lat = ~lat[to_map$dir_0 == "dec_nonsig"]) %>% 
     ### dress up the map
     addScaleBar() %>%
-    addLegend(position = "bottomright",
+    addLegend(title = "Compared to 0",
+              position = "bottomright",
               colors = map_pal,
               values = c(1:length(map_pal)),
               labels = c("lower; CIs don't overlap", "higher; CIs don't overlap", "CIs overlap"),
               opacity = 0.8) 
 
-# print the map
-# actually will do this in the calling script so it shows up
-# m
-
-
+# save it out
+file_path1 <- here::here("R_output", "figures", "maps", "map_0.png")
+mapview::mapshot(m0, file = file_path1)
 
 
 
 # build the map - comparison to SLR
 mSLR <- leaflet(to_map,
-              options = leafletOptions(zoomControl = FALSE)) %>%
+                options = leafletOptions(zoomControl = FALSE)) %>%
     ### base layer options
-    addProviderTiles(leaflet::providers$Esri.WorldGrayCanvas, 
-                     group = "Esri World Gray Canvas") %>% 
+    addProviderTiles(leaflet::providers$Esri.WorldGrayCanvas) %>% 
     ### Compared to SLR 
-    addMarkers(icon = icon_nonsigb,
+    addMarkers(icon = icon_nonsiga,
                lng = ~long[to_map$dir_slr == "nonsig"],
-               lat = ~lat[to_map$dir_slr == "nonsig"],
-               group = "Compared to SLR",
-               popup = ~map_lab[to_map$dir_slr == "nonsig"]) %>%
-    addMarkers(icon = icon_inc_sigb,
+               lat = ~lat[to_map$dir_slr == "nonsig"]) %>%
+    addMarkers(icon = icon_inc_siga,
                lng = ~long[to_map$dir_slr == "inc_sig"],
-               lat = ~lat[to_map$dir_slr == "inc_sig"],
-               group = "Compared to SLR",
-               popup = ~map_lab[to_map$dir_slr == "inc_sig"]) %>%
-    addMarkers(icon = icon_dec_sigb,
+               lat = ~lat[to_map$dir_slr == "inc_sig"]) %>%
+    addMarkers(icon = icon_dec_siga,
                lng = ~long[to_map$dir_slr == "dec_sig"],
-               lat = ~lat[to_map$dir_slr == "dec_sig"],
-               group = "Compared to SLR",
-               popup = ~map_lab[to_map$dir_slr == "dec_sig"]) %>% 
-    addMarkers(icon = icon_inc_nonsigb,
+               lat = ~lat[to_map$dir_slr == "dec_sig"]) %>% 
+    addMarkers(icon = icon_inc_nonsiga,
                lng = ~long[to_map$dir_slr == "inc_nonsig"],
-               lat = ~lat[to_map$dir_slr == "inc_nonsig"],
-               group = "Compared to SLR",
-               popup = ~map_lab[to_map$dir_slr == "inc_nonsig"]) %>%  
-    addMarkers(icon = icon_dec_nonsigb,
+               lat = ~lat[to_map$dir_slr == "inc_nonsig"]) %>%  
+    addMarkers(icon = icon_dec_nonsiga,
                lng = ~long[to_map$dir_slr == "dec_nonsig"],
-               lat = ~lat[to_map$dir_slr == "dec_nonsig"],
-               group = "Compared to SLR",
-               popup = ~map_lab[to_map$dir_slr == "dec_nonsig"]) %>%
+               lat = ~lat[to_map$dir_slr == "dec_nonsig"]) %>% 
     ### dress up the map
     addScaleBar() %>%
-    addLegend(position = "bottomright",
+    addLegend(title = "Compared to Sea Level Rise",
+              position = "bottomright",
               colors = map_pal,
               values = c(1:length(map_pal)),
               labels = c("lower; CIs don't overlap", "higher; CIs don't overlap", "CIs overlap"),
-              opacity = 0.8)
+              opacity = 0.8) 
+
+# save it out
+file_path2 <- here::here("R_output", "figures", "maps", "map_SLR.png")
+mapview::mapshot(mSLR, file = file_path2)
