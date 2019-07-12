@@ -11,7 +11,7 @@ editor_options:
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 ```
 
-Everything in this report currently uses ALL reported data values. Quality flags were ignored, which may lead to differences in final numbers once we deal with QA/QC issues.  
+In this report, the user may have chosen to exclude data associated with certain QA/QC codes. Any values that have been removed are listed in the appropriate section below.    
 
 Also, be aware that linear models are not appropriate for calculating rates of change at all sites. Use discretion when interpreting these results.  
 
@@ -79,6 +79,36 @@ dat <- dat %>%
            !is.na(pin_number)) %>%
     mutate(set_id = as.factor(set_id),
            arm_position = as.character(arm_position))
+```
+
+
+## QA/QC codes  
+
+Use the *user_defined_inputs* spreadsheet to find qa/qc codes that the user wants to have removed (designated in that sheet with "-3" to be consistent with the SWMP "reject" flagging). Report those values and then turn them into NAs.
+
+Note that this code will look for an EXACT match. e.g., if "LHE" is specified for removal, only values with "LHE" will be removed. "LHE CB" and "CRM LHE" will *not* be removed. To remove a combination of codes, a new line may need to be created in the *qaqc_codes* tab of the input spreadsheet.  
+
+```{r}
+if (excl_exist) {
+  # find the rows to exclude - either arm or pin codes match
+  pin_to_excl <- which(dat$qaqc_code %in% codes_to_exclude)
+  arm_to_excl <- which(dat$arm_qaqc_code %in% codes_to_exclude)
+  
+  # make a data frame of the excluded ones and print it out
+  to_excl <- c(pin_to_excl, arm_to_excl)
+  excluded <- dat[to_excl, ]
+  
+  excluded %>% 
+    flextable() %>% 
+    theme_booktabs() %>% 
+    autofit()
+  
+  # turn the heights into NAs
+  dat$pin_height[to_excl] <- NA 
+  
+  # clean up
+  rm(list = c("excluded", "arm_to_excl", "pin_to_excl", "to_excl"))
+}
 ```
 
 
@@ -520,6 +550,9 @@ ggplot() +
          x = "SET", 
          y = "Rate of change (mm/yr)") +
     coord_flip()
+
+out_file <- here::here("R_output", "figures", "summary_plots", "summary_plot.png")
+ggsave(out_file)
 ```
 
 
@@ -544,7 +577,7 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
   lmm_out_ordered$user_friendly_set_name <- a
   lmm_out_ordered$set_id2 <- b
   
-  ggplot() +
+  p <- ggplot() +
     geom_blank(data = lmm_out_ordered, 
                aes(x = user_friendly_set_name, 
                    y = rate)) +
@@ -576,6 +609,11 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
          x = "SET", 
          y = "Rate of change (mm/yr)") +
     coord_flip()
+  
+  out_file <- here::here("R_output", "figures", "summary_plots", "summary_plot_friendlier.png")
+  ggsave(out_file, p)
+  
+  print(p)
 }
 ```
 
@@ -587,6 +625,9 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
 ```{r, fig.width = 7, fig.height = 7}
 dat_cumu <- calc_change_cumu(dat)
 plot_cumu_set(dat_cumu$set, columns = opts_long$multi_cols)
+
+out_file <- here::here("R_output", "figures", "cumu_change_plots", "cumu_change.png")
+ggsave(out_file)
 ```
 
 
