@@ -98,9 +98,15 @@ if (excl_exist) {
   to_excl <- c(pin_to_excl, arm_to_excl)
   excluded <- dat[to_excl, ]
   
-  knit_print(excluded)
   
+  excluded %>% 
+    select(set_id, date, 
+           arm = arm_position, 
+           arm_code = arm_qaqc_code, 
+           pin_number, qaqc_code, pin_height) %>% 
+    knit_print()
   
+
   # turn the heights into NAs
   dat$pin_height[to_excl] <- NA 
   
