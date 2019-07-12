@@ -35,7 +35,10 @@ library(flextable)
 library(readxl)
 library(lubridate)
 library(leaflet)
+# load functions
 source(here::here('R_scripts', 'sourced', '000_functions.R'))
+# load user options
+source(here::here('R_scripts', 'sourced', '001_user_options.R'))
 ```
 
 
@@ -583,7 +586,7 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
 
 ```{r, fig.width = 7, fig.height = 7}
 dat_cumu <- calc_change_cumu(dat)
-plot_cumu_set(dat_cumu$set)
+plot_cumu_set(dat_cumu$set, columns = opts_long$multi_cols)
 ```
 
 
