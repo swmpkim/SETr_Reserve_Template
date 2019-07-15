@@ -245,12 +245,14 @@ mdat %>%
 ### sampling information  
 
 ```{r sampling_info_table}
-dat %>% 
+sample_info <- dat %>% 
   group_by(set_id) %>% 
   summarize(first_sampled = min(date),
             last_sampled = max(date),
             years_sampled = as.double(max(date) - min(date)) / 365.25,
-            sample_events = length(unique(date))) %>% 
+            sample_events = length(unique(date))) 
+
+sample_info %>% 
   flextable() %>% 
   theme_booktabs() %>% 
   autofit()
@@ -264,6 +266,36 @@ Still on wish list to include:
 
 
 ***
+
+### Cumulative change snapshot  
+
+Take a look at your overall change since the first reading - make sure the change looks generally linear, and make sure there are no big breaks in the data that could influence the outputs. Output will be generated even if it is not appropriate - **it is up to you to use discretion and make sure a linear model is appropriate for the data!**
+
+```{r, fig.width = 7, fig.height = 7}
+dat_cumu <- calc_change_cumu(dat)
+plot_cumu_set(dat_cumu$set, columns = opts_long$multi_cols)
+
+out_file <- here::here("R_output", "figures", "cumu_change_plots", "cumu_change.png")
+ggsave(out_file)
+```
+
+# Only use sites with enough data  
+
+From this point on, only SETs with 5 or more measurements over 4.5 or more years will be analyzed. If you do not have any SETs that have been measured for this long, you will NOT see analyses or graphs below.  
+
+**Note** - if you're reading this at the SETr workshop, please note that I'll probably change the code some more and nothing below this section will show up if you don't have any sites with enough data to analyze.  
+
+```{r}
+# make a backup
+dat_all <- dat
+
+to_keep <- unlist(sample_info[sample_info$years_sampled >= 4.5 & sample_info$sample_events >= 5, "set_id"])
+
+dat <- dat[dat$set_id %in% to_keep, ]
+
+enough_dat <- nrow(dat) > 0
+```
+
 
 # Rate Calculations  
 
@@ -320,7 +352,7 @@ These rates were generated using the `lme()` function in the `nlme` package. Con
 
 All calculations generated output in *mm/day* and were converted to *mm/yr* by multiplying by 365.25 (this accounts for leap years).    
 
-```{r calc_lmm}
+```{r calc_lmm, eval = enough_dat}
 models2 <- dat %>%
     group_by(reserve, set_id) %>%
     do(mod = lme(pin_height ~ date, data = ., random = ~1|arm_position/pin_number, na.action = na.omit))
@@ -341,7 +373,7 @@ lmm_out %>%
 
 ### Additional model diagnostics  
 
-```{r calc_lmm_other}
+```{r calc_lmm_other, eval = enough_dat}
 glance(models2, mod) %>%
     flextable() %>% 
     theme_booktabs() %>% 
@@ -351,7 +383,7 @@ glance(models2, mod) %>%
 
 ### Combine information from rate calculations, metadata, and SLR into one file  
 
-```{r}
+```{r, eval = enough_dat}
 # pick out relevant fields from the metadata to be used for mapping
 mdat_sub <- mdat %>% 
   select(unique_set_id, user_friendly_set_name, reserve, latitude_dec_deg, longitude_dec_deg)
@@ -376,7 +408,7 @@ write.csv(rate_summary,
 
 
 
-```{r slr_comp_assignment}
+```{r slr_comp_assignment, eval = enough_dat}
 rates_slr_comp <- rate_summary %>%
     mutate(dir_0 = case_when(CI_high < 0 ~ "dec_sig",
                              CI_low > 0  ~ "inc_sig",
@@ -407,7 +439,7 @@ The following tables break the SETs into groups where the rate of SET elevation 
 ## SET Elevation Change < 0 mm/yr  
 
 
-```{r zero_comp_lower}
+```{r zero_comp_lower, eval = enough_dat}
 rates_slr_comp %>%
     filter(dir_0 == "dec_sig") %>%
     select(-dir_0, -dir_slr, -set_slr_ratio) %>% 
@@ -423,7 +455,7 @@ rates_slr_comp %>%
 ## SET Elevation Change > 0 mm/yr  
 
 
-```{r zero_comp_higher}
+```{r zero_comp_higher, eval = enough_dat}
 rates_slr_comp %>%
     filter(dir_0 == "inc_sig") %>%
     select(-dir_0, -dir_slr, -set_slr_ratio) %>% 
@@ -439,7 +471,7 @@ rates_slr_comp %>%
 ## SET Elevation Change 95% CI Includes 0 mm/yr  
 
 
-```{r zero_comp_same}
+```{r zero_comp_same, eval = enough_dat}
 rates_slr_comp %>%
     filter(dir_0 %in% c("dec_nonsig", "inc_nonsig")) %>%
     select(-dir_0, -dir_slr, -set_slr_ratio) %>% 
@@ -471,7 +503,7 @@ The following tables break the SETs into groups where the rate of SET elevation 
 ## SET Elevation Change < SLR; CIs don't overlap  
 
 
-```{r slr_comp_lower}
+```{r slr_comp_lower, eval = enough_dat}
 rates_slr_comp %>%
     filter(dir_slr == "dec_sig") %>%
     select(-dir_0, -dir_slr) %>% 
@@ -488,7 +520,7 @@ rates_slr_comp %>%
 ## SET Elevation Change > SLR; CIs don't overlap
 
 
-```{r slr_comp_higher}
+```{r slr_comp_higher, eval = enough_dat}
 rates_slr_comp %>%
     filter(dir_slr == "inc_sig") %>%
     select(-dir_0, -dir_slr) %>% 
@@ -504,7 +536,7 @@ rates_slr_comp %>%
 ## SET Elevation Change and SLR CIs overlap  
 
 
-```{r slr_comp_same}
+```{r slr_comp_same, eval = enough_dat}
 rates_slr_comp %>%
     filter(dir_slr %in% c("dec_nonsig", "inc_nonsig")) %>%
     select(-dir_0, -dir_slr) %>% 
@@ -521,7 +553,7 @@ rates_slr_comp %>%
 ## Graphical Comparison to Sea Level Rise and 0  
 
 
-```{r plot_slr_ci_lmm, fig.width = 7, fig.height = 6}
+```{r plot_slr_ci_lmm, fig.width = 7, fig.height = 6, eval = enough_dat}
 ggplot() +
     geom_blank(data = lmm_out, 
                aes(x = set_id, 
@@ -564,7 +596,7 @@ ggsave(out_file)
 
 In order, according to specifications in the metadata; and labeled with user-friendly names. Note that no plot will be produced if there are any NAs in the metadata fields `numerical_order` or `user_friendly_set_name`.    
 
-```{r plot_slr_ci_lmm_ordered, fig.width = 7, fig.height = 6}
+```{r plot_slr_ci_lmm_ordered, fig.width = 7, fig.height = 6, eval = enough_dat}
 # only run this chunk if numerical order and user friendly names are specified for all SETs
 
 if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) == 0){
@@ -624,34 +656,22 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
 
 ***
 
-### Cumulative change snapshot  
-
-```{r, fig.width = 7, fig.height = 7}
-dat_cumu <- calc_change_cumu(dat)
-plot_cumu_set(dat_cumu$set, columns = opts_long$multi_cols)
-
-out_file <- here::here("R_output", "figures", "cumu_change_plots", "cumu_change.png")
-ggsave(out_file)
-```
-
-
-
 ## MAPS  
 
-```{r}
+```{r, eval = enough_dat}
 source(here::here("R_scripts", "sourced", "006_map_making_static.R"))
 ```
 
 
 ### Comparisons to 0  
 
-```{r}
+```{r, eval = enough_dat}
 m0
 ```
 
 ### Comparisons to SLR  
 
-```{r}
+```{r, eval = enough_dat}
 mSLR
 ```
 
