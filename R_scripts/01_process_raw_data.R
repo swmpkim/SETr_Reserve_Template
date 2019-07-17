@@ -55,7 +55,7 @@ mismatches <- dat$set_id != dat$sheet
 
 # make this whole script stop if something doesn't match
 if(sum(mismatches) > 0){
-        print(dat[mismatches, c("sheet", "set_id", "date", "arm_position")])
+        print(dat[mismatches, c("sheet", "set_id", "year", "month", "arm_position")])
         stop("There are SET IDs that do not match the sheet name. Please check and correct the rows printed above before proceeding.")
         }else{
 # if no problem, do everything else

@@ -142,7 +142,7 @@ if (length(filelist) > 1) {
 filename <- paste0(path, "/", filelist)
 mdat <- read_excel(filename) %>%
     janitor::clean_names() %>%
-    janitor::remove_empty(which = c("rows", "cols"))
+    janitor::remove_empty(which = "rows")
 ```
 
 
@@ -174,12 +174,14 @@ if (length(dat_not_m) + length(m_not_dat) == 0) {
 
 # go ahead and order the set_ids in dat and unique_set_id in mdat by the metadata's numerical_order, if available
 if (!anyNA(mdat$numerical_order)){
-  mdat_sub <- select(mdat, unique_set_id, numerical_order)
+  mdat_sub <- select(mdat, unique_set_id, numerical_order) %>% 
+    mutate(unique_set_id = factor(unique_set_id))
   dat <- left_join(dat, mdat_sub, by = c("set_id" = "unique_set_id")) %>% 
     mutate(set_id = fct_reorder(set_id, numerical_order)) %>% 
     select(-numerical_order)
   mdat <- mdat %>% 
-    mutate(unique_set_id = fct_reorder(unique_set_id, numerical_order))
+    mutate(unique_set_id = factor(unique_set_id),
+           unique_set_id = fct_reorder(unique_set_id, numerical_order))
 }
 
 # cleanup
