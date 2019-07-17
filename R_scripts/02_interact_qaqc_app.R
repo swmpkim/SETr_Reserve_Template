@@ -25,6 +25,7 @@ library(here)
 library(shiny)
 library(plotly)
 library(DT)
+library(janitor)
 source(here::here('R_scripts', 'sourced', '000_functions.R'))
 
 
@@ -68,6 +69,17 @@ if (sum(class(dat$date) %in% c("datetime", "POSIXct", "POSIXlt")) > 0)
 cumu_out <- calc_change_cumu(dat)
 # incremental change
 incr_out <- calc_change_incr(dat)
+
+
+###############################################################################
+# reshape incremental change so it looks more like the NPS spreadsheet,
+# with date as column headers and one row per pin - 36 rows per set
+# would be great to conditionally format cells outside the threshold, dynamically
+###############################################################################
+incr_wide <- incr_out$pin %>% 
+    select(set_id, arm_position, pin_number, date, incr) %>% 
+    mutate(date = as.character(date)) %>% 
+    spread(key = date, value = incr)
 
 
 ###############################################################################
@@ -155,17 +167,31 @@ ui <- fluidPage(
                                              step = 5),
                                  br(),
                                  plotlyOutput(outputId = "plotly_incr_pin"),
+                                 
                                  br(), br(),
                                  textOutput(outputId = "count_incr_pin"),
+                                 
                                  checkboxInput(inputId = "incr_table",
                                                label = "Show these points in a table",
                                                value = FALSE),
                                  conditionalPanel(condition = "input.incr_table == true",
-                                                  
-                                 br(), 
-                                 DT::dataTableOutput(outputId = "tbl_incr_pin")),
+                                                  br(), 
+                                                  DT::dataTableOutput(outputId = "tbl_incr_pin")
+                                 ),
+                                 
+                                 br(),
+                                 
+                                 checkboxInput(inputId = "incr_tbl_wide",
+                                               label = "View ALL incremental changes for this SET, with each pin on a row and each date as a column",
+                                               value = FALSE),
+                                 conditionalPanel(condition = "input.incr_tbl_wide == true",
+                                                  br(),
+                                                  DT::dataTableOutput(outputId = "tbl_incr_wide")
+                                                  ),
                                  br(), br(),
                                  plotlyOutput(outputId = "plotly_incr_arm")
+                                 
+                                 
                         ),
                         
                         tabPanel("Cumulative Calcs", value = 3,
@@ -223,6 +249,14 @@ server <- function(input, output) {
         }
         # apply that function to each piece of the incr_out list
         lapply(incr_out, datesub)
+    })
+    
+    
+    # subset the incr_wide data frame
+    # only by SET; keep all dates included
+    incr_wide_sub <- reactive({
+        req(input$SET)
+        incr_wide[incr_wide$set_id == input$SET, ]
     })
     
    
@@ -298,6 +332,22 @@ server <- function(input, output) {
                                          targets = "_all"))
                                      )
                       )
+    })
+    
+    
+    # make the table of incremental changes that looks like the NPS spreadsheet
+    output$tbl_incr_wide <- DT::renderDataTable({
+        incrdat <- incr_wide_sub()
+        incrdat <- janitor::remove_empty(incrdat, which = c("rows", "cols"))
+        DT::datatable(data = incrdat, 
+                      rownames = FALSE,
+                      options = list(pageLength = 36,
+                                     autoWidth = TRUE,
+                                     columnDefs = list(list(
+                                         className = 'dt-center', 
+                                         targets = "_all"))
+                      )
+        )
     })
     
     
