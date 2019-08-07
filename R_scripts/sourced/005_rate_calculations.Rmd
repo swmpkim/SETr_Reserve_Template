@@ -382,6 +382,21 @@ glance(models2, mod) %>%
     autofit()
 ```
 
+The above might fail for some people. Let's see if pulling out sigma, AIC, and BIC directly works.
+
+```{r}
+diagnostics_out <- models2 %>% 
+  mutate(sigma = sigma(mod),
+         AIC = AIC(mod),
+         BIC = BIC(mod),
+         logLik = mod$logLik) %>% 
+  select(-mod)
+
+diagnostics_out %>% 
+  flextable() %>% 
+  theme_booktabs() %>% 
+  autofit()
+```
 
 ### Combine information from rate calculations, metadata, and SLR into one file  
 
