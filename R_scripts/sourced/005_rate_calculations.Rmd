@@ -284,7 +284,8 @@ ggsave(out_file, width = 7, height = 7, units = "in")
 
 
 # with linear regression
-plot_cumu_set(dat_cumu$set, columns = opts_long$multi_cols)
+plot_cumu_set(dat_cumu$set, columns = opts_long$multi_cols,
+              pointsize = 2)
 # save it
 out_file <- here::here("R_output", "figures", "cumu_change_plots", "cumu_change_withLine.png")
 ggsave(out_file, width = 7, height = 7, units = "in")
@@ -314,14 +315,58 @@ intercepts <- dat_cumu$set %>%
          slope = slr_for_graph)
 
 # add the line to the plot
-p <- plot_cumu_set(dat_cumu$set, columns = opts_long$multi_cols)
+p <- plot_cumu_set(dat_cumu$set, columns = opts_long$multi_cols,
+                   pointsize = 2,
+                   smooth = FALSE)
+p +
+  geom_smooth(se = FALSE, method = 'lm', 
+                    col = 'steelblue4') +
+  geom_abline(data = intercepts,
+              aes(intercept = intercept,
+                  slope = slope),
+              color = "red3",
+              size = 1) +
+  labs(subtitle = "red line approximates sea level rise; blue line is linear model of SET change")
+out_file <- here::here("R_output", "figures", "cumu_change_plots", "cumu_change_withLineAndSLR.png")
+ggsave(out_file, width = 7, height = 7, units = "in")
+
+
+# add the line to the plot
+p <- plot_cumu_set(dat_cumu$set, columns = opts_long$multi_cols,
+                   smooth = FALSE,
+                   pointsize = 2)
 p + 
   geom_abline(data = intercepts,
               aes(intercept = intercept,
                   slope = slope),
-              color = "red",
+              color = "red3",
+              size = 0.8,
+              alpha = 0.9) +
+  labs(title = "Cumulative Change since first reading",
+       subtitle = "red line approximates sea level rise")
+out_file <- here::here("R_output", "figures", "cumu_change_plots", "cumu_change_withSLR.png")
+ggsave(out_file, width = 7, height = 7, units = "in")
+
+
+
+# what if we just do it without any points; just smooths?
+ggplot(dat_cumu$set, aes(x = date, y = mean_cumu)) +
+        geom_line(col = 'gray70') +
+        facet_wrap(~set_id, ncol = opts_long$multi_cols) +
+        labs(title = 'Cumulative Change since first reading', 
+             subtitle = 'light gray tracks mean change; blue is a linear smooth of change; \nred approximates sea level rise',
+             x = 'Date',
+             y = 'Change since first reading (mm)') +
+        theme_classic() +
+  geom_smooth(se = FALSE, method = 'lm', 
+                    col = 'steelblue4',
+              size = 1) +
+  geom_abline(data = intercepts,
+              aes(intercept = intercept,
+                  slope = slope),
+              color = "red3",
               size = 1)
-out_file <- here::here("R_output", "figures", "cumu_change_plots", "cumu_change_withLineAndSLR.png")
+out_file <- here::here("R_output", "figures", "cumu_change_plots", "cumu_change_linesOnly.png")
 ggsave(out_file, width = 7, height = 7, units = "in")
 ```
 
