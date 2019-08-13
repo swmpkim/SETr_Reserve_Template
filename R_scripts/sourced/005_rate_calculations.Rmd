@@ -275,10 +275,61 @@ Take a look at your overall change since the first reading - make sure the chang
 
 ```{r, fig.width = 7, fig.height = 7}
 dat_cumu <- calc_change_cumu(dat)
-plot_cumu_set(dat_cumu$set, columns = opts_long$multi_cols)
 
-out_file <- here::here("R_output", "figures", "cumu_change_plots", "cumu_change.png")
+# without linear regression
+plot_cumu_set(dat_cumu$set, columns = opts_long$multi_cols, smooth = FALSE)
+# save it
+out_file <- here::here("R_output", "figures", "cumu_change_plots", "cumu_change_noLine.png")
 ggsave(out_file)
+
+
+# with linear regression
+plot_cumu_set(dat_cumu$set, columns = opts_long$multi_cols)
+# save it
+out_file <- here::here("R_output", "figures", "cumu_change_plots", "cumu_change_withLine.png")
+ggsave(out_file)
+```
+
+
+### Plus Sea Level Rise Line  
+
+**This is an oversimplification of sea level rise**  
+
+It is only meant to illustrate and give context for SET elevation change  
+
+
+
+Because R works in days, we need to convert 3.5 mm/yr into a rate per day. And because the NAVD88 stuff is in meters, we need this to become meters per day. The math for that is:
+
+3.5 * 365.25 / 1000
+
+The 365.25 accounts for leap years.
+
+```{r, fig.width = 7, fig.height = 7}
+
+# add slr
+# first figure out where the line should be
+# run it through the first 0 in... each... panel?
+# want it to go through the first point on the graph
+# and have the slr slope
+
+slr_for_graph <- slr/365.25
+
+# generate a SET-specific intercept based on the first date of sampling at that SET
+intercepts <- dat_cumu$set %>% 
+  group_by(set_id) %>% 
+  summarize(min_date = as.integer(min(date))) %>% 
+  mutate(intercept = 0 - (slr_for_graph*min_date),
+         slope = slr_for_graph)
+
+
+p <- plot_cumu_set(dat_cumu$set, columns = opts_long$multi_cols)
+p + 
+  geom_abline(data = intercepts,
+              aes(intercept = intercept,
+                  slope = slope),
+              color = "red",
+              size = 1)
 ```
 
 # Only use sites with enough data  
