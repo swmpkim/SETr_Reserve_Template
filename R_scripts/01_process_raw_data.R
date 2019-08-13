@@ -3,7 +3,7 @@
 # all SETs in one table
 
 
-#### INSTRUCTIONS ####
+#### INSTRUCTIONS #############################################################
 
 # 1:
 # Re-start your R session to make sure there's no interference:
@@ -17,7 +17,7 @@
 # Run it: either using the "Run" button in the upper right corner
 # or the keyboard shortcut Ctrl/Cmd + Enter
 
-
+###############################################################################
 
 
 # this script is modified from SETr_data_transformations/R/01_NEW_wide_to_long.R
@@ -106,5 +106,7 @@ file_out <- paste0(substr(file_in, 1, nchar(file_in)-4), "_processed.csv")
 out_path <- here::here("data", "processed")
 file_out <- paste0(out_path, "/", file_out)
 write.csv(dat_long, file_out, row.names = FALSE)
+
+message("\n \nDone! Move on to other scripts. \n \n")
         }
 
