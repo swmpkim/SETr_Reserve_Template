@@ -503,15 +503,6 @@ lmm_out %>%
 
 ### Additional model diagnostics  
 
-```{r calc_lmm_other, eval = enough_dat}
-glance(models2, mod) %>%
-    flextable() %>% 
-    theme_booktabs() %>% 
-    autofit()
-```
-
-The above might fail for some people. Let's see if pulling out sigma, AIC, and BIC directly works.
-
 ```{r}
 diagnostics_out <- models2 %>% 
   mutate(sigma = sigma(mod),
@@ -735,6 +726,57 @@ ggplot() +
 out_file <- here::here("R_output", "figures", "summary_plots", "summary_plot.png")
 ggsave(out_file)
 ```
+
+
+***
+
+Try to color points by veg type (`mdat$co_dominant_species1`)
+
+```{r plot_slr_ci_lmm, fig.width = 7, fig.height = 6, eval = enough_dat}
+# put veg type into the data frame
+lmm_out <- left_join(lmm_out, select(mdat, unique_set_id, co_dominant_species1), by = c("set_id" = "unique_set_id")) %>% 
+  rename(veg = co_dominant_species1)
+
+
+ggplot() +
+    geom_blank(data = lmm_out, 
+               aes(x = set_id, 
+                   y = rate)) +
+    geom_ribbon(aes(x = 0:(nrow(lmm_out)+1), 
+                    ymin = slr-slr_ci, 
+                    ymax = slr+slr_ci), 
+                fill = "navyblue", 
+                alpha = 0.1) +
+    geom_hline(aes(yintercept = slr), 
+               col = "navyblue", 
+               size = 1, 
+               alpha = 0.9) +
+    geom_hline(aes(yintercept = 0), 
+               col = "gray70") +
+    geom_errorbar(data = lmm_out, 
+                  aes(x = set_id, 
+                      ymin = CI_low, 
+                      ymax = CI_high), 
+                  col = "gray55", 
+                  size = 1) +
+    geom_point(data = lmm_out, 
+               aes(x = set_id, 
+                   y = rate,
+                   col = veg), 
+               size = 3) +
+    theme_classic() + 
+  scale_color_brewer(type = "qual", palette = "Dark2") +
+    labs(title = "Elevation Change, 95% Confidence Intervals (LMM)", 
+         subtitle = paste0("Local SLR in blue: ", slr, " +/- ", slr_ci, " mm/yr"), 
+         x = "SET", 
+         y = "Rate of change (mm/yr)",
+         color = "Dominant Vegetation") +
+    coord_flip()
+
+out_file <- here::here("R_output", "figures", "summary_plots", "summary_plot_vegcolors.png")
+ggsave(out_file)
+```
+
 
 
 ***
