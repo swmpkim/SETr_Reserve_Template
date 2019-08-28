@@ -79,14 +79,19 @@ labels_veg <- labs(color = "Dominant Vegetation")
 
 
 
-labels_full <- labs(title = "Elevation Change, 95% Confidence Intervals (LMM)", 
+labels_full <- labs(title = "Elevation Change with 95% Confidence Intervals", 
          subtitle = paste0("Local SLR in blue: ", slr, " +/- ", slr_ci, " mm/yr"), 
          x = "SET", 
          y = "Rate of change (mm/yr)")
 
 
+labels_minimal <- labs(title = "Elevation Change", 
+                             subtitle = paste0("Local SLR in blue: ", slr, " mm/yr"), 
+                             x = "SET", 
+                             y = "Rate of change (mm/yr)")
 
-labels_partial <- labs(title = "Elevation Change", 
+
+labels_partial_setci <- labs(title = "Elevation Change with 95% Confidence Intervals", 
                        subtitle = paste0("Local SLR in blue: ", slr, " mm/yr"), 
                        x = "SET", 
                        y = "Rate of change (mm/yr)")
@@ -113,27 +118,27 @@ slr_cis <- geom_ribbon(aes(x = 0:(nrow(lmm_out_ordered)+1),
 # Points only
 p +
     points_same +
-    labels_partial
+    labels_minimal
 
 # Points only; colored by veg
 p +
     points_veg +
     colors_veg +
-    labels_partial +
+    labels_minimal +
     labels_veg
 
 # Add in CIs for SETs
 p +
     set_cis +
     points_same +
-    labels_partial
+    labels_partial_setci
 
 # CIs for SETs; points colored by veg
 p +
     set_cis +
     points_veg +
     colors_veg +
-    labels_partial +
+    labels_partial_setci +
     labels_veg
 
 
