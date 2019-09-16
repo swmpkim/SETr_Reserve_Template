@@ -11,17 +11,16 @@
 
 
 # identify needed packages
-pkg_wrangle <- c("dplyr", "here", "janitor", "lubridate", "purrr", "forcats", "readr", "readxl", "stringr")
+pkg_wrangle <- c("tidyr", "dplyr", "here", "janitor", "lubridate", "purrr", "forcats", "readr", "readxl", "stringr")
 pkg_interact <- c("DT", "ggplot2", "plotly", "shiny", "leaflet")
 pkg_analyze <- c("rmarkdown", "broom", "flextable", "mapview")
 
 # install packages
 install.packages(c(pkg_wrangle, pkg_interact, pkg_analyze))
 
-# also need dev versions of tidyr and webshot
+# also need dev version of webshot
 # somewhere in here though rtools is being installed
 install.packages("devtools")
-devtools::install_github("tidyverse/tidyr")
 devtools::install_github("wch/webshot")
 
 # and phantomjs for static maps in the analysis output
