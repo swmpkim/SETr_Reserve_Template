@@ -24,6 +24,10 @@
 # it has been made to automatically select the excel file that ends with set.xlsx
 # and transform it into the longer format that can be used in the downstream scripts
 
+## as of 2019-09-16, the pivoting specs have changed to match tidyr v. 1.0.0:
+# set up specs with build_longer_spec  rather than pivot_longer_spec
+# perform pivot with pivot_longer_spec rather than pivot_longer
+
 # this script has also been moved to the top R level because it has to be run before anything else can be done.
 
 
@@ -78,7 +82,7 @@ names(dat_formatted) <- gsub("height_", "height", names(dat_formatted))
 
 # set up to pivot
 spec <- dat_formatted %>% 
-        pivot_longer_spec(
+        build_longer_spec(
                 cols = starts_with("pin1_height"):"pin9_qaqccode",
                 names_to = c("pinnumber", ".value"),
                 names_sep = "_"
@@ -86,7 +90,7 @@ spec <- dat_formatted %>%
 
 # pivot to longer
 dat_long <- dat_formatted %>% 
-        pivot_longer(spec = spec)
+        pivot_longer_spec(spec = spec)
 
 # put underscores back in the names
 names(dat_long) <- gsub("pin", "pin_", names(dat_long))
