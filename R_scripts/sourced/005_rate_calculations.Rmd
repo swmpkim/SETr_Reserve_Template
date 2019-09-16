@@ -44,7 +44,9 @@ source(here::here('R_scripts', 'sourced', '001_user_options.R'))
 
 ## Read in data and metadata  
 
-This reads in the long dataset, converted from other formats by earlier scripts. It also converts pin heights to mm if they weren't already in those units.    
+This reads in the long dataset, converted from other formats by earlier scripts. It also converts pin heights to mm if they weren't already in those units.  
+
+If the user specified custom start and/or end dates in the file `metadata\user_defined_inputs.xlsx`, the data frame is trimmed in this step.  
 
 ```{r read_data, warning = TRUE}
 # find the folder with processed data
@@ -79,6 +81,19 @@ dat <- dat %>%
            !is.na(pin_number)) %>%
     mutate(set_id = as.factor(set_id),
            arm_position = as.character(arm_position))
+
+
+# trim the dataset based on user-specified dates
+if(!is.na(opts_long$custom_start)){
+  start <- lubridate::ymd(opts_long$custom_start)
+  dat <- dat %>% 
+    filter(date >= start)
+}
+if(!is.na(opts_long$custom_end)){
+  end <- lubridate::ymd(opts_long$custom_end)
+  dat <- dat %>% 
+    filter(date <= end)
+}
 ```
 
 
@@ -732,7 +747,7 @@ ggsave(out_file)
 
 Try to color points by veg type (`mdat$co_dominant_species1`)
 
-```{r plot_slr_ci_lmm, fig.width = 7, fig.height = 6, eval = enough_dat}
+```{r plot_slr_ci_lmm_veg, fig.width = 7, fig.height = 6, eval = enough_dat}
 # put veg type into the data frame
 lmm_out <- left_join(lmm_out, select(mdat, unique_set_id, co_dominant_species1), by = c("set_id" = "unique_set_id")) %>% 
   rename(veg = co_dominant_species1)
