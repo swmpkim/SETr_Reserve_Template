@@ -11,7 +11,7 @@
 
 
 # identify needed packages
-pkg_wrangle <- c("tidyr", "dplyr", "here", "janitor", "lubridate", "purrr", "forcats", "readr", "readxl", "stringr")
+pkg_wrangle <- c("dplyr", "here", "janitor", "lubridate", "purrr", "forcats", "readr", "readxl", "stringr", "tidyr")
 pkg_interact <- c("DT", "ggplot2", "plotly", "shiny", "leaflet")
 pkg_analyze <- c("rmarkdown", "broom", "flextable", "mapview")
 

@@ -15,7 +15,7 @@
 
 
 # list of packages we need to have installed for our workflow
-pkg_wrangle <- c("tidyr", "dplyr", "here", "janitor", "lubridate", "purrr", "forcats", "readr", "readxl", "stringr")
+pkg_wrangle <- c("dplyr", "here", "janitor", "lubridate", "purrr", "forcats", "readr", "readxl", "stringr", "tidyr")
 pkg_interact <- c("DT", "ggplot2", "plotly", "shiny", "leaflet")
 pkg_analyze <- c("rmarkdown", "broom", "flextable", "webshot", "mapview")
 
@@ -39,8 +39,12 @@ for(i in seq_along(pkgs_needed)){
 # make a vector of missing packages:
 # pkgs_needed that failed to load
 pkgs_missing <- pkgs_needed[!pkg_result]
+
+
 # find out if phantomjs is missing
-# only run if webshot isn't missing
+# only run if webshot isn't missing, 
+# and if it's a version that has this function
+# otherwise return true for phantomjs missing
 if(!("webshot" %in% pkgs_missing) && packageVersion("webshot") >= "0.5.1.9000"){
     phantomjs_missing <- !webshot::is_phantomjs_installed()
 } else {
@@ -51,7 +55,7 @@ if(!("webshot" %in% pkgs_missing) && packageVersion("webshot") >= "0.5.1.9000"){
 
 # set up the pieces of messages to print to the console
 msg_pkgs_good <- "\n \nAll required packages are installed and loading properly! \n \n"
-msg_some_pkgs_missing <- "\n \nYou need to install the following packages: "
+msg_some_pkgs_missing <- "\n \nYou need to install the following packages. You can try again now by running: \ninstall.packages(pkgs_missing)"
 msg_phantomjs_missing <- "\nA software component called 'phantomjs' is missing. \n---If the 'webshot' package is in your list of missing packages, install it using devtools::install_github('wch/webshot')  \n---Once 'webshot' is installed, run the line webshot::install_phantomjs()  \n---If it is still not installed, you may need to download it manually from http://phantomjs.org/download.html"
 
 
