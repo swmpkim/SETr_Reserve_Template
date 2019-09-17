@@ -700,6 +700,13 @@ rates_slr_comp %>%
 ***
 ***
 
+Add dominant veg to model_out data frame for graphing purposes
+
+```{r}
+lmm_out <- left_join(lmm_out, select(mdat, unique_set_id, co_dominant_species1), by = c("set_id" = "unique_set_id")) %>% 
+    rename(veg = co_dominant_species1)
+```
+
 
 ## Graphical Comparison to Sea Level Rise and 0  
 
