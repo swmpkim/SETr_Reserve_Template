@@ -40,13 +40,19 @@ for(i in seq_along(pkgs_needed)){
 # pkgs_needed that failed to load
 pkgs_missing <- pkgs_needed[!pkg_result]
 # find out if phantomjs is missing
-phantomjs_missing <- !webshot::is_phantomjs_installed()
+# only run if webshot isn't missing
+if(!("webshot" %in% pkgs_missing) && packageVersion("webshot") >= "0.5.1.9000"){
+    phantomjs_missing <- !webshot::is_phantomjs_installed()
+} else {
+    phantomjs_missing <- TRUE
+}
+
 
 
 # set up the pieces of messages to print to the console
 msg_pkgs_good <- "\n \nAll required packages are installed and loading properly! \n \n"
 msg_some_pkgs_missing <- "\n \nYou need to install the following packages: "
-msg_phantomjs_missing <- "\nA software component called 'phantomjs' is missing. \n---If the 'webshot' package is in your list of missing packages, install it using devtools::install_github('wch/webshot')  \n---Once 'webshot' is installed, run the line webshot::install_phantomjs()  \n---If it is still not installed, you may need to download it manually from http://phantomjs.org/download.html and put it in the same directory path as your other R packages"
+msg_phantomjs_missing <- "\nA software component called 'phantomjs' is missing. \n---If the 'webshot' package is in your list of missing packages, install it using devtools::install_github('wch/webshot')  \n---Once 'webshot' is installed, run the line webshot::install_phantomjs()  \n---If it is still not installed, you may need to download it manually from http://phantomjs.org/download.html"
 
 
 
