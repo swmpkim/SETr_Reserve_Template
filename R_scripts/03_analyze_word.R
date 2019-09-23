@@ -34,9 +34,9 @@ outfile <- paste0("SET_Analyses_", Sys.Date(), ".docx")
 rmarkdown::render(infile, output_dir = outdir, output_file = outfile)
 
 if(file.exists(paste0(outdir, "/", outfile))){
-    message(paste0("\n \nYour report has been generated. Navigate to R_output/analysis and you will find '", outfile, "'. \n \n"))
+    message(paste0("\n \nYour analytical report has been generated. Navigate to R_output/analysis and you will find '", outfile, "'. \n \n"))
 } else {
-    message("\n \nSomething has gone wrong. Please scroll up and see if there's a line that starts with 'Quit at line'; copy that and email it to Kim Cressman for help. \n \n")
+    message("\n \nSomething has gone wrong. Please scroll up and see if there's a line that starts with 'Quit from line ___'; copy that and email it to Kim Cressman for help. \n \n")
 }
 
 

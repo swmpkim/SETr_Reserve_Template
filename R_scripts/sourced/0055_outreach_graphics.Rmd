@@ -1,0 +1,342 @@
+---
+title: "SET Outreach Tools"
+date: "`r Sys.Date()`"
+output: word_document
+always_allow_html: yes
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r load_libraries}
+library(knitr)
+library(forcats)
+library(readr)
+library(janitor)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(here)
+library(flextable)
+library(readxl)
+library(lubridate)
+library(leaflet)
+# load functions
+source(here::here('R_scripts', 'sourced', '000_functions.R'))
+# load user options
+source(here::here('R_scripts', 'sourced', '001_user_options.R'))
+```
+
+# Some Background Wording about SETs and Sentinel Sites  
+
+Outreach Team, assemble!  
+
+
+# Reading in data, metadata, and calculated rates  
+
+This header can be removed when the final document is completed; it's all background  
+
+```{r read_data, warning = TRUE}
+# this chunk copied out of 005_rate_calculations.Rmd
+
+# find the folder with processed data
+path <- here::here('data', 'processed')
+
+# in that folder, find the name of the file(s) that ends with 'set_processed.csv'
+filelist <- dir(path, pattern = "set_processed.csv$")
+
+
+# generate warnings if the folder is empty; if there are multiple matching files, select the first one
+if (length(filelist) == 0) stop("There are no files of the correct name/format (---set_QC.csv) in your processed data folder.")
+
+if (length(filelist) > 1) {
+    warning("There is more than one file of the correct format (---set_QC.csv) in your data folder. The first file alphabetically will be used.")
+    filelist <- filelist[1]
+}
+
+# generate the full path to the file; read it in and get pin heights to mm
+filename <- paste0(path, "/", filelist)
+dat <- read_csv(filename)
+dat <- height_to_mm(dat)
+
+# get rid of any placeholders; make sure set_id is a factor;
+# paste year, month, and day together into "date"
+dat <- dat %>%
+    mutate(date = lubridate::ymd(paste(year, month, day))) %>% 
+    filter(!is.na(date),
+           !is.na(pin_number)) %>%
+    mutate(set_id = as.factor(set_id),
+           arm_position = as.character(arm_position))
+
+# trim the dataset based on user-specified dates
+if(!is.na(opts_long$custom_start)){
+  start <- lubridate::ymd(opts_long$custom_start)
+  dat <- dat %>% 
+    filter(date >= start)
+}
+if(!is.na(opts_long$custom_end)){
+  end <- lubridate::ymd(opts_long$custom_end)
+  dat <- dat %>% 
+    filter(date <= end)
+}
+```
+
+```{r trim_data}
+if (excl_exist) {
+  # find the rows to exclude - either arm or pin codes match
+  pin_to_excl <- which(dat$qaqc_code %in% codes_to_exclude)
+  arm_to_excl <- which(dat$arm_qaqc_code %in% codes_to_exclude)
+  
+  # make a data frame of the excluded ones and print it out
+  to_excl <- c(pin_to_excl, arm_to_excl)
+  excluded <- dat[to_excl, ]
+  
+  
+  excluded %>% 
+    select(set_id, date, 
+           arm = arm_position, 
+           arm_code = arm_qaqc_code, 
+           pin_number, qaqc_code, pin_height) %>% 
+    knit_print()
+  
+
+  # turn the heights into NAs
+  dat$pin_height[to_excl] <- NA 
+  
+  # clean up
+  # rm(list = c("excluded", "arm_to_excl", "pin_to_excl", "to_excl"))
+}
+```
+
+
+```{r read_metadata, warning = TRUE}
+# find the folder with metadata
+path <- here::here('metadata')
+
+# in that folder, find the name of the file(s) that ends with 'setm.csv'
+filelist <- dir(path, pattern = 'set_metadata.xls')
+
+# generate warnings if the folder is empty; if there are multiple matching files, select the first one
+if (length(filelist) == 0) stop("There are no files of the correct name/format (---set_metadata.xls or .xlsx) in your metadata folder.")
+
+if (length(filelist) > 1) {
+    warning("There is more than one file of the correct format (---set_metadata.xls or .xlsx) in your metadata folder. The first file alphabetically will be used.")
+    filelist <- filelist[1]
+}
+
+# generate the full path to the file; read it in, clean the names, get rid of empty rows and columns
+filename <- paste0(path, "/", filelist)
+mdat <- read_excel(filename) %>%
+    janitor::clean_names() %>%
+    janitor::remove_empty(which = "rows")
+```
+
+
+```{r verify_setid, warning = TRUE}
+# first pull out set_id from both data frames
+data_setid <- unique(as.character(dat$set_id))
+metadata_setid <- unique(mdat$unique_set_id)
+
+# find set_ids that are in the data, but not in the metadata
+dat_not_m <- setdiff(data_setid, metadata_setid)
+# find set_ids that are in the metadata, but not in the data
+m_not_dat <- setdiff(metadata_setid, data_setid)
+
+if (length(dat_not_m) > 0) {
+    toprint <- paste(dat_not_m, collapse = ", ")
+    warning(paste0("The following SET IDs exist in your data, but not in your metadata: ", toprint))
+}
+
+if (length(m_not_dat) > 0) {
+    toprint <- paste(m_not_dat, collapse = ", ")
+    warning(paste0("The following SET IDs exist in your metadata, but not in your data: ", toprint))
+}
+
+if (length(dat_not_m) + length(m_not_dat) == 0) {
+    print("SET IDs match in your data and metadata files.")
+}
+
+# go ahead and order the set_ids in dat and unique_set_id in mdat by the metadata's numerical_order, if available
+if (!anyNA(mdat$numerical_order)){
+  mdat_sub <- select(mdat, unique_set_id, numerical_order) %>% 
+    mutate(unique_set_id = factor(unique_set_id))
+  dat <- left_join(dat, mdat_sub, by = c("set_id" = "unique_set_id")) %>% 
+    mutate(set_id = fct_reorder(set_id, numerical_order)) %>% 
+    select(-numerical_order)
+  mdat <- mdat %>% 
+    mutate(unique_set_id = factor(unique_set_id),
+           unique_set_id = fct_reorder(unique_set_id, numerical_order))
+}
+
+# cleanup
+rm(dat_not_m, m_not_dat, mdat_sub, metadata_setid, data_setid, filelist, filename, path)
+```
+
+
+```{r read_slr}
+slr_file <- here::here('metadata', 'slr_rates.csv')
+slr_rates <- read_csv(slr_file) %>%
+    clean_names() %>%
+    janitor::remove_empty(which = c("rows", "cols"))
+```
+
+
+```{r read_rates}
+file_in <- here::here("data", "intermediate", "rate_summary.csv")
+rate_summ <- read.csv(file_in)
+```
+
+```{r verify_slr, warning = TRUE}
+res_to_match <- unique(dat$reserve)
+
+if (res_to_match %in% unique(slr_rates$reserve)) {
+    slr_res <- slr_rates %>%
+        filter(reserve == res_to_match) %>%
+        select(-link)
+    slr <- slr_res$slr_rate_mm_yr
+    slr_ci <- slr_res$x95_percent_ci
+} else {warning("This reserve does not have an entry in the sea level rise rates file. Please check metadata/slr_rates.csv and make sure your reserve is present.")}
+```
+
+
+
+# Background information  
+
+
+## Reserve-level  
+
+
++  Local rate of sea level change is **`r slr`** +/- **`r slr_ci`** mm/yr.  
++  This rate is reported by `r slr_res$nearest_nwlon_station`, NWLON station number `r as.character(slr_res$nwlon_station_number)` based on data from *`r slr_res$data_start`* to *`r slr_res$data_end`*.
+  
+
+## SET-level characteristics  
+
+### setting  
+
+
+```{r set_info_table}
+# print the table
+mdat %>% 
+  select(unique_set_id, set_type, latitude_dec_deg, 
+           longitude_dec_deg, co_dominant_species1) %>% 
+  arrange(unique_set_id) %>% 
+  setNames(c("SET_ID", "Type", "Lat", "Long", "Main_Veg")) %>% 
+  flextable() %>% 
+  theme_booktabs() %>% 
+  autofit()
+```
+
+
+
+### sampling information  
+
+```{r sampling_info_table}
+sample_info <- dat %>% 
+  group_by(set_id) %>% 
+  summarize(first_sampled = min(date),
+            last_sampled = max(date),
+            years_sampled = as.double(max(date) - min(date)) / 365.25,
+            sample_events = length(unique(date))) 
+
+sample_info %>% 
+  flextable() %>% 
+  theme_booktabs() %>% 
+  autofit()
+```
+
+
+
+# Graphs  
+
+```{r}
+# do some manipulation of the data frame
+# only use "user-friendly set id" in the following graphs
+
+# pull out slr and the half-width of its confidence interval
+slr <- unique(rate_summ$slr_rate)[[1]]
+slr_ci <- unique(rate_summ$x95_percent_ci)[[1]]
+
+# change some things in the data frame itself
+rate_summ <- rate_summ %>% 
+    mutate(user_friendly_set_name = case_when(!is.na(user_friendly_set_name) ~ user_friendly_set_name,
+                                              TRUE ~ set_id)) %>% 
+    rename(veg = co_dominant_species1) %>% 
+    left_join(mdat[c("unique_set_id", "numerical_order")], by = c("set_id" = "unique_set_id")) 
+
+  a <- forcats::fct_reorder(rate_summ$user_friendly_set_name,
+                            desc(rate_summ$numerical_order))
+  b <- forcats::fct_reorder(rate_summ$set_id,
+                            desc(rate_summ$numerical_order))
+  
+  rate_summ$user_friendly_set_name <- a
+  rate_summ$set_id2 <- b
+```
+
+
+## Comparisons to 0 and SLR  
+
+First we will not color by vegetation. We'll start simple; with a vertical line at 0, another vertical line at the local rate of sea level rise (SLR), and a dot to represent the rate of change at each SET (rate of change increases from left to right on the x-axis):  
+
+```{r}
+p <- plot_rate_comps(data = rate_summ, plot_type = 1, 
+                       set_ids = user_friendly_set_name, set_ci_low = CI_low,
+                       set_ci_high = CI_high, slr = slr, slr_ci = slr_ci,
+                       rates = rate) 
+print(p)
+```
+
+Of course, these calculate rates have some associated uncertainty. Here, we represent that with "whiskers":  
+
+```{r}
+p <- plot_rate_comps(data = rate_summ, plot_type = 2, 
+                       set_ids = user_friendly_set_name, set_ci_low = CI_low,
+                       set_ci_high = CI_high, slr = slr, slr_ci = slr_ci,
+                       rates = rate) 
+print(p)
+```
+
+And: the calculated rate of sea level rise ALSO has some associated uncertainty. Here, that is represented by light blue shading:  
+
+```{r}
+p <- plot_rate_comps(data = rate_summ, plot_type = 3, 
+                       set_ids = user_friendly_set_name, set_ci_low = CI_low,
+                       set_ci_high = CI_high, slr = slr, slr_ci = slr_ci,
+                       rates = rate) 
+print(p)
+```
+
+
+
+Now we'll do the same building up, but we *will* color the points by dominant vegetation around each SET:  
+
+```{r}
+p <- plot_rate_comps(data = rate_summ, plot_type = 1, 
+                       set_ids = user_friendly_set_name, set_ci_low = CI_low,
+                       set_ci_high = CI_high, slr = slr, slr_ci = slr_ci,
+                       rates = rate, color_by_veg = TRUE, veg = veg) 
+print(p)
+```
+
+Of course, these calculate rates have some associated uncertainty. Here, we represent that with "whiskers":  
+
+```{r}
+p <- plot_rate_comps(data = rate_summ, plot_type = 2, 
+                       set_ids = user_friendly_set_name, set_ci_low = CI_low,
+                       set_ci_high = CI_high, slr = slr, slr_ci = slr_ci,
+                       rates = rate, color_by_veg = TRUE, veg = veg) 
+print(p)
+```
+
+And: the calculated rate of sea level rise ALSO has some associated uncertainty. Here, that is represented by light blue shading:  
+
+```{r}
+p <- plot_rate_comps(data = rate_summ, plot_type = 3, 
+                       set_ids = user_friendly_set_name, set_ci_low = CI_low,
+                       set_ci_high = CI_high, slr = slr, slr_ci = slr_ci,
+                       rates = rate, color_by_veg = TRUE, veg = veg) 
+print(p)
+```
