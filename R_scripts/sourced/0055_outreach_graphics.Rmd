@@ -289,7 +289,7 @@ p <- plot_rate_comps(data = rate_summ, plot_type = 1,
 print(p)
 ```
 
-Of course, these calculate rates have some associated uncertainty. Here, we represent that with "whiskers":  
+Of course, these calculated rates have some associated uncertainty. Here, we represent that with "whiskers":  
 
 ```{r, fig.width = 7, fig.height = 5}
 p <- plot_rate_comps(data = rate_summ, plot_type = 2, 
@@ -322,7 +322,7 @@ p <- plot_rate_comps(data = rate_summ, plot_type = 1,
 print(p)
 ```
 
-Of course, these calculate rates have some associated uncertainty. Here, we represent that with "whiskers":  
+Of course, these calculated rates have some associated uncertainty. Here, we represent that with "whiskers":  
 
 ```{r, fig.width = 7, fig.height = 5}
 p <- plot_rate_comps(data = rate_summ, plot_type = 2, 
