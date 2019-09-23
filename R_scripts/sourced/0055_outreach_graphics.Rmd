@@ -32,14 +32,14 @@ source(here::here('R_scripts', 'sourced', '001_user_options.R'))
 
 # Some Background Wording about SETs and Sentinel Sites  
 
-Outreach Team, assemble!  
+Outreach Team, assemble!  I need some help coming up with this text!
 
 
 # Reading in data, metadata, and calculated rates  
 
 This header can be removed when the final document is completed; it's all background  
 
-```{r read_data, warning = TRUE}
+```{r read_data}
 # this chunk copied out of 005_rate_calculations.Rmd
 
 # find the folder with processed data
