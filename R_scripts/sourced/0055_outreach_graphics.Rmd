@@ -8,7 +8,7 @@ editor_options:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, error = TRUE)
 ```
 
 ```{r load_libraries}
@@ -281,7 +281,7 @@ rate_summ <- rate_summ %>%
 
 First we will not color by vegetation. We'll start simple; with a vertical line at 0, another vertical line at the local rate of sea level rise (SLR), and a dot to represent the rate of change at each SET (rate of change increases from left to right on the x-axis):  
 
-```{r}
+```{r, fig.width = 7, fig.height = 5}
 p <- plot_rate_comps(data = rate_summ, plot_type = 1, 
                        set_ids = user_friendly_set_name, set_ci_low = CI_low,
                        set_ci_high = CI_high, slr = slr, slr_ci = slr_ci,
@@ -291,7 +291,7 @@ print(p)
 
 Of course, these calculate rates have some associated uncertainty. Here, we represent that with "whiskers":  
 
-```{r}
+```{r, fig.width = 7, fig.height = 5}
 p <- plot_rate_comps(data = rate_summ, plot_type = 2, 
                        set_ids = user_friendly_set_name, set_ci_low = CI_low,
                        set_ci_high = CI_high, slr = slr, slr_ci = slr_ci,
@@ -301,7 +301,7 @@ print(p)
 
 And: the calculated rate of sea level rise ALSO has some associated uncertainty. Here, that is represented by light blue shading:  
 
-```{r}
+```{r, fig.width = 7, fig.height = 5}
 p <- plot_rate_comps(data = rate_summ, plot_type = 3, 
                        set_ids = user_friendly_set_name, set_ci_low = CI_low,
                        set_ci_high = CI_high, slr = slr, slr_ci = slr_ci,
@@ -313,30 +313,33 @@ print(p)
 
 Now we'll do the same building up, but we *will* color the points by dominant vegetation around each SET:  
 
-```{r}
+```{r, fig.width = 7, fig.height = 6}
 p <- plot_rate_comps(data = rate_summ, plot_type = 1, 
                        set_ids = user_friendly_set_name, set_ci_low = CI_low,
                        set_ci_high = CI_high, slr = slr, slr_ci = slr_ci,
-                       rates = rate, color_by_veg = TRUE, veg = veg) 
+                       rates = rate, color_by_veg = TRUE, veg = veg) +
+    theme(legend.position = "bottom")
 print(p)
 ```
 
 Of course, these calculate rates have some associated uncertainty. Here, we represent that with "whiskers":  
 
-```{r}
+```{r, fig.width = 7, fig.height = 5}
 p <- plot_rate_comps(data = rate_summ, plot_type = 2, 
                        set_ids = user_friendly_set_name, set_ci_low = CI_low,
                        set_ci_high = CI_high, slr = slr, slr_ci = slr_ci,
-                       rates = rate, color_by_veg = TRUE, veg = veg) 
+                       rates = rate, color_by_veg = TRUE, veg = veg) +
+    theme(legend.position = "bottom")
 print(p)
 ```
 
 And: the calculated rate of sea level rise ALSO has some associated uncertainty. Here, that is represented by light blue shading:  
 
-```{r}
+```{r, fig.width = 7, fig.height = 7}
 p <- plot_rate_comps(data = rate_summ, plot_type = 3, 
                        set_ids = user_friendly_set_name, set_ci_low = CI_low,
                        set_ci_high = CI_high, slr = slr, slr_ci = slr_ci,
-                       rates = rate, color_by_veg = TRUE, veg = veg) 
+                       rates = rate, color_by_veg = TRUE, veg = veg) +
+    theme(legend.position = "bottom", legend.direction = "vertical")
 print(p)
 ```
