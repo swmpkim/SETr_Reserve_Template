@@ -131,7 +131,7 @@ if (excl_exist) {
 ```
 
 
-### Sanity checks  
+### File Matching checks  
 
 This analysis was run on `r filelist[1]` on `r Sys.Date()`.  
 

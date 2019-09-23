@@ -36,7 +36,7 @@ rmarkdown::render(infile, output_dir = outdir, output_file = outfile)
 if(file.exists(paste0(outdir, "/", outfile))){
     message(paste0("\n \nYour report has been generated. Navigate to R_output/analysis and you will find '", outfile, "'. \n \n"))
 } else {
-    message("\n \nVery sorry; something has gone wrong. Contact Kim Cressman so she can figure it out and fix it. \n \n")
+    message("\n \nSomething has gone wrong. Please scroll up and see if there's a line that starts with 'Quit at line'; copy that and email it to Kim Cressman for help. \n \n")
 }
 
 
