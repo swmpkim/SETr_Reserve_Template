@@ -8,6 +8,8 @@ plot_rate_comps <- function(data, plot_type = 3, color_by_veg = FALSE,
     #            3 = CIs for both SETs and SLR
     # default is the full plot with CIs, and with points all the same color
     
+
+    
     # assemble the base plot, with axes and lines for 0 and SLR
     #####################################################################
     p <- ggplot() +
@@ -70,6 +72,8 @@ plot_rate_comps <- function(data, plot_type = 3, color_by_veg = FALSE,
     
     # geom and labels if points will be colored by dominant vegetation type
     if(color_by_veg){
+        # the veg column has to be defined
+        stopifnot(exists({{veg}}, data))
         points_veg <- geom_point(data = data, 
                                  aes(x = {{set_ids}}, 
                                      y = {{rates}},

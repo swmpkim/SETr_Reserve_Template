@@ -712,94 +712,25 @@ lmm_out <- left_join(lmm_out, select(mdat, unique_set_id, co_dominant_species1),
 
 
 ```{r plot_slr_ci_lmm, fig.width = 7, fig.height = 6, eval = enough_dat}
-ggplot() +
-    geom_blank(data = lmm_out, 
-               aes(x = set_id, 
-                   y = rate)) +
-    geom_ribbon(aes(x = 0:(nrow(lmm_out)+1), 
-                    ymin = slr-slr_ci, 
-                    ymax = slr+slr_ci), 
-                fill = "navyblue", 
-                alpha = 0.1) +
-    geom_hline(aes(yintercept = slr), 
-               col = "navyblue", 
-               size = 1, 
-               alpha = 0.9) +
-    geom_hline(aes(yintercept = 0), 
-               col = "gray70") +
-    geom_errorbar(data = lmm_out, 
-                  aes(x = set_id, 
-                      ymin = CI_low, 
-                      ymax = CI_high), 
-                  col = "gray55", 
-                  size = 1) +
-    geom_point(data = lmm_out, 
-               aes(x = set_id, 
-                   y = rate), 
-               size = 3, 
-               col = "red3") +
-    theme_classic() + 
-    labs(title = "Elevation Change, 95% Confidence Intervals (LMM)", 
-         subtitle = paste0("Local SLR in blue: ", slr, " +/- ", slr_ci, " mm/yr"), 
-         x = "SET", 
-         y = "Rate of change (mm/yr)") +
-    coord_flip()
 
+plot_rate_comps(data = lmm_out, plot_type = 3, set_ids = set_id,
+                set_ci_low = CI_low, set_ci_high = CI_high,
+                rates = rate, slr = slr, slr_ci = slr_ci)
 out_file <- here::here("R_output", "figures", "summary_plots", "summary_plot.png")
+ggsave(out_file)
+
+
+# colored by veg
+plot_rate_comps(data = lmm_out, plot_type = 3, set_ids = set_id,
+                set_ci_low = CI_low, set_ci_high = CI_high,
+                rates = rate, slr = slr, slr_ci = slr_ci,
+                color_by_veg = TRUE, veg = veg)
+out_file <- here::here("R_output", "figures", "summary_plots", "summary_plot_veg.png")
 ggsave(out_file)
 ```
 
 
 ***
-
-Try to color points by veg type (`mdat$co_dominant_species1`)
-
-```{r plot_slr_ci_lmm_veg, fig.width = 7, fig.height = 6, eval = enough_dat}
-# put veg type into the data frame
-lmm_out <- left_join(lmm_out, select(mdat, unique_set_id, co_dominant_species1), by = c("set_id" = "unique_set_id")) %>% 
-  rename(veg = co_dominant_species1)
-
-
-ggplot() +
-    geom_blank(data = lmm_out, 
-               aes(x = set_id, 
-                   y = rate)) +
-    geom_ribbon(aes(x = 0:(nrow(lmm_out)+1), 
-                    ymin = slr-slr_ci, 
-                    ymax = slr+slr_ci), 
-                fill = "navyblue", 
-                alpha = 0.1) +
-    geom_hline(aes(yintercept = slr), 
-               col = "navyblue", 
-               size = 1, 
-               alpha = 0.9) +
-    geom_hline(aes(yintercept = 0), 
-               col = "gray70") +
-    geom_errorbar(data = lmm_out, 
-                  aes(x = set_id, 
-                      ymin = CI_low, 
-                      ymax = CI_high), 
-                  col = "gray55", 
-                  size = 1) +
-    geom_point(data = lmm_out, 
-               aes(x = set_id, 
-                   y = rate,
-                   col = veg), 
-               size = 3) +
-    theme_classic() + 
-  scale_color_brewer(type = "qual", palette = "Dark2") +
-    labs(title = "Elevation Change, 95% Confidence Intervals (LMM)", 
-         subtitle = paste0("Local SLR in blue: ", slr, " +/- ", slr_ci, " mm/yr"), 
-         x = "SET", 
-         y = "Rate of change (mm/yr)",
-         color = "Dominant Vegetation") +
-    coord_flip()
-
-out_file <- here::here("R_output", "figures", "summary_plots", "summary_plot_vegcolors.png")
-ggsave(out_file)
-```
-
-
 
 ***
 
@@ -822,42 +753,39 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
   lmm_out_ordered$user_friendly_set_name <- a
   lmm_out_ordered$set_id2 <- b
   
-  p <- ggplot() +
-    geom_blank(data = lmm_out_ordered, 
-               aes(x = user_friendly_set_name, 
-                   y = rate)) +
-    geom_ribbon(aes(x = 0:(nrow(lmm_out_ordered)+1), 
-                    ymin = slr-slr_ci, 
-                    ymax = slr+slr_ci), 
-                fill = "navyblue", 
-                alpha = 0.1) +
-    geom_hline(aes(yintercept = slr), 
-               col = "navyblue", 
-               size = 1, 
-               alpha = 0.9) +
-    geom_hline(aes(yintercept = 0), 
-               col = "gray70") +
-    geom_errorbar(data = lmm_out_ordered, 
-                  aes(x = user_friendly_set_name, 
-                      ymin = CI_low, 
-                      ymax = CI_high), 
-                  col = "gray55", 
-                  size = 1) +
-    geom_point(data = lmm_out_ordered, 
-               aes(x = user_friendly_set_name, 
-                   y = rate), 
-               size = 3, 
-               col = "red3") +
-    theme_classic() + 
-    labs(title = "Elevation Change, 95% Confidence Intervals (LMM)", 
-         subtitle = paste0("Local SLR in blue: ", slr, " +/- ", slr_ci, " mm/yr"), 
-         x = "SET", 
-         y = "Rate of change (mm/yr)") +
-    coord_flip()
   
-  out_file <- here::here("R_output", "figures", "summary_plots", "summary_plot_friendlier.png")
+  p <- plot_rate_comps(data = lmm_out_ordered, plot_type = 3, 
+                       set_ids = set_id2, set_ci_low = CI_low,
+                       set_ci_high = CI_high, slr = slr, slr_ci = slr_ci,
+                       rates = rate) 
+  out_file <- here::here("R_output", "figures", "summary_plots", "summary_plot_ordered.png")
   ggsave(out_file, p)
+  print(p)
   
+  
+    p <- plot_rate_comps(data = lmm_out_ordered, plot_type = 3, 
+                       set_ids = set_id2, set_ci_low = CI_low,
+                       set_ci_high = CI_high, slr = slr, slr_ci = slr_ci,
+                       rates = rate, color_by_veg = TRUE, veg = veg) 
+  out_file <- here::here("R_output", "figures", "summary_plots", "summary_plot_ordered_veg.png")
+  ggsave(out_file, p)
+  print(p)
+  
+  
+  p <- plot_rate_comps(data = lmm_out_ordered, plot_type = 3, 
+                       set_ids = user_friendly_set_name, set_ci_low = CI_low,
+                       set_ci_high = CI_high, slr = slr, slr_ci = slr_ci,
+                       rates = rate) 
+  out_file <- here::here("R_output", "figures", "summary_plots", "summary_plot_ordered_friendly_names.png")
+  ggsave(out_file, p)
+  print(p)
+  
+  p <- plot_rate_comps(data = lmm_out_ordered, plot_type = 3, 
+                       set_ids = user_friendly_set_name, set_ci_low = CI_low,
+                       set_ci_high = CI_high, slr = slr, slr_ci = slr_ci,
+                       rates = rate, color_by_veg = TRUE, veg = veg) 
+  out_file <- here::here("R_output", "figures", "summary_plots", "summary_plot_ordered_friendly_names_veg.png")
+  ggsave(out_file, p)
   print(p)
 }
 ```
