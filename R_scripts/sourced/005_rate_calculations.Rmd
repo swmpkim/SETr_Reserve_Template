@@ -288,23 +288,40 @@ Still on wish list to include:
 
 Take a look at your overall change since the first reading - make sure the change looks generally linear, and make sure there are no big breaks in the data that could influence the outputs. Output will be generated even if it is not appropriate - **it is up to you to use discretion and make sure a linear model is appropriate for the data!**
 
-```{r, fig.width = 7, fig.height = 7}
+```{r, fig.width = opts_long$width_square, fig.height = opts_long$height_square}
 dat_cumu <- calc_change_cumu(dat)
 
 # without linear regression
 plot_cumu_set(dat_cumu$set, columns = opts_long$multi_cols, smooth = FALSE)
+
 # save it
-out_file <- here::here("R_output", "figures", "cumu_change_plots", "cumu_change_noLine.png")
-ggsave(out_file, width = 7, height = 7, units = "in")
+out_name <- paste("R_output", "figures", "cumu_change_plots", "cumu_change_noLine.png", sep = "/")
+out_file <- here::here(out_name)
+
+ggsave(out_file, width = opts_long$width_square, height = opts_long$height_square, units = "in")
+
+```
+
+**The above graph is saved as:**   
+`r out_name`   
 
 
+
+```{r, fig.width = opts_long$width_square, fig.height = opts_long$height_square}
 # with linear regression
 plot_cumu_set(dat_cumu$set, columns = opts_long$multi_cols,
               pointsize = 2.5)
+
 # save it
-out_file <- here::here("R_output", "figures", "cumu_change_plots", "cumu_change_withLine.png")
-ggsave(out_file, width = 7, height = 7, units = "in")
+out_name <- paste("R_output", "figures", "cumu_change_plots", "cumu_change_withLine.png", sep = "/")
+out_file <- here::here(out_name)
+
+ggsave(out_file, width = opts_long$width_square, height = opts_long$height_square, units = "in")
 ```
+
+**The above graph is saved as:**   
+`r out_name`   
+
 
 
 ### Plus Sea Level Rise Line  
@@ -315,7 +332,7 @@ It is only meant to illustrate and give context for SET elevation change
 
 
 
-```{r, fig.width = 7, fig.height = 7}
+```{r, fig.width = opts_long$width_square, fig.height = opts_long$height_square}
 
 # put slr slope into "per-day" rather than "per-year" because that's how R thinks
 # 365.25 accounts for leap years
@@ -342,10 +359,20 @@ p +
               color = "red3",
               size = 1) +
   labs(subtitle = "red line approximates sea level rise; blue line is linear model of SET change")
-out_file <- here::here("R_output", "figures", "cumu_change_plots", "cumu_change_withLineAndSLR.png")
-ggsave(out_file, width = 7, height = 7, units = "in")
 
 
+# save it
+out_name <- paste("R_output", "figures", "cumu_change_plots", "cumu_change_withLineAndSLR.png", sep = "/")
+out_file <- here::here(out_name)
+
+ggsave(out_file, width = opts_long$width_square, height = opts_long$height_square, units = "in")
+```
+
+**The above graph is saved as:**   
+`r out_name`   
+
+
+```{r, fig.width = opts_long$width_square, fig.height = opts_long$height_square}
 # add the line to the plot
 p <- plot_cumu_set(dat_cumu$set, columns = opts_long$multi_cols,
                    smooth = FALSE,
@@ -359,11 +386,19 @@ p +
               alpha = 0.9) +
   labs(title = "Cumulative Change since first reading",
        subtitle = "red line approximates sea level rise")
-out_file <- here::here("R_output", "figures", "cumu_change_plots", "cumu_change_withSLR.png")
-ggsave(out_file, width = 7, height = 7, units = "in")
 
 
+out_name <- paste("R_output", "figures", "cumu_change_plots", "cumu_change_withSLR.png", sep = "/")
+out_file <- here::here(out_name)
+ggsave(out_file, width = opts_long$width_square, height = opts_long$height_square, units = "in")
+```
 
+
+**The above graph is saved as:**   
+`r out_name`   
+
+
+```{r, fig.width = opts_long$width_square, fig.height = opts_long$height_square}
 # what if we just do it without any points; just smooths?
 ggplot(dat_cumu$set, aes(x = date, y = mean_cumu)) +
         geom_line(col = 'gray70') +
@@ -381,16 +416,24 @@ ggplot(dat_cumu$set, aes(x = date, y = mean_cumu)) +
                   slope = slope),
               color = "red3",
               size = 1)
-out_file <- here::here("R_output", "figures", "cumu_change_plots", "cumu_change_linesOnly.png")
-ggsave(out_file, width = 7, height = 7, units = "in")
+
+
+out_name <- paste("R_output", "figures", "cumu_change_plots", "cumu_change_linesOnly.png", sep = "/")
+out_file <- here::here(out_name)
+ggsave(out_file, width = opts_long$width_square, height = opts_long$height_square, units = "in")
 ```
+
+
+**The above graph is saved as:**   
+`r out_name`   
+
 
 
 ## Something similar, but with NAVD88  
 
 Don't facet. Put all SETs in one facet. Use cumulative change, but instead of starting at "0" on the first date, add the NAVD88 elevation (either ground or receiver - all is relative so it doesn't really matter unless we want water level information, which involves another information "grab") to cumulative change data.  
 
-```{r, fig.width = 5.8, fig.height = 8.2}
+```{r, fig.width = opts_long$width_tall, fig.height = opts_long$height_tall}
 # if either column has NO NAs, use the column. Preference goes to ground elevation, then receiver elevation. 
 # then move through partial scenarios: use ground elevation or receiver elevation, or make it NA.
 navd88s <- mdat %>% 
@@ -419,9 +462,18 @@ ggplot(cumu_navd88, aes(x = date, y = mean_cumu, color = set_id)) +
        subtitle = "first sample date set to that SET's NAVD88 elevation",
        y = "NAVD88 elevation (m)",
        color = "SET")
-out_file <- here::here("R_output", "figures", "cumu_change_plots", "cumu_change_NAVD88.png")
-ggsave(out_file, width = 5.8, height = 8.2, units = "in")
+
+
+out_name <- paste("R_output", "figures", "cumu_change_plots", "cumu_change_NAVD88.png", sep = "/")
+out_file <- here::here(out_name)
+
+ggsave(out_file, width = opts_long$width_tall, height = opts_long$height_tall, units = "in")
 ```
+
+
+**The above graph is saved as:**   
+`r out_name`   
+
 
 
 # Only use sites with enough data  
@@ -711,23 +763,38 @@ lmm_out <- left_join(lmm_out, select(mdat, unique_set_id, co_dominant_species1),
 ## Graphical Comparison to Sea Level Rise and 0  
 
 
-```{r plot_slr_ci_lmm, fig.width = 7, fig.height = 6, eval = enough_dat}
+```{r plot_slr_ci_lmm, fig.width = opts_long$width_short, fig.height = opts_long$height_short, eval = enough_dat}
 
 plot_rate_comps(data = lmm_out, plot_type = 3, set_ids = set_id,
                 set_ci_low = CI_low, set_ci_high = CI_high,
                 rates = rate, slr = slr, slr_ci = slr_ci)
-out_file <- here::here("R_output", "figures", "summary_plots", "summary_plot.png")
-ggsave(out_file)
 
 
+out_name <- paste("R_output", "figures", "summary_plots", "summary_plot.png", sep = "/")
+out_file <- here::here(out_name)
+
+ggsave(out_file, width = opts_long$width_short, height = opts_long$height_short, scale = 0.8)
+
+cat(paste("The above graph is saved as: ", out_name))
+```
+
+
+
+```{r plot_slr_ci_lmm_veg, fig.width = opts_long$width_short, fig.height = opts_long$height_short, eval = enough_dat}
 # colored by veg
 plot_rate_comps(data = lmm_out, plot_type = 3, set_ids = set_id,
                 set_ci_low = CI_low, set_ci_high = CI_high,
                 rates = rate, slr = slr, slr_ci = slr_ci,
                 color_by_veg = TRUE, veg = veg)
-out_file <- here::here("R_output", "figures", "summary_plots", "summary_plot_veg.png")
-ggsave(out_file)
+
+out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_veg.png", sep = "/")
+out_file <- here::here(out_name)
+
+ggsave(out_file, width = 1.2*opts_long$width_short, height = opts_long$height_short, scale = 0.8)
+
+cat(paste("The above graph is saved as: ", out_name))
 ```
+
 
 
 ***
@@ -736,7 +803,7 @@ ggsave(out_file)
 
 In order, according to specifications in the metadata; and labeled with user-friendly names. Note that no plot will be produced if there are any NAs in the metadata fields `numerical_order` or `user_friendly_set_name`.    
 
-```{r plot_slr_ci_lmm_ordered, fig.width = 7, fig.height = 6, eval = enough_dat}
+```{r plot_slr_ci_lmm_ordered, fig.width = opts_long$width_short, fig.height = opts_long$height_short, eval = enough_dat}
 # only run this chunk if numerical order and user friendly names are specified for all SETs
 
 if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) == 0){
@@ -758,35 +825,63 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
                        set_ids = set_id2, set_ci_low = CI_low,
                        set_ci_high = CI_high, slr = slr, slr_ci = slr_ci,
                        rates = rate) 
-  out_file <- here::here("R_output", "figures", "summary_plots", "summary_plot_ordered.png")
-  ggsave(out_file, p)
+  
   print(p)
   
+  out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_ordered.png", sep = "/")
+  out_file <- here::here(out_name)
   
-    p <- plot_rate_comps(data = lmm_out_ordered, plot_type = 3, 
+  ggsave(out_file, p, width = opts_long$width_short, height = opts_long$height_short, scale = 0.8)
+  
+  cat(paste("The above graph is saved as: ", out_name))
+  
+  
+  
+  p <- plot_rate_comps(data = lmm_out_ordered, plot_type = 3, 
                        set_ids = set_id2, set_ci_low = CI_low,
                        set_ci_high = CI_high, slr = slr, slr_ci = slr_ci,
                        rates = rate, color_by_veg = TRUE, veg = veg) 
-  out_file <- here::here("R_output", "figures", "summary_plots", "summary_plot_ordered_veg.png")
-  ggsave(out_file, p)
+  
   print(p)
+  
+  out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_ordered_veg.png", sep = "/")
+  out_file <- here::here(out_name)
+  
+  ggsave(out_file, p, width = 1.2*opts_long$width_short, height = opts_long$height_short, scale = 0.8)
+  
+  cat(paste("The above graph is saved as: ", out_name))
+  
   
   
   p <- plot_rate_comps(data = lmm_out_ordered, plot_type = 3, 
                        set_ids = user_friendly_set_name, set_ci_low = CI_low,
                        set_ci_high = CI_high, slr = slr, slr_ci = slr_ci,
                        rates = rate) 
-  out_file <- here::here("R_output", "figures", "summary_plots", "summary_plot_ordered_friendly_names.png")
-  ggsave(out_file, p)
+  
   print(p)
+  
+  out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_ordered_friendly_names.png", sep = "/")
+  out_file <- here::here(out_name)
+  
+  ggsave(out_file, p, width = opts_long$width_short, height = opts_long$height_short, scale = 0.8)
+  
+  cat(paste("The above graph is saved as: ", out_name))
+  
+  
   
   p <- plot_rate_comps(data = lmm_out_ordered, plot_type = 3, 
                        set_ids = user_friendly_set_name, set_ci_low = CI_low,
                        set_ci_high = CI_high, slr = slr, slr_ci = slr_ci,
                        rates = rate, color_by_veg = TRUE, veg = veg) 
-  out_file <- here::here("R_output", "figures", "summary_plots", "summary_plot_ordered_friendly_names_veg.png")
-  ggsave(out_file, p)
+  
   print(p)
+  
+  out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_ordered_friendly_names_veg.png", sep = "/")
+  out_file <- here::here(out_name)
+  # because the legend is pretty wide for the plots with veg coloring, I'm saving them 20% wider than specified. this makes the final dimensions of the main panel comparable to the non-veg plots.
+  ggsave(out_file, p, width = 1.2*opts_long$width_short, height = opts_long$height_short, scale = 0.8)
+  
+  cat(paste("The above graph is saved as: ", out_name))
 }
 ```
 
