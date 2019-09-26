@@ -247,14 +247,26 @@ if (res_to_match %in% unique(slr_rates$reserve)) {
 
 ```{r set_info_table}
 # print the table
-mdat %>% 
-  select(unique_set_id, set_type, latitude_dec_deg, 
+# what to print depends on whether lat/long are to be included
+
+if(opts_long$coords_tech == 1){
+  mdat %>% 
+    select(unique_set_id, set_type, latitude_dec_deg, 
            longitude_dec_deg, co_dominant_species1) %>% 
-  arrange(unique_set_id) %>% 
-  setNames(c("SET_ID", "Type", "Lat", "Long", "Main_Veg")) %>% 
-  flextable() %>% 
-  theme_booktabs() %>% 
-  autofit()
+    arrange(unique_set_id) %>% 
+    setNames(c("SET_ID", "Type", "Lat", "Long", "Main_Veg")) %>% 
+    flextable() %>% 
+    theme_booktabs() %>% 
+    autofit()
+} else {
+  mdat %>% 
+    select(unique_set_id, set_type, co_dominant_species1) %>% 
+    arrange(unique_set_id) %>% 
+    setNames(c("SET_ID", "Type", "Main_Veg")) %>% 
+    flextable() %>% 
+    theme_booktabs() %>% 
+    autofit()
+}
 ```
 
 
@@ -806,6 +818,10 @@ In order, according to specifications in the metadata; and labeled with user-fri
 ```{r plot_slr_ci_lmm_ordered, fig.width = opts_long$width_short, fig.height = opts_long$height_short, eval = enough_dat}
 # only run this chunk if numerical order and user friendly names are specified for all SETs
 
+# friendly names need more space - up width in ggsave by 10%
+# veg legends need more space - up width in ggsave by 20%
+# if both: 25% wider???
+
 if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) == 0){
   # make the set id a factor
   lmm_out_ordered <- mdat %>% 
@@ -847,7 +863,7 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
   out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_ordered_veg.png", sep = "/")
   out_file <- here::here(out_name)
   
-  ggsave(out_file, p, width = 1.2*opts_long$width_short, height = opts_long$height_short, scale = 0.8)
+  ggsave(out_file, p, width = 1.1*opts_long$width_short, height = opts_long$height_short, scale = 0.8)
   
   cat(paste("The above graph is saved as: ", out_name))
   
@@ -879,7 +895,7 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
   out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_ordered_friendly_names_veg.png", sep = "/")
   out_file <- here::here(out_name)
   # because the legend is pretty wide for the plots with veg coloring, I'm saving them 20% wider than specified. this makes the final dimensions of the main panel comparable to the non-veg plots.
-  ggsave(out_file, p, width = 1.2*opts_long$width_short, height = opts_long$height_short, scale = 0.8)
+  ggsave(out_file, p, width = 1.1*opts_long$width_short, height = opts_long$height_short, scale = 0.8)
   
   cat(paste("The above graph is saved as: ", out_name))
 }

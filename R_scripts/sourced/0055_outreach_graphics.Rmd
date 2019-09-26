@@ -220,14 +220,27 @@ if (res_to_match %in% unique(slr_rates$reserve)) {
 
 ```{r set_info_table}
 # print the table
-mdat %>% 
-  select(unique_set_id, set_type, latitude_dec_deg, 
+# print the table
+# what to print depends on whether lat/long are to be included
+
+if(opts_long$coords_outreach == 1){
+  mdat %>% 
+    select(unique_set_id, set_type, latitude_dec_deg, 
            longitude_dec_deg, co_dominant_species1) %>% 
-  arrange(unique_set_id) %>% 
-  setNames(c("SET_ID", "Type", "Lat", "Long", "Main_Veg")) %>% 
-  flextable() %>% 
-  theme_booktabs() %>% 
-  autofit()
+    arrange(unique_set_id) %>% 
+    setNames(c("SET_ID", "Type", "Lat", "Long", "Main_Veg")) %>% 
+    flextable() %>% 
+    theme_booktabs() %>% 
+    autofit()
+} else {
+  mdat %>% 
+    select(unique_set_id, set_type, co_dominant_species1) %>% 
+    arrange(unique_set_id) %>% 
+    setNames(c("SET_ID", "Type", "Main_Veg")) %>% 
+    flextable() %>% 
+    theme_booktabs() %>% 
+    autofit()
+}
 ```
 
 
