@@ -20,7 +20,7 @@ Also, be aware that linear models are not appropriate for calculating rates of c
 
 
 
-```{r load_libraries}
+```{r load-libraries}
 library(knitr)
 library(forcats)
 library(readr)
@@ -48,7 +48,7 @@ This reads in the long dataset, converted from other formats by earlier scripts.
 
 If the user specified custom start and/or end dates in the file `metadata\user_defined_inputs.xlsx`, the data frame is trimmed in this step.  
 
-```{r read_data, warning = TRUE}
+```{r read-data, warning = TRUE}
 # find the folder with processed data
 path <- here::here('data', 'processed')
 
@@ -103,7 +103,7 @@ Use the *user_defined_inputs* spreadsheet to find qa/qc codes that the user want
 
 Note that this code will look for an EXACT match. e.g., if "LHE" is specified for removal, only values with "LHE" will be removed. "LHE CB" and "CRM LHE" will *not* be removed. To remove a combination of codes, a new line may need to be created in the *qaqc_codes* tab of the input spreadsheet.  
 
-```{r}
+```{r qc-remove}
 if (excl_exist) {
   # find the rows to exclude - either arm or pin codes match
   pin_to_excl <- which(dat$qaqc_code %in% codes_to_exclude)
@@ -138,7 +138,7 @@ This analysis was run on `r filelist[1]` on `r Sys.Date()`.
 
 Make sure a metadata file exists:  
 
-```{r read_metadata, warning = TRUE}
+```{r read-metadata, warning = TRUE}
 # find the folder with metadata
 path <- here::here('metadata')
 
@@ -163,7 +163,7 @@ mdat <- read_excel(filename) %>%
 
 Make sure the same SET IDs exist in both the data and metadata file:     
 
-```{r verify_setid, warning = TRUE}
+```{r verify-setid, warning = TRUE}
 # first pull out set_id from both data frames
 data_setid <- unique(as.character(dat$set_id))
 metadata_setid <- unique(mdat$unique_set_id)
@@ -207,7 +207,7 @@ rm(dat_not_m, m_not_dat, mdat_sub, metadata_setid, data_setid, filelist, filenam
 
 Read in general sea-level rates sheet and pull out the rate that matches the reserve.  
 
-```{r read_slr}
+```{r read-slr}
 slr_file <- here::here('metadata', 'slr_rates.csv')
 slr_rates <- read_csv(slr_file) %>%
     clean_names() %>%
@@ -216,7 +216,7 @@ slr_rates <- read_csv(slr_file) %>%
 
 Pull out the information relevant to the current reserve. Assign relevant values to objects and print out the table with information about the site.   
 
-```{r verify_slr, warning = TRUE}
+```{r verify-slr, warning = TRUE}
 res_to_match <- unique(dat$reserve)
 
 if (res_to_match %in% unique(slr_rates$reserve)) {
@@ -245,7 +245,7 @@ if (res_to_match %in% unique(slr_rates$reserve)) {
 ### setting  
 
 
-```{r set_info_table}
+```{r set-info-table}
 # print the table
 # what to print depends on whether lat/long are to be included
 
@@ -273,7 +273,7 @@ if(opts_long$coords_tech == 1){
 
 ### sampling information  
 
-```{r sampling_info_table}
+```{r sampling-info-table}
 sample_info <- dat %>% 
   group_by(set_id) %>% 
   summarize(first_sampled = min(date),
@@ -319,23 +319,23 @@ ggsave(out_file, width = opts_long$width_square, height = opts_long$height_squar
 
 
 
-Graphs for each SET individually are not shown here but have been saved:  
-
 ```{r}
 all_sets <- unique(dat_cumu$set$set_id)
+out_path <- paste("R_output", "figures", "cumu_change_plots", "individual_sets", sep = "/")
 
 for(i in seq_along(all_sets)){
   dat_tmp <- dat_cumu$set[dat_cumu$set$set_id == all_sets[i], ]
   p <- plot_cumu_set(dat_tmp, columns = 1, smooth = FALSE)
   plot_name = paste0("cumu_change_noLine_", all_sets[i], ".png")
-  out_name <- paste("R_output", "figures", "cumu_change_plots", "individual_sets", plot_name, sep = "/")
+  out_name <- paste(out_path, plot_name, sep = "/")
 out_file <- here::here(out_name)
 
 ggsave(out_file, p, width = opts_long$width_short, height = opts_long$height_short, units = "in", scale = 0.8)
-
-cat(paste(out_name, "has been saved \n "))
 }
 ```
+
+
+Graphs for each SET individually are not shown here but have been saved in **`r out_path`**
 
 
 ```{r, fig.width = opts_long$width_square, fig.height = opts_long$height_square}
@@ -353,6 +353,23 @@ ggsave(out_file, width = opts_long$width_square, height = opts_long$height_squar
 **The above graph is saved as:**   
 `r out_name`   
 
+
+```{r}
+out_path <- paste("R_output", "figures", "cumu_change_plots", "individual_sets", sep = "/")
+
+for(i in seq_along(all_sets)){
+  dat_tmp <- dat_cumu$set[dat_cumu$set$set_id == all_sets[i], ]
+  p <- plot_cumu_set(dat_tmp, columns = 1, smooth = TRUE)
+  plot_name = paste0("cumu_change_withLine_", all_sets[i], ".png")
+  out_name <- paste(out_path, plot_name, sep = "/")
+out_file <- here::here(out_name)
+
+ggsave(out_file, p, width = opts_long$width_short, height = opts_long$height_short, units = "in", scale = 0.8)
+}
+```
+
+
+Graphs for each SET individually are not shown here but have been saved in **`r out_path`**
 
 
 ### Plus Sea Level Rise Line  
@@ -580,7 +597,7 @@ These rates were generated using the `lme()` function in the `nlme` package. Con
 
 All calculations generated output in *mm/day* and were converted to *mm/yr* by multiplying by 365.25 (this accounts for leap years).    
 
-```{r calc_lmm, eval = enough_dat}
+```{r calc-lmm, eval = enough_dat}
 models2 <- dat %>%
     group_by(reserve, set_id) %>%
     do(mod = lme(pin_height ~ date, data = ., random = ~1|arm_position/pin_number, na.action = na.omit))
@@ -601,7 +618,7 @@ lmm_out %>%
 
 ### Additional model diagnostics  
 
-```{r}
+```{r addl-diagnostics}
 diagnostics_out <- models2 %>% 
   mutate(sigma = sigma(mod),
          AIC = AIC(mod),
@@ -617,7 +634,7 @@ diagnostics_out %>%
 
 ### Combine information from rate calculations, metadata, and SLR into one file  
 
-```{r, eval = enough_dat}
+```{r combine-rates-mdat-slr, eval = enough_dat}
 # pick out relevant fields from the metadata to be used for mapping
 mdat_sub <- mdat %>% 
   select(unique_set_id, user_friendly_set_name, reserve, latitude_dec_deg, longitude_dec_deg, co_dominant_species1)
@@ -642,7 +659,7 @@ write.csv(rate_summary,
 
 
 
-```{r slr_comp_assignment, eval = enough_dat}
+```{r slr-comp-assignment, eval = enough_dat}
 rates_slr_comp <- rate_summary %>%
     mutate(dir_0 = case_when(CI_high < 0 ~ "dec_sig",
                              CI_low > 0  ~ "inc_sig",
@@ -673,7 +690,7 @@ The following tables break the SETs into groups where the rate of SET elevation 
 ## SET Elevation Change < 0 mm/yr  
 
 
-```{r zero_comp_lower, eval = enough_dat}
+```{r zero-comp-lower, eval = enough_dat}
 rates_slr_comp %>%
     filter(dir_0 == "dec_sig") %>%
     select(-dir_0, -dir_slr, -set_slr_ratio) %>% 
@@ -689,7 +706,7 @@ rates_slr_comp %>%
 ## SET Elevation Change > 0 mm/yr  
 
 
-```{r zero_comp_higher, eval = enough_dat}
+```{r zero-comp-higher, eval = enough_dat}
 rates_slr_comp %>%
     filter(dir_0 == "inc_sig") %>%
     select(-dir_0, -dir_slr, -set_slr_ratio) %>% 
@@ -705,7 +722,7 @@ rates_slr_comp %>%
 ## SET Elevation Change 95% CI Includes 0 mm/yr  
 
 
-```{r zero_comp_same, eval = enough_dat}
+```{r zero-comp-same, eval = enough_dat}
 rates_slr_comp %>%
     filter(dir_0 %in% c("dec_nonsig", "inc_nonsig")) %>%
     select(-dir_0, -dir_slr, -set_slr_ratio) %>% 
@@ -737,7 +754,7 @@ The following tables break the SETs into groups where the rate of SET elevation 
 ## SET Elevation Change < SLR; CIs don't overlap  
 
 
-```{r slr_comp_lower, eval = enough_dat}
+```{r slr-comp-lower, eval = enough_dat}
 rates_slr_comp %>%
     filter(dir_slr == "dec_sig") %>%
     select(-dir_0, -dir_slr) %>% 
@@ -754,7 +771,7 @@ rates_slr_comp %>%
 ## SET Elevation Change > SLR; CIs don't overlap
 
 
-```{r slr_comp_higher, eval = enough_dat}
+```{r slr-comp-higher, eval = enough_dat}
 rates_slr_comp %>%
     filter(dir_slr == "inc_sig") %>%
     select(-dir_0, -dir_slr) %>% 
@@ -770,7 +787,7 @@ rates_slr_comp %>%
 ## SET Elevation Change and SLR CIs overlap  
 
 
-```{r slr_comp_same, eval = enough_dat}
+```{r slr-comp-same, eval = enough_dat}
 rates_slr_comp %>%
     filter(dir_slr %in% c("dec_nonsig", "inc_nonsig")) %>%
     select(-dir_0, -dir_slr) %>% 
@@ -785,7 +802,7 @@ rates_slr_comp %>%
 
 Add dominant veg to model_out data frame for graphing purposes
 
-```{r}
+```{r add-veg}
 lmm_out <- left_join(lmm_out, select(mdat, unique_set_id, co_dominant_species1), by = c("set_id" = "unique_set_id")) %>% 
     rename(veg = co_dominant_species1)
 ```
@@ -794,7 +811,7 @@ lmm_out <- left_join(lmm_out, select(mdat, unique_set_id, co_dominant_species1),
 ## Graphical Comparison to Sea Level Rise and 0  
 
 
-```{r plot_slr_ci_lmm, fig.width = opts_long$width_short, fig.height = opts_long$height_short, eval = enough_dat}
+```{r plot-slr-ci-lmm, fig.width = opts_long$width_short, fig.height = opts_long$height_short, eval = enough_dat}
 
 plot_rate_comps(data = lmm_out, plot_type = 3, set_ids = set_id,
                 set_ci_low = CI_low, set_ci_high = CI_high,
@@ -811,7 +828,7 @@ cat(paste("The above graph is saved as: ", out_name))
 
 
 
-```{r plot_slr_ci_lmm_veg, fig.width = opts_long$width_short, fig.height = opts_long$height_short, eval = enough_dat}
+```{r plot-slr-ci-lmm-veg, fig.width = opts_long$width_short, fig.height = opts_long$height_short, eval = enough_dat}
 # colored by veg
 plot_rate_comps(data = lmm_out, plot_type = 3, set_ids = set_id,
                 set_ci_low = CI_low, set_ci_high = CI_high,
@@ -834,7 +851,7 @@ cat(paste("The above graph is saved as: ", out_name))
 
 In order, according to specifications in the metadata; and labeled with user-friendly names. Note that no plot will be produced if there are any NAs in the metadata fields `numerical_order` or `user_friendly_set_name`.    
 
-```{r plot_slr_ci_lmm_ordered, fig.width = opts_long$width_short, fig.height = opts_long$height_short, eval = enough_dat}
+```{r plot-slr-ci-lmm-ordered, fig.width = opts_long$width_short, fig.height = opts_long$height_short, eval = enough_dat}
 # only run this chunk if numerical order and user friendly names are specified for all SETs
 
 # friendly names need more space - up width in ggsave by 10%
@@ -925,20 +942,20 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
 
 ## MAPS  
 
-```{r, eval = enough_dat}
+```{r map-script-source, eval = enough_dat}
 source(here::here("R_scripts", "sourced", "006_map_making_static.R"))
 ```
 
 
 ### Comparisons to 0  
 
-```{r, eval = enough_dat}
+```{r map0, eval = enough_dat}
 m0
 ```
 
 ### Comparisons to SLR  
 
-```{r, eval = enough_dat}
+```{r mapSLR, eval = enough_dat}
 mSLR
 ```
 
