@@ -11,7 +11,7 @@ editor_options:
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, error = TRUE)
 ```
 
-```{r load_libraries}
+```{r load-libraries}
 library(knitr)
 library(forcats)
 library(readr)
@@ -39,7 +39,7 @@ Outreach Team, assemble!  I need some help coming up with this text!
 
 This header can be removed when the final document is completed; it's all background  
 
-```{r read_data}
+```{r read-data}
 # this chunk copied out of 005_rate_calculations.Rmd
 
 # find the folder with processed data
@@ -84,7 +84,7 @@ if(!is.na(opts_long$custom_end)){
 }
 ```
 
-```{r trim_data}
+```{r trim-data}
 if (excl_exist) {
   # find the rows to exclude - either arm or pin codes match
   pin_to_excl <- which(dat$qaqc_code %in% codes_to_exclude)
@@ -112,7 +112,7 @@ if (excl_exist) {
 ```
 
 
-```{r read_metadata, warning = TRUE}
+```{r read-metadata, warning = TRUE}
 # find the folder with metadata
 path <- here::here('metadata')
 
@@ -135,7 +135,7 @@ mdat <- read_excel(filename) %>%
 ```
 
 
-```{r verify_setid, warning = TRUE}
+```{r verify-setid, warning = TRUE}
 # first pull out set_id from both data frames
 data_setid <- unique(as.character(dat$set_id))
 metadata_setid <- unique(mdat$unique_set_id)
@@ -176,7 +176,7 @@ rm(dat_not_m, m_not_dat, mdat_sub, metadata_setid, data_setid, filelist, filenam
 ```
 
 
-```{r read_slr}
+```{r read-slr}
 slr_file <- here::here('metadata', 'slr_rates.csv')
 slr_rates <- read_csv(slr_file) %>%
     clean_names() %>%
@@ -184,12 +184,12 @@ slr_rates <- read_csv(slr_file) %>%
 ```
 
 
-```{r read_rates}
+```{r read-rates}
 file_in <- here::here("data", "intermediate", "rate_summary.csv")
 rate_summ <- read.csv(file_in)
 ```
 
-```{r verify_slr, warning = TRUE}
+```{r verify-slr, warning = TRUE}
 res_to_match <- unique(dat$reserve)
 
 if (res_to_match %in% unique(slr_rates$reserve)) {
@@ -218,7 +218,7 @@ if (res_to_match %in% unique(slr_rates$reserve)) {
 ### setting  
 
 
-```{r set_info_table}
+```{r set-info-table}
 # print the table
 # print the table
 # what to print depends on whether lat/long are to be included
@@ -247,7 +247,7 @@ if(opts_long$coords_outreach == 1){
 
 ### sampling information  
 
-```{r sampling_info_table}
+```{r sampling-info-table}
 sample_info <- dat %>% 
   group_by(set_id) %>% 
   summarize(first_sampled = min(date),
