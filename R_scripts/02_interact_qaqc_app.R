@@ -67,6 +67,7 @@ if (sum(class(dat$date) %in% c("datetime", "POSIXct", "POSIXlt")) > 0)
 
 # cumulative change
 cumu_out <- calc_change_cumu(dat)
+cumu_out_set <- cumu_out$set
 # incremental change
 incr_out <- calc_change_incr(dat)
 
@@ -206,6 +207,9 @@ ui <- fluidPage(
                                                label = strong("Overlay Linear Regression"),
                                                value = FALSE
                                  ),
+                                 # make plots
+                                 plotlyOutput(outputId = "plotly_cumu_set_sub",
+                                              height = 500),
                                  plotlyOutput(outputId = "plotly_cumu_set",
                                               height = 500)
                         )
@@ -237,6 +241,17 @@ server <- function(input, output) {
             filter(set_id == input$SET,
                    date >= as.Date(input$date[1]),
                    date <= as.Date(input$date[2]))
+    })
+    
+    # subset cumulative data, reactively  
+    cumu_out_set_sub <- reactive({
+        req(input$SET)
+        req(input$date)
+        cumu_out_set %>% 
+            filter(set_id == input$SET,
+                   date >= as.Date(input$date[1]),
+                   date <= as.Date(input$date[2])) %>% 
+            mutate(mean_cumu = mean_cumu - mean_cumu[1])
     })
     
     # subset incremental change list, reactively
@@ -376,6 +391,22 @@ server <- function(input, output) {
             ylab("mm")
             
         b
+    })
+    
+    
+    # create plotly plot of cumulative change by INDIVIDUAL SET
+    output$plotly_cumu_set_sub <- renderPlotly({
+        req(input$SET)
+        req(input$date)
+        c <- plot_cumu_set(data = cumu_out_set_sub(),
+                           columns = 1, 
+                           pointsize = input$ptsize_single,
+                           smooth = input$cumu_smooth,
+                           lty_smooth = 1) +
+            ggtitle("Cumulative change since first selected date") +
+            ylab("mm")
+        
+        c
     })
     
     
