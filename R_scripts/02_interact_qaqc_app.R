@@ -197,11 +197,6 @@ ui <- fluidPage(
                         
                         tabPanel("Cumulative Calcs", value = 3,
                                  br(),
-                                 selectInput(inputId = "columns", 
-                                             label = strong("Choose # columns for graph below"),
-                                             choices = c(1, 2, 3, 4, 5),
-                                             selected = 4
-                                 ),
                                  # choose whether to overlay regression or not
                                  checkboxInput(inputId = "cumu_smooth", 
                                                label = strong("Overlay Linear Regression"),
@@ -209,9 +204,15 @@ ui <- fluidPage(
                                  ),
                                  # make plots
                                  plotlyOutput(outputId = "plotly_cumu_set_sub",
-                                              height = 500),
+                                              height = 400),
+                                 # choose number of columns for complete plot
+                                 selectInput(inputId = "columns", 
+                                             label = strong("Choose # columns for graph below"),
+                                             choices = c(1, 2, 3, 4, 5),
+                                             selected = 4
+                                 ),
                                  plotlyOutput(outputId = "plotly_cumu_set",
-                                              height = 500)
+                                              height = 600)
                         )
             )
         )
