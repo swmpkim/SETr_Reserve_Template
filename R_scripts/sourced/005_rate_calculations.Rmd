@@ -315,7 +315,7 @@ ggsave(out_file, width = opts_long$width_square, height = opts_long$height_squar
 ```
 
 **The above graph is saved as:**   
-`r out_name`   
+_`r out_name`_   
 
 
 
@@ -335,7 +335,7 @@ ggsave(out_file, p, width = opts_long$width_short, height = opts_long$height_sho
 ```
 
 
-Graphs for each SET individually are not shown here but have been saved in **`r out_path`**
+Graphs for each SET individually are not shown here but have been saved in _`r out_path`_
 
 
 ```{r, fig.width = opts_long$width_square, fig.height = opts_long$height_square}
@@ -351,7 +351,7 @@ ggsave(out_file, width = opts_long$width_square, height = opts_long$height_squar
 ```
 
 **The above graph is saved as:**   
-`r out_name`   
+_`r out_name`_   
 
 
 ```{r}
@@ -369,7 +369,7 @@ ggsave(out_file, p, width = opts_long$width_short, height = opts_long$height_sho
 ```
 
 
-Graphs for each SET individually are not shown here but have been saved in **`r out_path`**
+Graphs for each SET individually are not shown here but have been saved in _`r out_path`_
 
 
 ### Plus Sea Level Rise Line  
@@ -406,7 +406,7 @@ p +
                   slope = slope),
               color = "red3",
               size = 1) +
-  labs(subtitle = "red line approximates sea level rise; blue line is linear model of SET change")
+  labs(subtitle = "red line has slope of long-term sea level rise; blue line is linear model of SET change")
 
 
 # save it
@@ -418,6 +418,40 @@ ggsave(out_file, width = opts_long$width_square, height = opts_long$height_squar
 
 **The above graph is saved as:**   
 `r out_name`   
+
+
+```{r}
+out_path <- paste("R_output", "figures", "cumu_change_plots", "individual_sets", sep = "/")
+
+for(i in seq_along(all_sets)){
+  dat_tmp <- dat_cumu$set[dat_cumu$set$set_id == all_sets[i], ]
+  intercepts_tmp <- intercepts[intercepts$set_id == all_sets[i], ]
+  
+  
+  p <- plot_cumu_set(dat_tmp, columns = opts_long$multi_cols,
+                     pointsize = 2,
+                     smooth = FALSE)
+  p <- p +
+    geom_smooth(se = FALSE, method = 'lm', 
+                col = 'steelblue4') +
+    geom_abline(data = intercepts_tmp,
+                aes(intercept = intercept,
+                    slope = slope),
+                color = "red3",
+                size = 1) +
+    labs(subtitle = "red line has slope of long-term sea level rise; blue line is linear model of SET change")
+  
+  
+  plot_name = paste0("cumu_change_withLineAndSLR", all_sets[i], ".png")
+  out_name <- paste(out_path, plot_name, sep = "/")
+out_file <- here::here(out_name)
+
+ggsave(out_file, p, width = opts_long$width_short, height = opts_long$height_short, units = "in", scale = 0.8)
+}
+```
+
+
+Graphs for each SET individually are not shown here but have been saved in _`r out_path`_
 
 
 ```{r, fig.width = opts_long$width_square, fig.height = opts_long$height_square}
@@ -433,7 +467,7 @@ p +
               size = 0.8,
               alpha = 0.9) +
   labs(title = "Cumulative Change since first reading",
-       subtitle = "red line approximates sea level rise")
+       subtitle = "red line has the slope of long-term sea level rise")
 
 
 out_name <- paste("R_output", "figures", "cumu_change_plots", "cumu_change_withSLR.png", sep = "/")
@@ -446,13 +480,48 @@ ggsave(out_file, width = opts_long$width_square, height = opts_long$height_squar
 `r out_name`   
 
 
+```{r}
+out_path <- paste("R_output", "figures", "cumu_change_plots", "individual_sets", sep = "/")
+
+for(i in seq_along(all_sets)){
+  dat_tmp <- dat_cumu$set[dat_cumu$set$set_id == all_sets[i], ]
+  intercepts_tmp <- intercepts[intercepts$set_id == all_sets[i], ]
+  
+  
+  p <- plot_cumu_set(dat_tmp, columns = opts_long$multi_cols,
+                     pointsize = 2,
+                     smooth = FALSE)
+
+  p <- p + 
+    geom_abline(data = intercepts_tmp,
+                aes(intercept = intercept,
+                    slope = slope),
+                color = "red3",
+                size = 0.8,
+                alpha = 0.9) +
+    labs(title = "Cumulative Change since first reading",
+         subtitle = "red line has the slope of long-term sea level rise")
+
+  plot_name = paste0("cumu_change_withSLR", all_sets[i], ".png")
+  out_name <- paste(out_path, plot_name, sep = "/")
+out_file <- here::here(out_name)
+
+ggsave(out_file, p, width = opts_long$width_short, height = opts_long$height_short, units = "in", scale = 0.8)
+}
+```
+
+
+Graphs for each SET individually are not shown here but have been saved in _`r out_path`_
+
+
+
 ```{r, fig.width = opts_long$width_square, fig.height = opts_long$height_square}
 # what if we just do it without any points; just smooths?
 ggplot(dat_cumu$set, aes(x = date, y = mean_cumu)) +
         geom_line(col = 'gray70') +
         facet_wrap(~set_id, ncol = opts_long$multi_cols) +
         labs(title = 'Cumulative Change since first reading', 
-             subtitle = 'light gray tracks mean change; blue is a linear smooth of change; \nred approximates sea level rise',
+             subtitle = 'light gray tracks mean change; blue is a linear smooth of change; \nred is slope of long-term sea level rise',
              x = 'Date',
              y = 'Change since first reading (mm)') +
         theme_classic() +
@@ -474,6 +543,44 @@ ggsave(out_file, width = opts_long$width_square, height = opts_long$height_squar
 
 **The above graph is saved as:**   
 `r out_name`   
+
+
+```{r}
+out_path <- paste("R_output", "figures", "cumu_change_plots", "individual_sets", sep = "/")
+
+for(i in seq_along(all_sets)){
+  dat_tmp <- dat_cumu$set[dat_cumu$set$set_id == all_sets[i], ]
+  intercepts_tmp <- intercepts[intercepts$set_id == all_sets[i], ]
+
+  p <- ggplot(dat_tmp, aes(x = date, y = mean_cumu)) +
+    geom_line(col = 'gray70') +
+    facet_wrap(~set_id, ncol = 1) +
+    labs(title = 'Cumulative Change since first reading', 
+         subtitle = 'light gray tracks mean change; blue is a linear smooth of change; \nred is slope of long-term sea level rise',
+         x = 'Date',
+         y = 'Change since first reading (mm)') +
+    theme_classic() +
+    geom_smooth(se = FALSE, method = 'lm', 
+                col = 'steelblue4',
+                size = 1) +
+    geom_abline(data = intercepts_tmp,
+                aes(intercept = intercept,
+                    slope = slope),
+                color = "red3",
+                size = 1)
+
+  
+  plot_name = paste0("cumu_change_linesOnly", all_sets[i], ".png")
+  out_name <- paste(out_path, plot_name, sep = "/")
+  out_file <- here::here(out_name)
+  
+  ggsave(out_file, p, width = opts_long$width_short, height = opts_long$height_short, units = "in", scale = 0.8)
+
+}
+```
+
+
+Graphs for each SET individually are not shown here but have been saved in _`r out_path`_
 
 
 
@@ -520,7 +627,7 @@ ggsave(out_file, width = opts_long$width_tall, height = opts_long$height_tall, u
 
 
 **The above graph is saved as:**   
-`r out_name`   
+_`r out_name`_   
 
 
 
