@@ -218,8 +218,30 @@ if (res_to_match %in% unique(slr_rates$reserve)) {
 ### setting  
 
 
+```{r}
+# for testing - introduce a second set type
+set.seed(572)
+replace_index <- sample(1:nrow(mdat), floor(nrow(mdat)/2))
+mdat$set_type[replace_index] <- "Shallow SET"
+
+message_list <- list()
+types <- unique(mdat$set_type)
+for(i in seq_along(types)){
+  sets <- as.character(mdat$unique_set_id[mdat$set_type == types[i]])
+  types_out <- paste0("\n \n", types[i], ": ", paste(sets, collapse = ", "), " \n \n")
+  message_list[[i]] <- types_out 
+}
+names(message_list) <- types
+
+purrr::walk(message_list, cat)
+```
+
+The SET types should have been above  
+
+Also try:  
+`r purrr::walk(message_list, cat) %>% asis_output()`  
+
 ```{r set-info-table}
-# print the table
 # print the table
 # what to print depends on whether lat/long are to be included
 
