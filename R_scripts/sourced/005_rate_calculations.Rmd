@@ -35,6 +35,7 @@ library(flextable)
 library(readxl)
 library(lubridate)
 library(leaflet)
+library(stringr)
 # load functions
 source(here::here('R_scripts', 'sourced', '000_functions.R'))
 # load user options
@@ -217,6 +218,14 @@ slr_rates <- read_csv(slr_file) %>%
 Pull out the information relevant to the current reserve. Assign relevant values to objects and print out the table with information about the site.   
 
 ```{r verify-slr, warning = TRUE}
+# if there isn't a reserve column in the data,
+# pull it from the file name
+# this could end poorly if someone's working with a
+# file that doesn't match the required naming conventions
+if(!exists("reserve", dat)){
+  dat$reserve <- toupper(str_extract(filename, "[:alpha:]{3}(?=set)"))
+} 
+
 res_to_match <- unique(dat$reserve)
 
 if (res_to_match %in% unique(slr_rates$reserve)) {
