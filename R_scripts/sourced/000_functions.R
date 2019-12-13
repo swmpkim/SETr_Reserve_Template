@@ -307,29 +307,51 @@ plot_incr_pin <- function(data, set, threshold = 25, columns = 2, pointsize = 2,
 
 plot_rate_comps <- function(data, plot_type = 3, color_by_veg = FALSE, 
                             set_ids, set_ci_low, set_ci_high,
-                            rates, slr, slr_ci, veg){
+                            rates, 
+                            comp1, comp1_ci_low, comp1_ci_high,
+                            comp2 = NULL, comp2_ci_low = NULL, comp2_ci_high = NULL,
+                            veg){
     
     # plot_type: 1 = basic; points only; no confidence intervals
     #            2 = CIs for SET rates, but not sea level rise (SLR)
     #            3 = CIs for both SETs and SLR
     # default is the full plot with CIs, and with points all the same color
     
+    # STILL NEED TO:  
+    # make sure plot area is big enough to include all vertical lines and error bars
+    # actually make 'comp2' do something
+    
+    # updates to this function, 12/13/19:
+    # ------------
+    # changed geom_errorbar to geom_errorbarh for simplicity
+    # and to enable possible use of NAVD 88 on y-axis
+    # slr changed to 'comp1'
+    # slr_ci split into comp1_ci _low and _high to be consistent with SET CIs
+    # comp2 added, to enable addition of either 19-year slr or short-term slr 
+    
+    # intent is that comp1 = long-term sea level rise
+    # and comp2 = 19-year sea level rise
+    # but with these names they can be flexible
+    
+    
+    # calculate CI half-widths for plot labeling
+    comp1_ci_halfwidth <- (comp1_ci_high + comp1_ci_low) / 2
+    comp2_ci_halfwidth <- (comp2_ci_high + comp2_ci_low) / 2
     
     
     # assemble the base plot, with axes and lines for 0 and SLR
     #####################################################################
     p <- ggplot() +
         geom_blank(data = data, 
-                   aes(x = {{set_ids}}, 
-                       y = {{rates}})) +
-        geom_hline(aes(yintercept = {{slr}}), 
+                   aes(x = {{rates}},
+                       y = {{set_ids}})) +
+        geom_vline(aes(xintercept = {{comp1}}), 
                    col = "navyblue", 
                    size = 1, 
                    alpha = 0.9) +
-        geom_hline(aes(yintercept = 0), 
+        geom_vline(aes(xintercept = 0), 
                    col = "gray70") +
-        theme_classic() +
-        coord_flip()
+        theme_classic()
     
     
     # assemble each piece
@@ -337,52 +359,54 @@ plot_rate_comps <- function(data, plot_type = 3, color_by_veg = FALSE,
     
     # points, not colored by veg
     points_same <- geom_point(data = data, 
-                              aes(x = {{set_ids}}, 
-                                  y = {{rates}}), 
+                              aes(x = {{rates}}, 
+                                  y = {{set_ids}}), 
                               size = 3, 
                               col = "red3")
     
     # labels, when CIs are included for both SETs and SLR
     labels_full <- labs(title = "Elevation Change with 95% Confidence Intervals", 
-                        subtitle = paste0("Local SLR in blue: ", {{slr}}, 
-                                          " +/- ", {{slr_ci}}, " mm/yr"), 
-                        x = "SET", 
-                        y = "Rate of change (mm/yr)")
+                        subtitle = paste0("Local SLR in blue: ", {{comp1}}, 
+                                          " +/- ", comp1_ci_halfwidth, " mm/yr"), 
+                        x = "Rate of change (mm/yr)", 
+                        y = "SET")
     
     # labels, when no CIs are included
     labels_minimal <- labs(title = "Elevation Change", 
-                           subtitle = paste0("Local SLR in blue: ", {{slr}}, " mm/yr"), 
-                           x = "SET", 
-                           y = "Rate of change (mm/yr)")
+                           subtitle = paste0("Local SLR in blue: ", {{comp1}}, " mm/yr"), 
+                           x = "Rate of change (mm/yr)",
+                           y = "SET")
     
     # labels, when CIs are included for SETs but not SLR
     labels_partial_setci <- labs(title = "Elevation Change with 95% Confidence Intervals", 
-                                 subtitle = paste0("Local SLR in blue: ", {{slr}}, " mm/yr"), 
-                                 x = "SET", 
-                                 y = "Rate of change (mm/yr)")
+                                 subtitle = paste0("Local SLR in blue: ", {{comp1}}, " mm/yr"), 
+                                 x = "Rate of change (mm/yr)",
+                                 y = "SET")
     
     # geom to include when CIs are included for SETs
-    set_cis <- geom_errorbar(data = data, 
-                             aes(x = {{set_ids}}, 
-                                 ymin = {{set_ci_low}}, 
-                                 ymax = {{set_ci_high}}), 
-                             col = "gray55", 
-                             size = 1) 
+    set_cis <- geom_errorbarh(data = data, 
+                              aes(y = {{set_ids}}, 
+                                  xmin = {{set_ci_low}}, 
+                                  xmax = {{set_ci_high}}), 
+                              col = "gray55", 
+                              size = 1) 
     
     # geom to include when CI is included for SLR
-    slr_cis <- geom_ribbon(aes(x = 0:(nrow(data)+1), 
-                               ymin = {{slr}} - {{slr_ci}}, 
-                               ymax = {{slr}} + {{slr_ci}}), 
-                           fill = "navyblue", 
-                           alpha = 0.1)
+    slr_cis <- geom_rect(aes(ymin = -Inf,
+                             ymax = Inf, 
+                             xmin = {{comp1_ci_low}}, 
+                             xmax = {{comp1_ci_high}}), 
+                         fill = "navyblue", 
+                         alpha = 0.1) 
+    
     
     # geom and labels if points will be colored by dominant vegetation type
     if(color_by_veg){
         # the veg column has to be defined
         # this doesn't work though: stopifnot(exists({{veg}}, data))
         points_veg <- geom_point(data = data, 
-                                 aes(x = {{set_ids}}, 
-                                     y = {{rates}},
+                                 aes(x = {{rates}}, 
+                                     y = {{set_ids}},
                                      col = {{veg}}), 
                                  size = 3) 
         colors_veg <- scale_color_brewer(type = "qual", palette = "Dark2") 
