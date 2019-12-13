@@ -1013,9 +1013,9 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
   lmm_out_ordered$set_id2 <- b
   
   
-  plot_rate_comps(data = lmm_out, 
+  p <- plot_rate_comps(data = lmm_out_ordered, 
                 plot_type = 3, 
-                set_ids = set_id2,
+                set_ids = user_friendly_set_name,
                 set_ci_low = CI_low, 
                 set_ci_high = CI_high,
                 rates = rate, 
@@ -1034,9 +1034,9 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
   cat(paste("The above graph is saved as: ", out_name))
   
   
-  plot_rate_comps(data = lmm_out, 
+  p <- plot_rate_comps(data = lmm_out_ordered, 
                 plot_type = 3, 
-                set_ids = set_id,
+                set_ids = set_id2,
                 set_ci_low = CI_low, 
                 set_ci_high = CI_high,
                 rates = rate, 
@@ -1056,7 +1056,7 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
   cat(paste("The above graph is saved as: ", out_name))
   
   
-  plot_rate_comps(data = lmm_out_ordered, 
+  p <- plot_rate_comps(data = lmm_out_ordered, 
                 plot_type = 3, 
                 set_ids = user_friendly_set_name,
                 set_ci_low = CI_low, 
@@ -1075,7 +1075,7 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
   
   cat(paste("The above graph is saved as: ", out_name))
   
-  plot_rate_comps(data = lmm_out_ordered, 
+  p <- plot_rate_comps(data = lmm_out_ordered, 
                 plot_type = 3, 
                 set_ids = user_friendly_set_name,
                 set_ci_low = CI_low, 

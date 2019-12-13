@@ -315,11 +315,9 @@ plot_rate_comps <- function(data, plot_type = 3, color_by_veg = FALSE,
     # plot_type: 1 = basic; points only; no confidence intervals
     #            2 = CIs for SET rates, but not sea level rise (SLR)
     #            3 = CIs for both SETs and SLR
+    #            4 = all of the above, plus a second comparison point and CIs
     # default is the full plot with CIs, and with points all the same color
     
-    # STILL NEED TO:  
-    # make sure plot area is big enough to include all vertical lines and error bars
-    # actually make 'comp2' do something
     
     # updates to this function, 12/13/19:
     # ------------
@@ -335,8 +333,8 @@ plot_rate_comps <- function(data, plot_type = 3, color_by_veg = FALSE,
     
     
     # calculate CI half-widths for plot labeling
-    comp1_ci_halfwidth <- (comp1_ci_high + comp1_ci_low) / 2
-    comp2_ci_halfwidth <- (comp2_ci_high + comp2_ci_low) / 2
+    comp1_ci_halfwidth <- (comp1_ci_high - comp1_ci_low) / 2
+    comp2_ci_halfwidth <- (comp2_ci_high - comp2_ci_low) / 2
     
     
     # assemble the base plot, with axes and lines for 0 and SLR
@@ -396,8 +394,23 @@ plot_rate_comps <- function(data, plot_type = 3, color_by_veg = FALSE,
                              ymax = Inf, 
                              xmin = {{comp1_ci_low}}, 
                              xmax = {{comp1_ci_high}}), 
-                         fill = "navyblue", 
-                         alpha = 0.1) 
+                         fill = "#08519c", # formerly navyblue. #08519c is a contender; 0.2 here and 0.1 in comp2; #08306b is another one i like a lot
+                         alpha = 0.2) 
+    
+    # geom to include with point estimate for comp2
+    comp2_line <- geom_vline(aes(xintercept = {{comp2}}), 
+                             col = "navyblue", 
+                             size = 1,
+                             linetype = "dashed",
+                             alpha = 0.9)
+    
+    # geom to include when point and CI included for comp2
+    comp2_cis <- geom_rect(aes(ymin = -Inf,
+                               ymax = Inf, 
+                               xmin = {{comp2_ci_low}}, 
+                               xmax = {{comp2_ci_high}}), 
+                           fill = "#08519c",     #7bccc4, 0.2
+                           alpha = 0.1) 
     
     
     # geom and labels if points will be colored by dominant vegetation type
@@ -488,6 +501,36 @@ plot_rate_comps <- function(data, plot_type = 3, color_by_veg = FALSE,
             labels_full +
             labels_veg
     }
+    
+    
+    ####################################################################
+    # Everything including comp2
+    ####################################################################
+    # don't color by veg
+    if(plot_type == 4 && !color_by_veg){
+        p <- p +
+            set_cis +
+            slr_cis +
+            comp2_line +
+            comp2_cis +
+            points_same +
+            labels_full
+    }
+    
+    
+    # do color by veg
+    if(plot_type == 4 && color_by_veg){
+        p <- p +
+            set_cis +
+            slr_cis +
+            comp2_line +
+            comp2_cis +
+            points_veg +
+            colors_veg +
+            labels_full +
+            labels_veg
+    }
+    
     
     return(p)
     
