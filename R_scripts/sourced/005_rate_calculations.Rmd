@@ -938,9 +938,6 @@ lmm_out <- left_join(lmm_out, select(mdat, unique_set_id, co_dominant_species1),
 
 ```{r plot-slr-ci-lmm, fig.width = opts_long$width_short, fig.height = opts_long$height_short, eval = enough_dat}
 
-# plot_rate_comps(data = lmm_out, plot_type = 3, set_ids = set_id,
-#                 set_ci_low = CI_low, set_ci_high = CI_high,
-#                 rates = rate, slr = slr, slr_ci = slr_ci)
 
 plot_rate_comps(data = lmm_out, 
                 plot_type = 3, 
@@ -966,10 +963,17 @@ cat(paste("The above graph is saved as: ", out_name))
 
 ```{r plot-slr-ci-lmm-veg, fig.width = opts_long$width_short, fig.height = opts_long$height_short, eval = enough_dat}
 # colored by veg
-plot_rate_comps(data = lmm_out, plot_type = 3, set_ids = set_id,
-                set_ci_low = CI_low, set_ci_high = CI_high,
-                rates = rate, slr = slr, slr_ci = slr_ci,
+plot_rate_comps(data = lmm_out, 
+                plot_type = 3, 
+                set_ids = set_id,
+                set_ci_low = CI_low, 
+                set_ci_high = CI_high,
+                rates = rate, 
+                comp1 = slr, 
+                comp1_ci_low = slr - slr_ci, 
+                comp1_ci_high = slr + slr_ci,
                 color_by_veg = TRUE, veg = veg)
+
 
 out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_veg.png", sep = "/")
 out_file <- here::here(out_name)
@@ -1009,10 +1013,16 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
   lmm_out_ordered$set_id2 <- b
   
   
-  p <- plot_rate_comps(data = lmm_out_ordered, plot_type = 3, 
-                       set_ids = set_id2, set_ci_low = CI_low,
-                       set_ci_high = CI_high, slr = slr, slr_ci = slr_ci,
-                       rates = rate) 
+  plot_rate_comps(data = lmm_out, 
+                plot_type = 3, 
+                set_ids = set_id2,
+                set_ci_low = CI_low, 
+                set_ci_high = CI_high,
+                rates = rate, 
+                comp1 = slr, 
+                comp1_ci_low = slr - slr_ci, 
+                comp1_ci_high = slr + slr_ci)
+
   
   print(p)
   
@@ -1024,12 +1034,18 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
   cat(paste("The above graph is saved as: ", out_name))
   
   
+  plot_rate_comps(data = lmm_out, 
+                plot_type = 3, 
+                set_ids = set_id,
+                set_ci_low = CI_low, 
+                set_ci_high = CI_high,
+                rates = rate, 
+                comp1 = slr, 
+                comp1_ci_low = slr - slr_ci, 
+                comp1_ci_high = slr + slr_ci,
+                color_by_veg = TRUE, veg = veg)
   
-  p <- plot_rate_comps(data = lmm_out_ordered, plot_type = 3, 
-                       set_ids = set_id2, set_ci_low = CI_low,
-                       set_ci_high = CI_high, slr = slr, slr_ci = slr_ci,
-                       rates = rate, color_by_veg = TRUE, veg = veg) 
-  
+
   print(p)
   
   out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_ordered_veg.png", sep = "/")
@@ -1040,11 +1056,15 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
   cat(paste("The above graph is saved as: ", out_name))
   
   
-  
-  p <- plot_rate_comps(data = lmm_out_ordered, plot_type = 3, 
-                       set_ids = user_friendly_set_name, set_ci_low = CI_low,
-                       set_ci_high = CI_high, slr = slr, slr_ci = slr_ci,
-                       rates = rate) 
+  plot_rate_comps(data = lmm_out_ordered, 
+                plot_type = 3, 
+                set_ids = user_friendly_set_name,
+                set_ci_low = CI_low, 
+                set_ci_high = CI_high,
+                rates = rate, 
+                comp1 = slr, 
+                comp1_ci_low = slr - slr_ci, 
+                comp1_ci_high = slr + slr_ci)
   
   print(p)
   
@@ -1055,13 +1075,18 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
   
   cat(paste("The above graph is saved as: ", out_name))
   
-  
-  
-  p <- plot_rate_comps(data = lmm_out_ordered, plot_type = 3, 
-                       set_ids = user_friendly_set_name, set_ci_low = CI_low,
-                       set_ci_high = CI_high, slr = slr, slr_ci = slr_ci,
-                       rates = rate, color_by_veg = TRUE, veg = veg) 
-  
+  plot_rate_comps(data = lmm_out_ordered, 
+                plot_type = 3, 
+                set_ids = user_friendly_set_name,
+                set_ci_low = CI_low, 
+                set_ci_high = CI_high,
+                rates = rate, 
+                comp1 = slr, 
+                comp1_ci_low = slr - slr_ci, 
+                comp1_ci_high = slr + slr_ci,
+                color_by_veg = TRUE,
+                veg = veg)
+
   print(p)
   
   out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_ordered_friendly_names_veg.png", sep = "/")
