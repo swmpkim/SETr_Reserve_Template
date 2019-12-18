@@ -969,6 +969,54 @@ lmm_out <- left_join(lmm_out, select(mdat, unique_set_id, co_dominant_species1),
 
 ## Graphical Comparison to Sea Level Rise and 0  
 
+# OH MY WORD  
+
+Make a nested function out of this because all my inputs will be the same each time except for plot type and whether to color by veg  
+
+```{r}
+# there must be a better way to do this
+
+# function arguments are what I want to be the defaults
+my_plot <- function(data = lmm_out, 
+                    plot_type = 4, 
+                    set_ids = set_id,
+                    set_ci_low = CI_low, 
+                    set_ci_high = CI_high,
+                    rates = rate, 
+                    comp1 = slr, 
+                    comp1_ci_low = slr - slr_ci, 
+                    comp1_ci_high = slr + slr_ci,
+                    comp2 = yr19chng,
+                    comp2_ci_low = yr19chng - yr19_ci,
+                    comp2_ci_high = yr19chng + yr19_ci,
+                    color_by_veg = FALSE, veg = veg){
+    
+  # feed all that stuff to the plot_rate_comps function
+    p <- plot_rate_comps(data = {{data}}, 
+                         plot_type = plot_type, 
+                         set_ids = {{set_ids}},
+                         set_ci_low = {{set_ci_low}}, 
+                         set_ci_high = {{set_ci_high}},
+                         rates = {{rates}}, 
+                         comp1 = comp1, 
+                         comp1_ci_low = comp1_ci_low, 
+                         comp1_ci_high = comp1_ci_high,
+                         comp2 = comp2,
+                         comp2_ci_low = comp2_ci_low,
+                         comp2_ci_high = comp2_ci_high,
+                         color_by_veg = color_by_veg, veg = veg)
+    p
+}
+
+# run it on a few things to make sure it works
+my_plot()
+my_plot(plot_type = 3)
+my_plot(color_by_veg = TRUE)
+my_plot(plot_type = 4, color_by_veg = TRUE)
+my_plot(plot_type = 3, color_by_veg = TRUE)
+```
+
+
 
 ```{r plot-slr-ci-lmm, fig.width = opts_long$width_short, fig.height = opts_long$height_short, eval = enough_dat}
 
