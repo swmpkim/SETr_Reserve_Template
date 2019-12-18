@@ -243,6 +243,8 @@ if (res_to_match %in% unique(slr_rates$reserve)) {
         select(-link)
     slr <- slr_res$slr_rate_mm_yr
     slr_ci <- slr_res$x95_percent_ci
+    yr19chng <- slr_res$slr_19yr
+    yr19_ci <- slr_res$ci95_19yr
 } else {warning("This reserve does not have an entry in the sea level rise rates file. Please check metadata/slr_rates.csv and make sure your reserve is present.")}
 ```
 
@@ -254,8 +256,9 @@ if (res_to_match %in% unique(slr_rates$reserve)) {
 ## Reserve-level  
 
 
-+  Local rate of sea level change is **`r slr`** +/- **`r slr_ci`** mm/yr.  
-+  This rate is reported by `r slr_res$nearest_nwlon_station`, NWLON station number `r as.character(slr_res$nwlon_station_number)` based on data from *`r slr_res$data_start`* to *`r slr_res$data_end`*.
++  The local, long-term rate of sea level change is **`r slr`** +/- **`r slr_ci`** mm/yr.  
++  This rate is reported by `r slr_res$nearest_nwlon_station`, NWLON station number `r as.character(slr_res$nwlon_station_number)` based on data from *`r slr_res$data_start`* to *`r slr_res$data_end`*.  
++  A shorter-term rate of water level change based on 19 years of data from the same NWLON station, using the same methods NOAA uses to calculate long-term sea level rise, is **`r yr19chng`** +/- **`r yr19_ci`** mm/yr. This date range is from *`r slr_res$yr19_start`* to *`r slr_res$yr19_end`*.
   
 
 ## SET-level characteristics  
@@ -772,8 +775,10 @@ rate_summary <- left_join(rate_summary, slr_rates, by = c("reserve" = "reserve")
   rename(slr_rate = slr_rate_mm_yr) %>% 
   mutate(slr_CI_low = slr_rate - x95_percent_ci,
          slr_CI_high = slr_rate + x95_percent_ci,
-         set_slr_ratio = rate / slr_rate) %>% 
-  select(reserve, set_id, rate, CI_low, CI_high, slr_rate, slr_CI_low, slr_CI_high, everything())
+         set_slr_ratio = rate / slr_rate,
+         yr19_CI_low = slr_19yr - ci95_19yr,
+         yr19_CI_high = slr_19yr + ci95_19yr) %>% 
+  select(reserve, set_id, rate, CI_low, CI_high, slr_rate, slr_CI_low, slr_CI_high, slr_19yr, yr19_CI_low, yr19_CI_high, everything())
 
 # write that to a csv for use in mapping script
 write.csv(rate_summary, 
@@ -795,8 +800,13 @@ rates_slr_comp <- rate_summary %>%
                                CI_low > slr_CI_high  ~ "inc_sig",
                                rate < slr_rate ~ "dec_nonsig",
                                rate > slr_rate ~ "inc_nonsig",
+                               TRUE ~ "nonsig"),
+           dir_19yr = case_when(CI_high < yr19_CI_low ~ "dec_sig",
+                               CI_low > yr19_CI_high  ~ "inc_sig",
+                               rate < slr_19yr ~ "dec_nonsig",
+                               rate > slr_19yr ~ "inc_nonsig",
                                TRUE ~ "nonsig")) %>% 
-  select(reserve, set_id, rate, CI_low, CI_high, set_slr_ratio, dir_0, dir_slr)
+  select(reserve, set_id, rate, CI_low, CI_high, set_slr_ratio, dir_0, dir_slr, dir_19yr)
 ```
 
 ***
@@ -816,12 +826,7 @@ The following tables break the SETs into groups where the rate of SET elevation 
 
 
 ```{r zero-comp-lower, eval = enough_dat}
-rates_slr_comp %>%
-    filter(dir_0 == "dec_sig") %>%
-    select(-dir_0, -dir_slr, -set_slr_ratio) %>% 
-    flextable() %>% 
-    theme_booktabs() %>% 
-    autofit()
+rate_comp(rates_slr_comp, dir_0, "dec_sig")
 ```
 
 <br>
@@ -832,12 +837,7 @@ rates_slr_comp %>%
 
 
 ```{r zero-comp-higher, eval = enough_dat}
-rates_slr_comp %>%
-    filter(dir_0 == "inc_sig") %>%
-    select(-dir_0, -dir_slr, -set_slr_ratio) %>% 
-    flextable() %>% 
-    theme_booktabs() %>% 
-    autofit()
+rate_comp(rates_slr_comp, dir_0, "inc_sig")
 ```
 
 <br>
@@ -848,12 +848,7 @@ rates_slr_comp %>%
 
 
 ```{r zero-comp-same, eval = enough_dat}
-rates_slr_comp %>%
-    filter(dir_0 %in% c("dec_nonsig", "inc_nonsig")) %>%
-    select(-dir_0, -dir_slr, -set_slr_ratio) %>% 
-    flextable() %>% 
-    theme_booktabs() %>% 
-    autofit()
+rate_comp(rates_slr_comp, dir_0, c("dec_nonsig", "inc_nonsig"))
 ```
 
 
@@ -862,6 +857,8 @@ rates_slr_comp %>%
 
 
 # Sea Level Rise Comparisons  
+
+## Period of Record (long-term SLR)  
 
 The long-term local rate of sea level rise is **`r slr` +/- `r slr_ci` mm/yr** .  
 
@@ -880,12 +877,7 @@ The following tables break the SETs into groups where the rate of SET elevation 
 
 
 ```{r slr-comp-lower, eval = enough_dat}
-rates_slr_comp %>%
-    filter(dir_slr == "dec_sig") %>%
-    select(-dir_0, -dir_slr) %>% 
-    flextable() %>% 
-    theme_booktabs() %>% 
-    autofit()
+rate_comp(rates_slr_comp, dir_slr, "dec_sig")
 ```
 
 <br>
@@ -897,12 +889,7 @@ rates_slr_comp %>%
 
 
 ```{r slr-comp-higher, eval = enough_dat}
-rates_slr_comp %>%
-    filter(dir_slr == "inc_sig") %>%
-    select(-dir_0, -dir_slr) %>% 
-    flextable() %>% 
-    theme_booktabs() %>% 
-    autofit()
+rate_comp(rates_slr_comp, dir_slr, "inc_sig")
 ```
 
 <br>
@@ -913,17 +900,64 @@ rates_slr_comp %>%
 
 
 ```{r slr-comp-same, eval = enough_dat}
-rates_slr_comp %>%
-    filter(dir_slr %in% c("dec_nonsig", "inc_nonsig")) %>%
-    select(-dir_0, -dir_slr) %>% 
-    flextable() %>% 
-    theme_booktabs() %>% 
-    autofit()
+rate_comp(rates_slr_comp, dir_slr, c("dec_nonsig", "inc_nonsig"))
 ```
 
 
 ***
 ***
+
+
+## 19-year water level change  
+
+The local, 19-year rate of water level change is **`r yr19chng` +/- `r yr19_ci` mm/yr** .  
+
+This rate is reported by `r slr_res$nearest_nwlon_station`, NWLON station number `r as.character(slr_res$nwlon_station_number)` based on data from *`r slr_res$yr19_start`* to *`r slr_res$yr19_end`*.  
+
+The following tables break the SETs into groups where the rate of SET elevation change is *lower than* / *higher than* / *not different from* this 19-year rate. *Lower than* and *higher than* tables imply that 95% confidence intervals do not overlap between the SET and water level change. *Not different from* means that confidence intervals *do* overlap.  
+
+ 
+<br>
+
+<br>
+
+***
+
+## SET Elevation Change < 19-year water level change; CIs don't overlap  
+
+
+```{r yr19-comp-lower, eval = enough_dat}
+rate_comp(rates_slr_comp, dir_19yr, "dec_sig")
+```
+
+<br>
+
+
+***
+
+## SET Elevation Change > 19-year water level change; CIs don't overlap
+
+
+```{r yr19-comp-higher, eval = enough_dat}
+rate_comp(rates_slr_comp, dir_19yr, "inc_sig")
+```
+
+<br>
+
+***
+
+## SET Elevation Change and 19-year water level change CIs overlap  
+
+
+```{r yr19-comp-same, eval = enough_dat}
+rate_comp(rates_slr_comp, dir_19yr, c("dec_nonsig", "inc_nonsig"))
+```
+
+
+***
+***
+
+
 
 Add dominant veg to model_out data frame for graphing purposes
 
@@ -960,6 +994,31 @@ cat(paste("The above graph is saved as: ", out_name))
 ```
 
 
+```{r plot-slr-ci-19yr-lmm, fig.width = opts_long$width_short, fig.height = opts_long$height_short, eval = enough_dat}
+
+
+plot_rate_comps(data = lmm_out, 
+                plot_type = 4, 
+                set_ids = set_id,
+                set_ci_low = CI_low, 
+                set_ci_high = CI_high,
+                rates = rate, 
+                comp1 = slr, 
+                comp1_ci_low = slr - slr_ci, 
+                comp1_ci_high = slr + slr_ci,
+                comp2 = yr19chng,
+                comp2_ci_low = yr19chng - yr19_ci,
+                comp2_ci_high = yr19chng + yr19_ci)
+
+
+
+out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_bothSLRs.png", sep = "/")
+out_file <- here::here(out_name)
+
+ggsave(out_file, width = opts_long$width_short, height = opts_long$height_short, scale = 0.8)
+
+cat(paste("The above graph is saved as: ", out_name))
+```
 
 ```{r plot-slr-ci-lmm-veg, fig.width = opts_long$width_short, fig.height = opts_long$height_short, eval = enough_dat}
 # colored by veg

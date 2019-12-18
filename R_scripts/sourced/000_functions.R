@@ -26,6 +26,24 @@ height_to_mm <- function(data){
 
 
 
+######################################################
+######################################################
+#### Generate rate comparison tables
+######################################################
+rate_comp <- function(df, comp_rate, comp_condition){
+    # THESE ARE ALL VERY SPECIFIC TO NERR DATA FRAMES
+    df %>%
+        filter({{comp_rate}} %in% comp_condition) %>%
+        select(reserve, set_id, rate, CI_low, CI_high) %>% 
+        flextable() %>% 
+        theme_booktabs() %>% 
+        autofit()
+}
+
+
+
+
+
 
 ######################################################
 ######################################################
@@ -363,11 +381,23 @@ plot_rate_comps <- function(data, plot_type = 3, color_by_veg = FALSE,
                               col = "red3")
     
     # labels, when CIs are included for both SETs and SLR
-    labels_full <- labs(title = "Elevation Change with 95% Confidence Intervals", 
-                        subtitle = paste0("Local SLR in blue: ", {{comp1}}, 
-                                          " +/- ", comp1_ci_halfwidth, " mm/yr"), 
+    labels_set_slr <- labs(title = "Elevation Change with 95% Confidence Intervals", 
+                        subtitle = paste0("Local, long-term SLR in blue: ", 
+                                          {{comp1}}, " +/- ", 
+                                          comp1_ci_halfwidth, " mm/yr"), 
                         x = "Rate of change (mm/yr)", 
                         y = "SET")
+    
+    # labels when SETs, SLR, and 19-year change are included
+    labels_all <- labs(title = "Elevation Change with 95% Confidence Intervals", 
+                       subtitle = paste0("Long-term SLR, solid line: ", 
+                                         {{comp1}}, " +/- ", 
+                                         comp1_ci_halfwidth, " mm/yr",
+                                         "\n19-yr water level change, dashed line: ", 
+                                         {{comp2}}, " +/- ", 
+                                         comp2_ci_halfwidth, " mm/yr"), 
+                       x = "Rate of change (mm/yr)", 
+                       y = "SET")
     
     # labels, when no CIs are included
     labels_minimal <- labs(title = "Elevation Change", 
@@ -487,7 +517,7 @@ plot_rate_comps <- function(data, plot_type = 3, color_by_veg = FALSE,
             set_cis +
             slr_cis +
             points_same +
-            labels_full
+            labels_set_slr
     }
     
     
@@ -498,7 +528,7 @@ plot_rate_comps <- function(data, plot_type = 3, color_by_veg = FALSE,
             slr_cis +
             points_veg +
             colors_veg +
-            labels_full +
+            labels_set_slr +
             labels_veg
     }
     
@@ -514,7 +544,7 @@ plot_rate_comps <- function(data, plot_type = 3, color_by_veg = FALSE,
             comp2_line +
             comp2_cis +
             points_same +
-            labels_full
+            labels_all
     }
     
     
@@ -527,7 +557,7 @@ plot_rate_comps <- function(data, plot_type = 3, color_by_veg = FALSE,
             comp2_cis +
             points_veg +
             colors_veg +
-            labels_full +
+            labels_all +
             labels_veg
     }
     
