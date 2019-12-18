@@ -971,9 +971,9 @@ lmm_out <- left_join(lmm_out, select(mdat, unique_set_id, co_dominant_species1),
 
 # OH MY WORD  
 
-Make a nested function out of this because all my inputs will be the same each time except for plot type and whether to color by veg  
+Make a nested function out of this because all my inputs will be the same each time except for plot type and whether to color by veg. Although when putting things in order, it will come from a different data frame, and the set id column name is different, so.... yeah, specify all of them to be safe.    
 
-```{r}
+```{r, fig.width = opts_long$width_short, fig.height = opts_long$height_short}
 # there must be a better way to do this
 
 # function arguments are what I want to be the defaults
