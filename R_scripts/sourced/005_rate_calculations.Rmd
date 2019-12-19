@@ -977,7 +977,7 @@ Make a nested function out of this because all my inputs will be the same each t
 # there must be a better way to do this
 
 # function arguments are what I want to be the defaults
-my_plot <- function(data = lmm_out, 
+plot_comp_specific <- function(data = lmm_out, 
                     plot_type = 4, 
                     set_ids = set_id,
                     set_ci_low = CI_low, 
@@ -1008,30 +1008,20 @@ my_plot <- function(data = lmm_out,
     p
 }
 
+
 # run it on a few things to make sure it works
-my_plot()
-my_plot(plot_type = 3)
-my_plot(color_by_veg = TRUE)
-my_plot(plot_type = 4, color_by_veg = TRUE)
-my_plot(plot_type = 3, color_by_veg = TRUE)
+plot_comp_specific()
+plot_comp_specific(plot_type = 3)
+plot_comp_specific(color_by_veg = TRUE)
+plot_comp_specific(plot_type = 3, color_by_veg = TRUE)
 ```
 
 
 
 ```{r plot-slr-ci-lmm, fig.width = opts_long$width_short, fig.height = opts_long$height_short, eval = enough_dat}
 
-
-plot_rate_comps(data = lmm_out, 
-                plot_type = 3, 
-                set_ids = set_id,
-                set_ci_low = CI_low, 
-                set_ci_high = CI_high,
-                rates = rate, 
-                comp1 = slr, 
-                comp1_ci_low = slr - slr_ci, 
-                comp1_ci_high = slr + slr_ci)
-
-
+# original; only long-term SLR; all CIs included
+plot_comp_specific(plot_type = 3)
 
 out_name <- paste("R_output", "figures", "summary_plots", "summary_plot.png", sep = "/")
 out_file <- here::here(out_name)
@@ -1044,21 +1034,8 @@ cat(paste("The above graph is saved as: ", out_name))
 
 ```{r plot-slr-ci-19yr-lmm, fig.width = opts_long$width_short, fig.height = opts_long$height_short, eval = enough_dat}
 
-
-plot_rate_comps(data = lmm_out, 
-                plot_type = 4, 
-                set_ids = set_id,
-                set_ci_low = CI_low, 
-                set_ci_high = CI_high,
-                rates = rate, 
-                comp1 = slr, 
-                comp1_ci_low = slr - slr_ci, 
-                comp1_ci_high = slr + slr_ci,
-                comp2 = yr19chng,
-                comp2_ci_low = yr19chng - yr19_ci,
-                comp2_ci_high = yr19chng + yr19_ci)
-
-
+# add 19-year water level change
+plot_comp_specific()
 
 out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_bothSLRs.png", sep = "/")
 out_file <- here::here(out_name)
@@ -1070,17 +1047,7 @@ cat(paste("The above graph is saved as: ", out_name))
 
 ```{r plot-slr-ci-lmm-veg, fig.width = opts_long$width_short, fig.height = opts_long$height_short, eval = enough_dat}
 # colored by veg
-plot_rate_comps(data = lmm_out, 
-                plot_type = 3, 
-                set_ids = set_id,
-                set_ci_low = CI_low, 
-                set_ci_high = CI_high,
-                rates = rate, 
-                comp1 = slr, 
-                comp1_ci_low = slr - slr_ci, 
-                comp1_ci_high = slr + slr_ci,
-                color_by_veg = TRUE, veg = veg)
-
+plot_comp_specific(plot_type = 3, color_by_veg = TRUE)
 
 out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_veg.png", sep = "/")
 out_file <- here::here(out_name)
@@ -1090,7 +1057,17 @@ ggsave(out_file, width = 1.2*opts_long$width_short, height = opts_long$height_sh
 cat(paste("The above graph is saved as: ", out_name))
 ```
 
+```{r plot-slr-ci-lmm-veg-19yr, fig.width = opts_long$width_short, fig.height = opts_long$height_short, eval = enough_dat}
+# colored by veg, 19-year water level change
+plot_comp_specific(plot_type = 4, color_by_veg = TRUE)
 
+out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_veg_19yr.png", sep = "/")
+out_file <- here::here(out_name)
+
+ggsave(out_file, width = 1.2*opts_long$width_short, height = opts_long$height_short, scale = 0.8)
+
+cat(paste("The above graph is saved as: ", out_name))
+```
 
 ***
 
@@ -1119,17 +1096,9 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
   lmm_out_ordered$user_friendly_set_name <- a
   lmm_out_ordered$set_id2 <- b
   
-  
-  p <- plot_rate_comps(data = lmm_out_ordered, 
-                plot_type = 3, 
-                set_ids = user_friendly_set_name,
-                set_ci_low = CI_low, 
-                set_ci_high = CI_high,
-                rates = rate, 
-                comp1 = slr, 
-                comp1_ci_low = slr - slr_ci, 
-                comp1_ci_high = slr + slr_ci)
-
+  p <- plot_comp_specific(plot_type = 3, 
+                          data = lmm_out_ordered, 
+                          set_ids = user_friendly_set_name)
   
   print(p)
   
@@ -1140,19 +1109,11 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
   
   cat(paste("The above graph is saved as: ", out_name))
   
+  p <- plot_comp_specific(plot_type = 3,
+                       data = lmm_out_ordered,
+                       set_ids = set_id2,
+                       color_by_veg = TRUE)
   
-  p <- plot_rate_comps(data = lmm_out_ordered, 
-                plot_type = 3, 
-                set_ids = set_id2,
-                set_ci_low = CI_low, 
-                set_ci_high = CI_high,
-                rates = rate, 
-                comp1 = slr, 
-                comp1_ci_low = slr - slr_ci, 
-                comp1_ci_high = slr + slr_ci,
-                color_by_veg = TRUE, veg = veg)
-  
-
   print(p)
   
   out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_ordered_veg.png", sep = "/")
@@ -1163,15 +1124,9 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
   cat(paste("The above graph is saved as: ", out_name))
   
   
-  p <- plot_rate_comps(data = lmm_out_ordered, 
-                plot_type = 3, 
-                set_ids = user_friendly_set_name,
-                set_ci_low = CI_low, 
-                set_ci_high = CI_high,
-                rates = rate, 
-                comp1 = slr, 
-                comp1_ci_low = slr - slr_ci, 
-                comp1_ci_high = slr + slr_ci)
+  p <- plot_comp_specific(data = lmm_out_ordered,
+                          plot_type = 3,
+                          set_ids = user_friendly_set_name)
   
   print(p)
   
@@ -1182,18 +1137,10 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
   
   cat(paste("The above graph is saved as: ", out_name))
   
-  p <- plot_rate_comps(data = lmm_out_ordered, 
-                plot_type = 3, 
-                set_ids = user_friendly_set_name,
-                set_ci_low = CI_low, 
-                set_ci_high = CI_high,
-                rates = rate, 
-                comp1 = slr, 
-                comp1_ci_low = slr - slr_ci, 
-                comp1_ci_high = slr + slr_ci,
-                color_by_veg = TRUE,
-                veg = veg)
-
+  p <- plot_comp_specific(data = lmm_out_ordered,
+                          plot_type = 3,
+                          set_ids = user_friendly_set_name,
+                          color_by_veg = TRUE)
   print(p)
   
   out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_ordered_friendly_names_veg.png", sep = "/")
@@ -1205,6 +1152,7 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
 }
 ```
 
+# NEED TO DO ALL OF THE ABOVE WITH PLOT TYPE = 4,  TO INCLUDE 19-YR WATER LEVEL CHANGE  
 
 ***
 
