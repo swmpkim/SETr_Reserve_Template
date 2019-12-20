@@ -780,10 +780,6 @@ rate_summary <- left_join(rate_summary, slr_rates, by = c("reserve" = "reserve")
          yr19_CI_high = slr_19yr + ci95_19yr) %>% 
   select(reserve, set_id, rate, CI_low, CI_high, slr_rate, slr_CI_low, slr_CI_high, slr_19yr, yr19_CI_low, yr19_CI_high, everything())
 
-# write that to a csv for use in mapping script
-write.csv(rate_summary, 
-          here::here("data", "intermediate", "rate_summary.csv"),
-          row.names = FALSE)
 ```
 
 
@@ -806,6 +802,11 @@ rates_slr_all <- rate_summary %>%
                                rate < slr_19yr ~ "dec_nonsig",
                                rate > slr_19yr ~ "inc_nonsig",
                                TRUE ~ "nonsig"))
+
+# write that to a csv for use in mapping script
+write.csv(rates_slr_all, 
+          here::here("data", "intermediate", "rate_summary.csv"),
+          row.names = FALSE)
 
 # subset that for making comparison tables
 # but the big data frame will be used in the mapping script
