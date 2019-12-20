@@ -790,7 +790,7 @@ write.csv(rate_summary,
 
 
 ```{r slr-comp-assignment, eval = enough_dat}
-rates_slr_comp <- rate_summary %>%
+rates_slr_all <- rate_summary %>%
     mutate(dir_0 = case_when(CI_high < 0 ~ "dec_sig",
                              CI_low > 0  ~ "inc_sig",
                              rate < 0 ~ "dec_nonsig",
@@ -805,7 +805,11 @@ rates_slr_comp <- rate_summary %>%
                                CI_low > yr19_CI_high  ~ "inc_sig",
                                rate < slr_19yr ~ "dec_nonsig",
                                rate > slr_19yr ~ "inc_nonsig",
-                               TRUE ~ "nonsig")) %>% 
+                               TRUE ~ "nonsig"))
+
+# subset that for making comparison tables
+# but the big data frame will be used in the mapping script
+rates_slr_comp <- rates_slr_all %>% 
   select(reserve, set_id, rate, CI_low, CI_high, set_slr_ratio, dir_0, dir_slr, dir_19yr)
 ```
 
@@ -1282,3 +1286,9 @@ m0
 mSLR
 ```
 
+
+### Comparisons to 19-yr water level change  
+
+```{r map19yr, eval = enough_dat}
+m19yr
+```

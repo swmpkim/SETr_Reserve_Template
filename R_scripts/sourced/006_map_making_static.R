@@ -8,19 +8,7 @@ library(mapview)
 # map_lab is label column for hovering over points
 # arrow for direction; color for whether CIs overlap (gray if they do; red/blue if differences are "significant")
 # join coordinates with the rate results, and categorize the rates
-to_map <- rate_summary %>%
-    mutate(dir_0 = case_when(CI_high < 0 ~ "dec_sig",
-                             CI_low > 0  ~ "inc_sig",
-                             rate < 0 ~ "dec_nonsig",
-                             rate > 0 ~ "inc_nonsig",
-                             TRUE ~ "nonsig"),
-           dir_slr = case_when(CI_high < slr_CI_low ~ "dec_sig",
-                               CI_low > slr_CI_high  ~ "inc_sig",
-                               rate < slr_rate ~ "dec_nonsig",
-                               rate > slr_rate ~ "inc_nonsig",
-                               TRUE ~ "nonsig"),
-           map_lab = paste0(set_id, ": ", user_friendly_set_name, "; ",
-                            round(rate, 2), " mm/yr")) %>% 
+to_map <- rates_slr_all %>%
     rename(lat = latitude_dec_deg,
            long = longitude_dec_deg)
 
@@ -121,3 +109,41 @@ mSLR <- leaflet(to_map,
 # save it out
 file_path2 <- here::here("R_output", "figures", "maps", "map_SLR.png")
 mapview::mapshot(mSLR, file = file_path2)
+
+
+
+
+
+# build the map - comparison to 19-year water level change
+m19yr <- leaflet(to_map,
+                options = leafletOptions(zoomControl = FALSE)) %>%
+    ### base layer options
+    addProviderTiles(leaflet::providers$Esri.WorldGrayCanvas) %>% 
+    ### Compared to SLR 
+    addMarkers(icon = icon_nonsiga,
+               lng = ~long[to_map$dir_19yr == "nonsig"],
+               lat = ~lat[to_map$dir_19yr == "nonsig"]) %>%
+    addMarkers(icon = icon_inc_siga,
+               lng = ~long[to_map$dir_19yr == "inc_sig"],
+               lat = ~lat[to_map$dir_19yr == "inc_sig"]) %>%
+    addMarkers(icon = icon_dec_siga,
+               lng = ~long[to_map$dir_19yr == "dec_sig"],
+               lat = ~lat[to_map$dir_19yr == "dec_sig"]) %>% 
+    addMarkers(icon = icon_inc_nonsiga,
+               lng = ~long[to_map$dir_19yr == "inc_nonsig"],
+               lat = ~lat[to_map$dir_19yr == "inc_nonsig"]) %>%  
+    addMarkers(icon = icon_dec_nonsiga,
+               lng = ~long[to_map$dir_19yr == "dec_nonsig"],
+               lat = ~lat[to_map$dir_19yr == "dec_nonsig"]) %>% 
+    ### dress up the map
+    addScaleBar() %>%
+    addLegend(title = "Compared to 19-yr \nwater level change",
+              position = "bottomright",
+              colors = map_pal,
+              values = c(1:length(map_pal)),
+              labels = c("lower; CIs don't overlap", "higher; CIs don't overlap", "CIs overlap"),
+              opacity = 0.8) 
+
+# save it out
+file_path2 <- here::here("R_output", "figures", "maps", "map_19yr.png")
+mapview::mapshot(m19yr, file = file_path2)
