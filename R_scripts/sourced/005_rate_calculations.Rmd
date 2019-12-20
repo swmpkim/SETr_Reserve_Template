@@ -971,6 +971,8 @@ lmm_out <- left_join(lmm_out, select(mdat, unique_set_id, co_dominant_species1),
 
 # OH MY WORD  
 
+## Sites in R's default order  
+
 Make a nested function out of this because all my inputs will be the same each time except for plot type and whether to color by veg. Although when putting things in order, it will come from a different data frame, and the set id column name is different, so.... yeah, specify all of them to be safe.    
 
 ```{r, fig.width = opts_long$width_short, fig.height = opts_long$height_short}
@@ -1010,10 +1012,10 @@ plot_comp_specific <- function(data = lmm_out,
 
 
 # run it on a few things to make sure it works
-plot_comp_specific()
-plot_comp_specific(plot_type = 3)
-plot_comp_specific(color_by_veg = TRUE)
-plot_comp_specific(plot_type = 3, color_by_veg = TRUE)
+# plot_comp_specific()
+# plot_comp_specific(plot_type = 3)
+# plot_comp_specific(color_by_veg = TRUE)
+# plot_comp_specific(plot_type = 3, color_by_veg = TRUE)
 ```
 
 
@@ -1032,21 +1034,8 @@ cat(paste("The above graph is saved as: ", out_name))
 ```
 
 
-```{r plot-slr-ci-19yr-lmm, fig.width = opts_long$width_short, fig.height = opts_long$height_short, eval = enough_dat}
-
-# add 19-year water level change
-plot_comp_specific()
-
-out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_bothSLRs.png", sep = "/")
-out_file <- here::here(out_name)
-
-ggsave(out_file, width = opts_long$width_short, height = opts_long$height_short, scale = 0.8)
-
-cat(paste("The above graph is saved as: ", out_name))
-```
-
 ```{r plot-slr-ci-lmm-veg, fig.width = opts_long$width_short, fig.height = opts_long$height_short, eval = enough_dat}
-# colored by veg
+# original; colored by veg
 plot_comp_specific(plot_type = 3, color_by_veg = TRUE)
 
 out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_veg.png", sep = "/")
@@ -1057,8 +1046,25 @@ ggsave(out_file, width = 1.2*opts_long$width_short, height = opts_long$height_sh
 cat(paste("The above graph is saved as: ", out_name))
 ```
 
+
+```{r plot-slr-ci-19yr-lmm, fig.width = opts_long$width_short, fig.height = opts_long$height_short, eval = enough_dat}
+
+# add 19-year water level change; no veg coloring
+plot_comp_specific()
+
+out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_bothSLRs.png", sep = "/")
+out_file <- here::here(out_name)
+
+ggsave(out_file, width = opts_long$width_short, height = opts_long$height_short, scale = 0.8)
+
+cat(paste("The above graph is saved as: ", out_name))
+```
+
+
+
+
 ```{r plot-slr-ci-lmm-veg-19yr, fig.width = opts_long$width_short, fig.height = opts_long$height_short, eval = enough_dat}
-# colored by veg, 19-year water level change
+# 19-year water level change, with veg coloring
 plot_comp_specific(plot_type = 4, color_by_veg = TRUE)
 
 out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_veg_19yr.png", sep = "/")
@@ -1073,6 +1079,8 @@ cat(paste("The above graph is saved as: ", out_name))
 
 ***
 
+## Sites by a user-specified order  
+
 In order, according to specifications in the metadata; and labeled with user-friendly names. Note that no plot will be produced if there are any NAs in the metadata fields `numerical_order` or `user_friendly_set_name`.    
 
 ```{r plot-slr-ci-lmm-ordered, fig.width = opts_long$width_short, fig.height = opts_long$height_short, eval = enough_dat}
@@ -1083,6 +1091,9 @@ In order, according to specifications in the metadata; and labeled with user-fri
 # if both: 25% wider???
 
 if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) == 0){
+  
+  
+  # deal with data types and orders
   # make the set id a factor
   lmm_out_ordered <- mdat %>% 
     select(unique_set_id, user_friendly_set_name, numerical_order) %>%
@@ -1096,6 +1107,12 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
   lmm_out_ordered$user_friendly_set_name <- a
   lmm_out_ordered$set_id2 <- b
   
+  
+  
+  
+  
+  # original plot
+  
   p <- plot_comp_specific(plot_type = 3, 
                           data = lmm_out_ordered, 
                           set_ids = user_friendly_set_name)
@@ -1108,6 +1125,11 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
   ggsave(out_file, p, width = opts_long$width_short, height = opts_long$height_short, scale = 0.8)
   
   cat(paste("The above graph is saved as: ", out_name))
+  
+  
+  
+  
+  # original, colored by veg
   
   p <- plot_comp_specific(plot_type = 3,
                        data = lmm_out_ordered,
@@ -1124,6 +1146,10 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
   cat(paste("The above graph is saved as: ", out_name))
   
   
+  
+  
+  # original, with user-friendly name
+  
   p <- plot_comp_specific(data = lmm_out_ordered,
                           plot_type = 3,
                           set_ids = user_friendly_set_name)
@@ -1137,6 +1163,12 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
   
   cat(paste("The above graph is saved as: ", out_name))
   
+  
+  
+  
+  
+  # original, with user-friendly names, and colored by veg
+  
   p <- plot_comp_specific(data = lmm_out_ordered,
                           plot_type = 3,
                           set_ids = user_friendly_set_name,
@@ -1149,10 +1181,85 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
   ggsave(out_file, p, width = 1.1*opts_long$width_short, height = opts_long$height_short, scale = 0.8)
   
   cat(paste("The above graph is saved as: ", out_name))
+  
+  
+  
+  
+  # 19-year change added
+  
+    p <- plot_comp_specific(plot_type = 4, 
+                          data = lmm_out_ordered, 
+                          set_ids = user_friendly_set_name)
+  
+  print(p)
+  
+  out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_ordered_with19yr.png", sep = "/")
+  out_file <- here::here(out_name)
+  
+  ggsave(out_file, p, width = opts_long$width_short, height = opts_long$height_short, scale = 0.8)
+  
+  cat(paste("The above graph is saved as: ", out_name))
+  
+  
+  
+  
+  # original, colored by veg
+  
+  p <- plot_comp_specific(plot_type = 4,
+                       data = lmm_out_ordered,
+                       set_ids = set_id2,
+                       color_by_veg = TRUE)
+  
+  print(p)
+  
+  out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_ordered_with_19yr_veg.png", sep = "/")
+  out_file <- here::here(out_name)
+  
+  ggsave(out_file, p, width = 1.1*opts_long$width_short, height = opts_long$height_short, scale = 0.8)
+  
+  cat(paste("The above graph is saved as: ", out_name))
+  
+  
+  
+  
+  # original, with user-friendly name
+  
+  p <- plot_comp_specific(data = lmm_out_ordered,
+                          plot_type = 4,
+                          set_ids = user_friendly_set_name)
+  
+  print(p)
+  
+  out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_ordered_friendly_names_with_19yr.png", sep = "/")
+  out_file <- here::here(out_name)
+  
+  ggsave(out_file, p, width = opts_long$width_short, height = opts_long$height_short, scale = 0.8)
+  
+  cat(paste("The above graph is saved as: ", out_name))
+  
+  
+  
+  
+  
+  # original, with user-friendly names, and colored by veg
+  
+  p <- plot_comp_specific(data = lmm_out_ordered,
+                          plot_type = 4,
+                          set_ids = user_friendly_set_name,
+                          color_by_veg = TRUE)
+  print(p)
+  
+  out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_ordered_friendly_names_with19yr_veg.png", sep = "/")
+  out_file <- here::here(out_name)
+  # because the legend is pretty wide for the plots with veg coloring, I'm saving them 20% wider than specified. this makes the final dimensions of the main panel comparable to the non-veg plots.
+  ggsave(out_file, p, width = 1.1*opts_long$width_short, height = opts_long$height_short, scale = 0.8)
+  
+  cat(paste("The above graph is saved as: ", out_name))
 }
+
 ```
 
-# NEED TO DO ALL OF THE ABOVE WITH PLOT TYPE = 4,  TO INCLUDE 19-YR WATER LEVEL CHANGE  
+
 
 ***
 
