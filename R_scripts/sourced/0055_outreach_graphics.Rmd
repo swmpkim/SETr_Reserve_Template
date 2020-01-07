@@ -40,7 +40,7 @@ Outreach Team, assemble!  I need some help coming up with this text!
   *  note that we are NOT forecasting - that is a different question that requires a completely different toolkit. We are looking backwards in time.  
 * what is a SET  
 
-```{r, out.width = '10%', fig.align = 'center', fig.cap = 'example of a SET; pin heights above the horizontal arm are a proxy for the shape of the marsh surface. Figure from Lynch et al. 2015'}
+```{r, out.width = '10%', fig.cap = 'example of a SET; pin heights above the horizontal arm are a proxy for the shape of the marsh surface. Figure from Lynch et al. 2015'}
 knitr::include_graphics(here::here("img", "SET_diagr2_NPSprotocols.png"))
 ```
 
@@ -229,47 +229,24 @@ if (res_to_match %in% unique(slr_rates$reserve)) {
 ### setting  
 
 
-```{r}
-# for testing - introduce a second set type
-set.seed(572)
-replace_index <- sample(1:nrow(mdat), floor(nrow(mdat)/2))
-mdat$set_type[replace_index] <- "Shallow SET"
-
-message_list <- list()
-types <- unique(mdat$set_type)
-for(i in seq_along(types)){
-  sets <- as.character(mdat$unique_set_id[mdat$set_type == types[i]])
-  types_out <- paste0("\n \n", types[i], ": ", paste(sets, collapse = ", "), " \n \n")
-  message_list[[i]] <- types_out 
-}
-names(message_list) <- types
-
-purrr::walk(message_list, cat)
-```
-
-The SET types should have been above  
-
-Also try:  
-`r purrr::walk(message_list, cat) %>% asis_output()`  
-
 ```{r set-info-table}
 # print the table
 # what to print depends on whether lat/long are to be included
 
 if(opts_long$coords_outreach == 1){
   mdat %>% 
-    select(unique_set_id, set_type, latitude_dec_deg, 
+    select(unique_set_id, user_friendly_set_name, set_type, latitude_dec_deg, 
            longitude_dec_deg, co_dominant_species1) %>% 
     arrange(unique_set_id) %>% 
-    setNames(c("SET_ID", "Type", "Lat", "Long", "Main_Veg")) %>% 
+    setNames(c("SET_code", "SET_name", "Type", "Lat", "Long", "Main_Veg")) %>% 
     flextable() %>% 
     theme_booktabs() %>% 
     autofit()
 } else {
   mdat %>% 
-    select(unique_set_id, set_type, co_dominant_species1) %>% 
+    select(unique_set_id, user_friendly_set_name, set_type, co_dominant_species1) %>% 
     arrange(unique_set_id) %>% 
-    setNames(c("SET_ID", "Type", "Main_Veg")) %>% 
+    setNames(c("SET_code", "SET_name", "Type", "Main_Veg")) %>% 
     flextable() %>% 
     theme_booktabs() %>% 
     autofit()
@@ -323,15 +300,97 @@ rate_summ <- rate_summ %>%
 ```
 
 
+## Change through time at each SET  
+
+INSERT CUMULATIVE CHANGE GRAPHICS HERE  
+
+Start with a single SET?  
+
+*  describe the axes: x = time, so moving from left to right is moving from the past to the recent readings. y = change since the first reading (all 36 pins at a SET have been averaged - is this too much detail, or the right amount?)  
+*  points only  
+*  linear regression through points  
+*  SLR added in and points removed  
+
+
+Then show the simplified line graph for all stations?  
+
+### Single SET  
+
+Here is change over time at a single SET at this reserve. Remember how we said there are 36 measurements on each date? Those have been averaged together, so we're looking at a single point for each date. The x-axis shows measurement date; as we move from left to right in the graph, we move through time. The y-axis shows the average position of the marsh surface relative to the first time measurements were taken at that SET. Is the marsh surface getting higher, lower, or staying the same at this SET?  
+
+```{r}
+# find a SET for all these graphics
+set_to_use <- unique(dat$set_id)[1]
+
+# generate paths for the files  
+
+# first = just points; no regression
+p1 <- paste0("cumu_change_noLine_", set_to_use, ".png")
+path1 <- here::here("R_output", "figures", "cumu_change_plots", "individual_sets", p1)
+
+# second = points + regression
+p2 <- paste0("cumu_change_withLine_", set_to_use, ".png")
+path2 <- here::here("R_output", "figures", "cumu_change_plots", "individual_sets", p2)
+  
+
+# third = add in SLR line
+p3 <- paste0("cumu_change_withLineAndSLR", set_to_use, ".png")
+path3 <- here::here("R_output", "figures", "cumu_change_plots", "individual_sets", p3)
+
+# fourth = simplify by removing points and making line representing measurements lighter
+p4 <- paste0("cumu_change_linesOnly", set_to_use, ".png")
+path4 <- here::here("R_output", "figures", "cumu_change_plots", "individual_sets", p4)
+```
+
+```{r}
+knitr::include_graphics(path1)
+```
+
+
+Now, let's add a line. Is this an appropriate way to describe change at this SET?  
+
+```{r}
+knitr::include_graphics(path2)
+```
+
+
+What we really want to know is, how does the slope of that line compare to the slope of sea level rise? Is one steeper than the other? In the next graph, we add in a red line to represent change in sea level, based on the long-term rate calculated from a nearby tide station.    
+
+```{r}
+knitr::include_graphics(path3)
+```
+
+
+And finally, we simplify a bit by removing the points themselves, and only keeping the lines. It will become clear why we needed to simplify when we put all the SETs from this reserve together in one graphic.  
+
+```{r}
+knitr::include_graphics(path4)
+```
+
+
+### All SETs at this reserve  
+
+Here is a birds-eye view of all SETs at this reserve! Does it look like SETs at this reserve are generally keeping up with sea level rise?    
+
+```{r}
+path5 <- here::here("R_output", "figures", "cumu_change_plots", "cumu_change_linesOnly.png")
+knitr::include_graphics(path5)
+```
+
+
+
 ## Comparisons to 0 and SLR  
 
 First we will not color by vegetation. We'll start simple; with a vertical line at 0, another vertical line at the local rate of sea level rise (SLR), and a dot to represent the rate of change at each SET (rate of change increases from left to right on the x-axis):  
 
 ```{r, fig.width = 7, fig.height = 5}
 p <- plot_rate_comps(data = rate_summ, plot_type = 1, 
-                       set_ids = user_friendly_set_name, set_ci_low = CI_low,
-                       set_ci_high = CI_high, slr = slr, slr_ci = slr_ci,
-                       rates = rate) 
+                     set_ids = user_friendly_set_name, set_ci_low = CI_low,
+                     set_ci_high = CI_high, 
+                     comp1 = slr, 
+                     comp1_ci_low = slr - slr_ci,
+                     comp1_ci_high = slr + slr_ci,
+                     rates = rate) 
 print(p)
 ```
 
@@ -339,9 +398,12 @@ Of course, these calculated rates have some associated uncertainty. Here, we rep
 
 ```{r, fig.width = 7, fig.height = 5}
 p <- plot_rate_comps(data = rate_summ, plot_type = 2, 
-                       set_ids = user_friendly_set_name, set_ci_low = CI_low,
-                       set_ci_high = CI_high, slr = slr, slr_ci = slr_ci,
-                       rates = rate) 
+                     set_ids = user_friendly_set_name, set_ci_low = CI_low,
+                     set_ci_high = CI_high, 
+                     comp1 = slr, 
+                     comp1_ci_low = slr - slr_ci,
+                     comp1_ci_high = slr + slr_ci,
+                     rates = rate) 
 print(p)
 ```
 
@@ -349,9 +411,12 @@ And: the calculated rate of sea level rise ALSO has some associated uncertainty.
 
 ```{r, fig.width = 7, fig.height = 5}
 p <- plot_rate_comps(data = rate_summ, plot_type = 3, 
-                       set_ids = user_friendly_set_name, set_ci_low = CI_low,
-                       set_ci_high = CI_high, slr = slr, slr_ci = slr_ci,
-                       rates = rate) 
+                     set_ids = user_friendly_set_name, set_ci_low = CI_low,
+                     set_ci_high = CI_high, 
+                     comp1 = slr, 
+                     comp1_ci_low = slr - slr_ci,
+                     comp1_ci_high = slr + slr_ci,
+                     rates = rate) 
 print(p)
 ```
 
@@ -361,9 +426,12 @@ Now we'll do the same building up, but we *will* color the points by dominant ve
 
 ```{r, fig.width = 7, fig.height = 6}
 p <- plot_rate_comps(data = rate_summ, plot_type = 1, 
-                       set_ids = user_friendly_set_name, set_ci_low = CI_low,
-                       set_ci_high = CI_high, slr = slr, slr_ci = slr_ci,
-                       rates = rate, color_by_veg = TRUE, veg = veg) +
+                     set_ids = user_friendly_set_name, set_ci_low = CI_low,
+                     set_ci_high = CI_high, 
+                     comp1 = slr, 
+                     comp1_ci_low = slr - slr_ci,
+                     comp1_ci_high = slr + slr_ci,
+                     rates = rate, color_by_veg = TRUE, veg = veg) +
     theme(legend.position = "bottom")
 print(p)
 ```
@@ -372,10 +440,13 @@ Of course, these calculated rates have some associated uncertainty. Here, we rep
 
 ```{r, fig.width = 7, fig.height = 5}
 p <- plot_rate_comps(data = rate_summ, plot_type = 2, 
-                       set_ids = user_friendly_set_name, set_ci_low = CI_low,
-                       set_ci_high = CI_high, slr = slr, slr_ci = slr_ci,
-                       rates = rate, color_by_veg = TRUE, veg = veg) +
-    theme(legend.position = "bottom")
+                     set_ids = user_friendly_set_name, set_ci_low = CI_low,
+                     set_ci_high = CI_high, 
+                     comp1 = slr, 
+                     comp1_ci_low = slr - slr_ci,
+                     comp1_ci_high = slr + slr_ci,
+                     rates = rate, color_by_veg = TRUE, veg = veg) +
+  theme(legend.position = "bottom")
 print(p)
 ```
 
@@ -383,9 +454,35 @@ And: the calculated rate of sea level rise ALSO has some associated uncertainty.
 
 ```{r, fig.width = 7, fig.height = 7}
 p <- plot_rate_comps(data = rate_summ, plot_type = 3, 
-                       set_ids = user_friendly_set_name, set_ci_low = CI_low,
-                       set_ci_high = CI_high, slr = slr, slr_ci = slr_ci,
-                       rates = rate, color_by_veg = TRUE, veg = veg) +
-    theme(legend.position = "bottom", legend.direction = "vertical")
+                     set_ids = user_friendly_set_name, set_ci_low = CI_low,
+                     set_ci_high = CI_high, 
+                     comp1 = slr, 
+                     comp1_ci_low = slr - slr_ci,
+                     comp1_ci_high = slr + slr_ci,
+                     rates = rate, color_by_veg = TRUE, veg = veg) +
+  theme(legend.position = "bottom", legend.direction = "vertical")
 print(p)
 ```
+
+
+## On a map  
+
+Where are the changes happening within the reserve? Do you see any spatial patterns? What could be the reasons for these, based on what you know about your reserve?  
+
+### Compared to 0  
+
+First, are the SETs generally gaining or losing elevation? We can look by comparing them to 0.  
+
+```{r}
+map_0_path <- here::here("R_output", "figures", "maps", "map_0.png")
+knitr::include_graphics(map_0_path)
+```
+
+
+### Compared to SLR  
+
+```{r}
+map_SLR_path <- here::here("R_output", "figures", "maps", "map_SLR.png")
+knitr::include_graphics(map_SLR_path)
+```
+
