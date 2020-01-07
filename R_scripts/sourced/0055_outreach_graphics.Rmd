@@ -30,9 +30,20 @@ source(here::here('R_scripts', 'sourced', '000_functions.R'))
 source(here::here('R_scripts', 'sourced', '001_user_options.R'))
 ```
 
-# Some Background Wording about SETs and Sentinel Sites  
+# Background - National level  
 
-Outreach Team, assemble!  I need some help coming up with this text!
+Outreach Team, assemble!  I need some help coming up with this text!  
+
+* brief synopsis of NERRS Sentinel Site Program  
+* what questions are we trying to answer  
+  *  are marshes keeping up with sea level rise?  
+  *  note that we are NOT forecasting - that is a different question that requires a completely different toolkit. We are looking backwards in time.  
+* what is a SET  
+
+```{r, out.width = '10%', fig.align = 'center', fig.cap = 'example of a SET; pin heights above the horizontal arm are a proxy for the shape of the marsh surface. Figure from Lynch et al. 2015'}
+knitr::include_graphics(here::here("img", "SET_diagr2_NPSprotocols.png"))
+```
+
 
 
 # Reading in data, metadata, and calculated rates  
