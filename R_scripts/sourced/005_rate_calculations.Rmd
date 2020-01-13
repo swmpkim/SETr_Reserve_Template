@@ -619,9 +619,10 @@ Graphs for each SET individually are not shown here but have been saved in _`r o
 
 
 
-## Something similar, but with NAVD88  
+## Cumulative change along the elevation gradient  
 
-Don't facet. Put all SETs in one facet. Use cumulative change, but instead of starting at "0" on the first date, add the NAVD88 elevation (either ground or receiver - all is relative so it doesn't really matter unless we want water level information, which involves another information "grab") to cumulative change data.  
+The following graph shows cumulative elevation change at all SETs in one window. If NAVD88 information was present in metadata, the first reading at each SET was placed at that point on the y-axis. Otherwise, the SET cumulative change lines start at 0.  
+
 
 ```{r, fig.width = opts_long$width_tall, fig.height = opts_long$height_tall}
 # if either column has NO NAs, use the column. Preference goes to ground elevation, then receiver elevation. 
@@ -666,11 +667,12 @@ _`r out_name`_
 
 
 
-# Only use sites with enough data  
+
+# Rate Calculations  
+
 
 From this point on, only SETs with 5 or more measurements over 4.5 or more years will be analyzed. If you do not have any SETs that have been measured for this long, you will NOT see analyses or graphs below.  
 
-**Note** - if you're reading this at the SETr workshop, please note that I'll probably change the code some more and nothing below this section will show up if you don't have any sites with enough data to analyze.  
 
 ```{r}
 # make a backup
@@ -684,9 +686,7 @@ enough_dat <- nrow(dat) > 0
 ```
 
 
-# Rate Calculations  
-
-These rates were generated using linear mixed models. See Zuur et al. 2009 and Cahoon et al. 2019 for details.
+These rates were generated using random-intercept linear mixed models. See Zuur et al. 2009 and Cahoon et al. 2019 for details.
 
 Cahoon, D.R., Lynch, J.C., Roman, C.T. et al. Estuaries and Coasts (2019) 42: 1. https://doi.org/10.1007/s12237-018-0448-x  
 
@@ -737,7 +737,7 @@ In our case, we have, for each SET:
 
 These rates were generated using the `lme()` function in the `nlme` package. Confidence intervals were generated using the `intervals()` function, also in the `nlme` package. 
 
-All calculations generated output in *mm/day* and were converted to *mm/yr* by multiplying by 365.25 (this accounts for leap years).    
+All calculations generated output in *mm/day* and were converted to *mm/yr* by multiplying by 365.25 to account for leap years.    
 
 ```{r calc-lmm, eval = enough_dat}
 models2 <- dat %>%
@@ -774,9 +774,11 @@ diagnostics_out %>%
   autofit()
 ```
 
-### Combine information from rate calculations, metadata, and SLR into one file  
+
 
 ```{r combine-rates-mdat-slr, eval = enough_dat}
+# combine different data frames into one file  
+
 # pick out relevant fields from the metadata to be used for mapping
 mdat_sub <- mdat %>% 
   select(unique_set_id, user_friendly_set_name, reserve, latitude_dec_deg, longitude_dec_deg, co_dominant_species1)
@@ -931,7 +933,7 @@ rate_comp(rates_slr_comp, dir_slr, c("dec_nonsig", "inc_nonsig"))
 
 The local, 19-year rate of water level change is **`r yr19chng` +/- `r yr19_ci` mm/yr** .  
 
-This rate is reported by `r slr_res$nearest_nwlon_station`, NWLON station number `r as.character(slr_res$nwlon_station_number)` based on data from *`r slr_res$yr19_start`* to *`r slr_res$yr19_end`*.  
+This rate uses data reported by `r slr_res$nearest_nwlon_station`, NWLON station number `r as.character(slr_res$nwlon_station_number)` based on data from *`r slr_res$yr19_start`* to *`r slr_res$yr19_end`*.  
 
 The following tables break the SETs into groups where the rate of SET elevation change is *lower than* / *higher than* / *not different from* this 19-year rate. *Lower than* and *higher than* tables imply that 95% confidence intervals do not overlap between the SET and water level change. *Not different from* means that confidence intervals *do* overlap.  
 
@@ -978,9 +980,11 @@ rate_comp(rates_slr_comp, dir_19yr, c("dec_nonsig", "inc_nonsig"))
 
 
 
-Add dominant veg to model_out data frame for graphing purposes
+
 
 ```{r add-veg}
+# Add dominant veg to model_out data frame for graphing purposes
+
 lmm_out <- left_join(lmm_out, select(mdat, unique_set_id, co_dominant_species1), by = c("set_id" = "unique_set_id")) %>% 
     rename(veg = co_dominant_species1)
 ```
@@ -988,11 +992,8 @@ lmm_out <- left_join(lmm_out, select(mdat, unique_set_id, co_dominant_species1),
 
 ## Graphical Comparison to Sea Level Rise and 0  
 
-# OH MY WORD  
-
 ## Sites in R's default order  
 
-Make a nested function out of this because all my inputs will be the same each time except for plot type and whether to color by veg. Although when putting things in order, it will come from a different data frame, and the set id column name is different, so.... yeah, specify all of them to be safe.    
 
 ```{r, fig.width = opts_long$width_short, fig.height = opts_long$height_short}
 # there must be a better way to do this
@@ -1295,7 +1296,7 @@ source(here::here("R_scripts", "sourced", "006_map_making_static.R"))
 m0
 ```
 
-### Comparisons to SLR  
+### Comparisons to long-term SLR  
 
 ```{r mapSLR, eval = enough_dat}
 mSLR
