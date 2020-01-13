@@ -40,14 +40,14 @@ library(stringr)
 source(here::here('R_scripts', 'sourced', '000_functions.R'))
 # load user options
 source(here::here('R_scripts', 'sourced', '001_user_options.R'))
+# user options script deals with qaqc codes
 ```
 
 
-## Read in data and metadata  
+## Data and metadata setup  
 
-This reads in the long dataset, converted from other formats by earlier scripts. It also converts pin heights to mm if they weren't already in those units.  
-
-If the user specified custom start and/or end dates in the file `metadata\user_defined_inputs.xlsx`, the data frame is trimmed in this step.  
+We start by reading in the long SET measurement dataset, converted from other formats by earlier scripts. Pin heights have also been converted to mm if they weren't already in those units.  
+  
 
 ```{r read-data, warning = TRUE}
 # find the folder with processed data
@@ -84,25 +84,37 @@ dat <- dat %>%
            arm_position = as.character(arm_position))
 
 
+# pull out dates in the dataset
+start_whole <- min(dat$date)
+end_whole <- max(dat$date)
+```
+
+This dataset spans the dates **`r start_whole`** to **`r end_whole`**.  
+
+If the custom start and/or end dates were specified for this analysis, the dataset is subsetted here and the chosen date range will be printed below this paragraph. These options can be changed in the file `metadata/user_defined_inputs.xlsx`.  
+
+```{r}
 # trim the dataset based on user-specified dates
 if(!is.na(opts_long$custom_start)){
   start <- lubridate::ymd(opts_long$custom_start)
   dat <- dat %>% 
     filter(date >= start)
+  print(paste0("The custom start date is ", start))
 }
 if(!is.na(opts_long$custom_end)){
   end <- lubridate::ymd(opts_long$custom_end)
   dat <- dat %>% 
     filter(date <= end)
+  print(paste0("The custom end date is ", end))
 }
 ```
 
 
 ## QA/QC codes  
 
-Use the *user_defined_inputs* spreadsheet to find qa/qc codes that the user wants to have removed (designated in that sheet with "-3" to be consistent with the SWMP "reject" flagging). Report those values and then turn them into NAs.
+In the same `user_defined_inputs` spreadsheet, certain qa/qc codes may have been specified for removal in this analysis. In the `qaqc_codes` worksheet, they were labeled with "-3", to be consistent with SWMP's water quality/weather/nutrient "reject" flagging. If such values are present, they will be printed below, then turned into NAs so they are not used in the analysis.
 
-Note that this code will look for an EXACT match. e.g., if "LHE" is specified for removal, only values with "LHE" will be removed. "LHE CB" and "CRM LHE" will *not* be removed. To remove a combination of codes, a new line may need to be created in the *qaqc_codes* tab of the input spreadsheet.  
+**Note** that the code looks for an EXACT match. e.g., if "LHE" is specified for removal, only values with "LHE" will be removed. "LHE CB" and "CRM LHE" will *not* be removed. To remove a combination of codes, a new line may need to be created in the `qaqc_codes` tab of the input spreadsheet.  
 
 ```{r qc-remove}
 if (excl_exist) {
@@ -115,12 +127,18 @@ if (excl_exist) {
   excluded <- dat[to_excl, ]
   
   
+  # print only if there's at least one row
+  if(nrow(excluded) > 0){
+    cat("The following QA/QC codes were labeled for exclusion: \n")
+    cat(codes_to_exclude, sep = "\n")
+    cat("\nThe data points that have been excluded are: \n \n")
   excluded %>% 
     select(set_id, date, 
            arm = arm_position, 
            arm_code = arm_qaqc_code, 
            pin_number, qaqc_code, pin_height) %>% 
     knit_print()
+  } else {cat("The following QA/QC codes were labeled for exclusion. There were no data values flagged with those codes, so all data values are present in this analysis: \n"); cat(codes_to_exclude, sep = "/n")}
   
 
   # turn the heights into NAs
@@ -128,7 +146,7 @@ if (excl_exist) {
   
   # clean up
   # rm(list = c("excluded", "arm_to_excl", "pin_to_excl", "to_excl"))
-}
+} else {cat("No QA/QC codes were labeled for exclusion. All data values are present.")}
 ```
 
 
@@ -136,7 +154,7 @@ if (excl_exist) {
 
 This analysis was run on **`r filelist[1]`** on *`r Sys.Date()`*.  
 
-
+If any mismatches between the data and metadata files are present, they will be noted below. The user of this report will need to make any necessary changes in the data/metadata files.  
  
 
 ```{r read-metadata, warning = TRUE}
@@ -189,7 +207,7 @@ if (length(m_not_dat) > 0) {
 }
 
 if (length(dat_not_m) + length(m_not_dat) == 0) {
-    print("SET IDs match in your data and metadata files.")
+    cat("SET IDs match in your data and metadata files.")
 }
 
 # go ahead and order the set_ids in dat and unique_set_id in mdat by the metadata's numerical_order, if available
@@ -309,10 +327,6 @@ sample_info %>%
 ```
 
 
-Still on wish list to include:  
-
-+  NAVD88 elevation (and year determined)  
-+  Distance from closest water body 
 
 
 ***
