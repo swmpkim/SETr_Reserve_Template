@@ -18,15 +18,15 @@ pkg_analyze <- c("rmarkdown", "broom", "flextable", "mapview")
 # install packages
 install.packages(c(pkg_wrangle, pkg_interact, pkg_analyze))
 
-# also need dev version of webshot
-# somewhere in here though rtools is being installed
-install.packages("devtools")
-devtools::install_github("wch/webshot")
+# webshot separately because it seems to cause problems when bundled in
+install.packages("webshot")
 
-# and phantomjs for static maps in the analysis output
-# install through webshot package;
-# first can check to see if it's already installed (from, e.g., SWMP status reports)
+# need phantomjs for static maps in the analysis output
+# as of november 2019, is_phantomjs_installed() is in the CRAN version!!!
+# so first check to see if it's already installed 
+# (from, e.g., SWMP status reports)
 # and if it's not, then install it
+
 library(webshot)
 if(!is_phantomjs_installed()){
     install_phantomjs()

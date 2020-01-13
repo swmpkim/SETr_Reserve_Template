@@ -16,7 +16,7 @@ In this report, the user may have chosen to exclude data associated with certain
 Also, be aware that linear models are not appropriate for calculating rates of change at all sites. Use discretion when interpreting these results.  
 
 
-# Setup  
+# Background on the data  
 
 
 
@@ -621,7 +621,7 @@ Graphs for each SET individually are not shown here but have been saved in _`r o
 
 ## Cumulative change along the elevation gradient  
 
-The following graph shows cumulative elevation change at all SETs in one window. If NAVD88 information was present in metadata, the first reading at each SET was placed at that point on the y-axis. Otherwise, the SET cumulative change lines start at 0.  
+The following graph shows cumulative elevation change at all SETs in one graph panel. If NAVD88 information was present in metadata, the first reading at each SET was placed at that point on the y-axis. Otherwise, the SET cumulative change lines start at 0.  
 
 
 ```{r, fig.width = opts_long$width_tall, fig.height = opts_long$height_tall}
@@ -1095,6 +1095,68 @@ ggsave(out_file, width = 1.2*opts_long$width_short, height = opts_long$height_sh
 cat(paste("The above graph is saved as: ", out_name))
 ```
 
+
+# Ordered (categorically) by NAVD88 elevation  
+
+
+If NAVD88 elevations were provided in the metadata, two more versions of the graph above are produced below. The SETs are ordered along the y-axis from highest to lowest elevation.
+
+```{r}
+# first get the factors in the right order
+
+lmm_out_navd88order <- left_join(lmm_out, navd88s)
+
+a <- forcats::fct_reorder(lmm_out_navd88order$set_id,
+                          lmm_out_navd88order$set_navd88)
+
+lmm_out_navd88order$set_id2 <- a
+
+# as a condition to make the graphs:
+# the navd88s can't all be "0"
+# so the length of the vector with unique navd88s has to be longer than 1
+multiple_navd88s <- length(unique(lmm_out_navd88order$set_navd88)) > 1
+```
+
+  
+
+```{r plot-slr-ci-19yr-lmm-navd88order, fig.width = opts_long$width_short, fig.height = opts_long$height_short, eval = enough_dat}
+
+if(multiple_navd88s){
+  # add 19-year water level change; no veg coloring
+  p <- plot_comp_specific(data = lmm_out_navd88order,
+                     set_ids = set_id2)
+  
+  print(p)
+  
+  out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_bothSLRs_navd88ordering.png", sep = "/")
+  out_file <- here::here(out_name)
+  
+  ggsave(out_file, plot = p, width = opts_long$width_short, height = opts_long$height_short, scale = 0.8)
+  
+  cat(paste("The above graph is saved as: ", out_name))
+}
+```
+
+```{r plot-slr-ci-19yr-lmm-navd88order-veg, fig.width = opts_long$width_short, fig.height = opts_long$height_short, eval = enough_dat}
+
+if(multiple_navd88s){
+  # add 19-year water level change; yes veg coloring
+  p <- plot_comp_specific(data = lmm_out_navd88order,
+                     set_ids = set_id2,
+                     color_by_veg = TRUE,
+                     veg = veg)
+  
+  print(p)
+  
+  out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_bothSLRs_navd88ordering_veg.png", sep = "/")
+  out_file <- here::here(out_name)
+  
+  ggsave(out_file, plot = p, width = opts_long$width_short, height = opts_long$height_short, scale = 0.8)
+  
+  cat(paste("The above graph is saved as: ", out_name))
+}
+```
+
 ***
 
 ***
@@ -1284,6 +1346,8 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
 ***
 
 ## MAPS  
+
+The way these maps are rendered below (and even *if* they are rendered) depends on many things. The script `R_scripts/04_interact_maps.R` will let you interact with the maps, and you can either take a screenshot or use the `Export` command from RStudio's Viewer pane to save a version that looks better.   
 
 ```{r map-script-source, eval = enough_dat}
 source(here::here("R_scripts", "sourced", "006_map_making_static.R"))
