@@ -50,6 +50,7 @@ if(pkg_result[which(pkgs_needed == "tidyr")]){
 }
 
 
+
 # find out if phantomjs is okay
 # only run if webshot isn't missing, 
 # and if it's a version that has this function

@@ -257,10 +257,13 @@ plot_cumu_set <- function(data, columns = 4, pointsize = 3.5, scales = "fixed", 
                    fill = 'lightsteelblue1', col = 'steelblue3', 
                    size = pointsize, alpha = 0.9) +
         facet_wrap(~set_id, ncol = columns, scales = scales) +
-        labs(title = 'Cumulative Change since first reading', 
-             subtitle = 'dashed line is linear regression',
-             x = 'Date',
-             y = 'Change since first reading (mm)') +
+        {if(smooth) labs(title = 'Cumulative Change since first reading', 
+                         subtitle = 'dashed line is linear regression',
+                         x = 'Date',
+                         y = 'Change since first reading (mm)')} +
+        {if(!smooth) labs(title = 'Cumulative Change since first reading', 
+                          x = 'Date',
+                          y = 'Change since first reading (mm)')} +
         theme_classic()
 }
 
