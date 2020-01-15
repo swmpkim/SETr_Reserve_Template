@@ -23,7 +23,7 @@ user’s computer.
 
 The only folder being tracked here on GitHub is the `R_scripts` folder.
 
-<img src="2020-01-14_SETr_directory.png" style="display: block; margin: auto;" />
+<img src="2020-01-14_SETr_directory.png" width="85%" style="display: block; margin: auto;" />
 
 ## Proposed workflow
 
