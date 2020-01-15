@@ -23,7 +23,7 @@ user’s computer.
 
 The only folder being tracked here on GitHub is the `R_scripts` folder.
 
-<img src="C:/Users/kimberly.cressman/Desktop/Main Docs/NSC - R for Sentinel Sites/SETr_workflow_development/Reserve_Template/img/2020-01-14_SETr_directory.PNG" style="display: block; margin: auto;" />
+<img src="C:/Users/kimberly.cressman/Desktop/Main Docs/NSC - R for Sentinel Sites/SETr_workflow_development/Reserve_Template/img/2020-01-14_SETr_directory.png" style="display: block; margin: auto;" />
 
 ## Proposed workflow
 

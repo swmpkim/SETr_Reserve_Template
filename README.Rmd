@@ -22,7 +22,7 @@ The top level is the `Reserve_Template` folder; everything performed by the R sc
 The only folder being tracked here on GitHub is the `R_scripts` folder.   
 
 ```{r, fig.width = 3, fig.align = "center"}
-knitr::include_graphics(here::here("img", "2020-01-14_SETr_directory.PNG"))
+knitr::include_graphics(here::here("img", "2020-01-14_SETr_directory.png"))
 ```
   
 
