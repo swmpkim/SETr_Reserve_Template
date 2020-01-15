@@ -73,14 +73,23 @@ filename <- paste0(path, "/", filelist)
 dat <- read_csv(filename)
 dat <- height_to_mm(dat)
 
+# if there isn't a reserve column in the data,
+# pull it from the file name
+if(!exists("reserve", dat)){
+  dat$reserve <- toupper(str_extract(filename, "[:alpha:]{3}(?=set)"))
+} 
+
 # get rid of any placeholders; make sure set_id is a factor;
+# make sure reserve, station, arm_position, and pin_number are character vectors
 # paste year, month, and day together into "date"
 dat <- dat %>%
-    mutate(date = lubridate::ymd(paste(year, month, day))) %>% 
-    filter(!is.na(date),
-           !is.na(pin_number)) %>%
-    mutate(set_id = as.factor(set_id),
-           arm_position = as.character(arm_position))
+  mutate(date = lubridate::ymd(paste(year, month, day))) %>% 
+  filter(!is.na(date),
+         !is.na(pin_number)) %>%
+  mutate_at(c("reserve", "set_id",   
+              "arm_position", "arm_qaqc_code", 
+              "pin_number", "qaqc_code"),
+            as.character)
 
 # trim the dataset based on user-specified dates
 if(!is.na(opts_long$custom_start)){
@@ -142,7 +151,9 @@ if (length(filelist) > 1) {
 filename <- paste0(path, "/", filelist)
 mdat <- read_excel(filename) %>%
     janitor::clean_names() %>%
-    janitor::remove_empty(which = "rows")
+    janitor::remove_empty(which = "rows") %>% 
+    mutate_at(c("unique_set_id", "user_friendly_set_name", "reserve"),
+            as.character)
 ```
 
 
@@ -171,19 +182,23 @@ if (length(dat_not_m) + length(m_not_dat) == 0) {
 }
 
 # go ahead and order the set_ids in dat and unique_set_id in mdat by the metadata's numerical_order, if available
+# if this step is skipped, they should remain in character format
 if (!anyNA(mdat$numerical_order)){
   mdat_sub <- select(mdat, unique_set_id, numerical_order) %>% 
     mutate(unique_set_id = factor(unique_set_id))
-  dat <- left_join(dat, mdat_sub, by = c("set_id" = "unique_set_id")) %>% 
+  dat <- dat %>% 
+    mutate(set_id = factor(set_id)) %>% 
+    left_join(., mdat_sub, by = c("set_id" = "unique_set_id")) %>% 
     mutate(set_id = fct_reorder(set_id, numerical_order)) %>% 
     select(-numerical_order)
   mdat <- mdat %>% 
     mutate(unique_set_id = factor(unique_set_id),
            unique_set_id = fct_reorder(unique_set_id, numerical_order))
+  rm(mdat_sub)
 }
 
 # cleanup
-rm(dat_not_m, m_not_dat, mdat_sub, metadata_setid, data_setid, filelist, filename, path)
+rm(dat_not_m, m_not_dat, metadata_setid, data_setid, filelist, path)
 ```
 
 
@@ -197,7 +212,11 @@ slr_rates <- read_csv(slr_file) %>%
 
 ```{r read-rates}
 file_in <- here::here("data", "intermediate", "rate_summary.csv")
-rate_summ <- read.csv(file_in)
+rate_summ <- read.csv(file_in, stringsAsFactors = FALSE) %>%
+  mutate_at(c("reserve", "set_id",   
+               "user_friendly_set_name",
+              "co_dominant_species1"),
+            as.character)
 ```
 
 ```{r verify-slr, warning = TRUE}
@@ -209,7 +228,7 @@ if (res_to_match %in% unique(slr_rates$reserve)) {
         select(-link)
     slr <- slr_res$slr_rate_mm_yr
     slr_ci <- slr_res$x95_percent_ci
-} else {warning("This reserve does not have an entry in the sea level rise rates file. Please check metadata/slr_rates.csv and make sure your reserve is present.")}
+} else {warning(paste("This reserve does not have an entry in the sea level rise rates file. Please check metadata/slr_rates.csv and enter a value using", res_to_match, "as the reserve code."))}
 ```
 
 

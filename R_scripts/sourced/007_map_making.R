@@ -4,7 +4,11 @@
 # libraries leaflet, dplyr, and here loaded in parent script
 # file_in also generated in parent script
 
-dat <- read.csv(file_in)
+dat <- read.csv(file_in) %>%
+    mutate_at(c("reserve", "set_id",   
+                "user_friendly_set_name",
+                "co_dominant_species1"),
+              as.character)
 
 
 # map differences
