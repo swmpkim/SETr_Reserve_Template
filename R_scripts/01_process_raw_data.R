@@ -49,10 +49,14 @@ file_path <- paste0(in_path, "/", filelist)
 
 
 # read in all sheets and append them to each other
+# in so doing, force all columns to be seen as text
+# so there are no issues joining them together
 dat <- file_path %>% 
         excel_sheets() %>% 
         set_names() %>% 
-        map_df( ~ read_excel(path = file_path, sheet = .x), .id = "sheet")
+        map_df( ~ read_excel(path = file_path, sheet = .x), 
+                col_types = "text",
+                .id = "sheet")
 
 # check to make sure the SET ID that was entered matches the name of each sheet
 mismatches <- dat$set_id != dat$sheet
