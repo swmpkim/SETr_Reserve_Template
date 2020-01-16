@@ -54,8 +54,9 @@ file_path <- paste0(in_path, "/", filelist)
 dat <- file_path %>% 
         excel_sheets() %>% 
         set_names() %>% 
-        map_df( ~ read_excel(path = file_path, sheet = .x), 
-                col_types = "text",
+        map_df( ~ read_excel(path = file_path, 
+                             sheet = .x, 
+                             col_types = "text"), 
                 .id = "sheet")
 
 # check to make sure the SET ID that was entered matches the name of each sheet
