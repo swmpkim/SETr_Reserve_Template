@@ -103,7 +103,7 @@ This dataset spans the dates **`r start_whole`** to **`r end_whole`**.
 
 If custom start and/or end dates were specified for this analysis, the dataset is subsetted here and the chosen date range will be printed below this paragraph. These options can be changed in the file `metadata/user_defined_inputs.xlsx`.  
 
-```{r}
+```{r trim-data}
 # trim the dataset based on user-specified dates
 if(!is.na(opts_long$custom_start)){
   start <- lubridate::ymd(opts_long$custom_start)
@@ -346,7 +346,7 @@ sample_info %>%
 
 Take a look at your overall change since the first reading - make sure the change looks generally linear, and make sure there are no big breaks in the data that could influence the outputs. Output will be generated even if it is not appropriate - **it is up to you to use discretion and make sure a linear model is appropriate for the data!**
 
-```{r, fig.width = opts_long$width_square, fig.height = opts_long$height_square}
+```{r cumu-change, fig.width = opts_long$width_square, fig.height = opts_long$height_square}
 dat_cumu <- calc_change_cumu(dat)
 
 # without linear regression
@@ -365,7 +365,7 @@ _`r out_name`_
 
 
 
-```{r}
+```{r cumu-change-loop}
 all_sets <- unique(dat_cumu$set$set_id)
 out_path <- paste("R_output", "figures", "cumu_change_plots", "individual_sets", sep = "/")
 
@@ -384,7 +384,7 @@ ggsave(out_file, p, width = opts_long$width_short, height = opts_long$height_sho
 Graphs for each SET individually are not shown here but have been saved in _`r out_path`_
 
 
-```{r, fig.width = opts_long$width_square, fig.height = opts_long$height_square}
+```{r cumu-change-line, fig.width = opts_long$width_square, fig.height = opts_long$height_square}
 # with linear regression
 plot_cumu_set(dat_cumu$set, columns = opts_long$multi_cols,
               pointsize = 2.5)
@@ -400,7 +400,7 @@ ggsave(out_file, width = opts_long$width_square, height = opts_long$height_squar
 _`r out_name`_   
 
 
-```{r}
+```{r cumu-change-line-loop}
 out_path <- paste("R_output", "figures", "cumu_change_plots", "individual_sets", sep = "/")
 
 for(i in seq_along(all_sets)){
@@ -426,7 +426,7 @@ It is only meant to illustrate and give context for SET elevation change
 
 
 
-```{r, fig.width = opts_long$width_square, fig.height = opts_long$height_square}
+```{r cumu-plus-slr, fig.width = opts_long$width_square, fig.height = opts_long$height_square}
 
 # put slr slope into "per-day" rather than "per-year" because that's how R thinks
 # 365.25 accounts for leap years
@@ -466,7 +466,7 @@ ggsave(out_file, width = opts_long$width_square, height = opts_long$height_squar
 `r out_name`   
 
 
-```{r}
+```{r cumu-plus-slr-loop}
 out_path <- paste("R_output", "figures", "cumu_change_plots", "individual_sets", sep = "/")
 
 for(i in seq_along(all_sets)){
@@ -500,7 +500,7 @@ ggsave(out_file, p, width = opts_long$width_short, height = opts_long$height_sho
 Graphs for each SET individually are not shown here but have been saved in _`r out_path`_
 
 
-```{r, fig.width = opts_long$width_square, fig.height = opts_long$height_square}
+```{r cumu-plus-slr-2, fig.width = opts_long$width_square, fig.height = opts_long$height_square}
 # add the line to the plot
 p <- plot_cumu_set(dat_cumu$set, columns = opts_long$multi_cols,
                    smooth = FALSE,
@@ -526,7 +526,7 @@ ggsave(out_file, width = opts_long$width_square, height = opts_long$height_squar
 `r out_name`   
 
 
-```{r}
+```{r cumu-plus-slr-2-loop}
 out_path <- paste("R_output", "figures", "cumu_change_plots", "individual_sets", sep = "/")
 
 for(i in seq_along(all_sets)){
@@ -561,7 +561,7 @@ Graphs for each SET individually are not shown here but have been saved in _`r o
 
 
 
-```{r, fig.width = opts_long$width_square, fig.height = opts_long$height_square}
+```{r cumu-lines-only, fig.width = opts_long$width_square, fig.height = opts_long$height_square}
 # what if we just do it without any points; just smooths?
 ggplot(dat_cumu$set, aes(x = date, y = mean_cumu)) +
         geom_line(col = 'gray70') +
@@ -591,7 +591,7 @@ ggsave(out_file, width = opts_long$width_square, height = opts_long$height_squar
 `r out_name`   
 
 
-```{r}
+```{r cumu-lines-only-loop}
 out_path <- paste("R_output", "figures", "cumu_change_plots", "individual_sets", sep = "/")
 
 for(i in seq_along(all_sets)){
@@ -635,7 +635,7 @@ Graphs for each SET individually are not shown here but have been saved in _`r o
 The following graph shows cumulative elevation change at all SETs in one graph panel. If NAVD88 information was present in metadata, the first reading at each SET was placed at that point on the y-axis. Otherwise, the SET cumulative change lines start at 0.  
 
 
-```{r, fig.width = opts_long$width_tall, fig.height = opts_long$height_tall}
+```{r cumu-navd88, fig.width = opts_long$width_tall, fig.height = opts_long$height_tall}
 # if either column has NO NAs, use the column. Preference goes to ground elevation, then receiver elevation. 
 # then move through partial scenarios: use ground elevation or receiver elevation, or make it NA.
 navd88s <- mdat %>% 
@@ -682,10 +682,10 @@ _`r out_name`_
 # Rate Calculations  
 
 
-From this point on, only SETs with 5 or more measurements over 4.5 or more years will be analyzed. If you do not have any SETs that have been measured for this long, you will NOT see analyses or graphs below.  
+From this point on, **only SETs with 5 or more measurements over 4.5 or more years will be analyzed**. If you do not have any SETs that have been measured for this long, you will NOT see analyses or graphs below.  
 
 
-```{r}
+```{r find-enough-dat}
 # make a backup
 dat_all <- dat
 
@@ -767,11 +767,21 @@ lmm_out %>%
   autofit()
 ```
 
+```{r lmm-na-table, eval = !enough_dat}
+# if there wasn't enough data to run lmms, generate a data frame full of NAs
+# because we need an output table to be generated to make the mapping script work
+lmm_out <- dat_all %>% 
+  select(reserve, set_id) %>% 
+  distinct() %>% 
+  mutate(rate = NA_real_,
+         CI_low = NA_real_,
+         CI_high = NA_real_)
+```
 
 
 ### Additional model diagnostics  
 
-```{r addl-diagnostics}
+```{r addl-diagnostics, eval = enough_dat}
 diagnostics_out <- models2 %>% 
   mutate(sigma = sigma(mod),
          AIC = AIC(mod),
@@ -787,8 +797,10 @@ diagnostics_out %>%
 
 
 
-```{r combine-rates-mdat-slr, eval = enough_dat}
+```{r combine-rates-mdat-slr}
 # combine different data frames into one file  
+# no condition to run this chunk because we made up a lmm_out data frame above
+# even if there hadn't been enough data to calculate rates
 
 # pick out relevant fields from the metadata to be used for mapping
 mdat_sub <- mdat %>% 
@@ -812,7 +824,15 @@ rate_summary <- left_join(rate_summary, slr_rates, by = c("reserve" = "reserve")
 
 
 
-```{r slr-comp-assignment, eval = enough_dat}
+```{r slr-comp-assignment}
+# removed the "eval = enough_dat" condition from this chunk
+# because we need to write out a data frame for the mapping script
+# and this should just label everything at the sites "nonsig" if there wasn't
+# enough data to generate rates
+# i no longer like that terminology; "unknown" would be better
+# but i don't want to change the map script at this point
+# maybe "not enough information" like i have in the pie charts
+
 rates_slr_all <- rate_summary %>%
     mutate(dir_0 = case_when(CI_high < 0 ~ "dec_sig",
                              CI_low > 0  ~ "inc_sig",
@@ -993,7 +1013,7 @@ rate_comp(rates_slr_comp, dir_19yr, c("dec_nonsig", "inc_nonsig"))
 
 
 
-```{r add-veg}
+```{r add-veg, eval = enough_dat}
 # Add dominant veg to model_out data frame for graphing purposes
 
 lmm_out <- left_join(lmm_out, select(mdat, unique_set_id, co_dominant_species1), by = c("set_id" = "unique_set_id")) %>% 
@@ -1006,7 +1026,7 @@ lmm_out <- left_join(lmm_out, select(mdat, unique_set_id, co_dominant_species1),
 ## Sites in R's default order  
 
 
-```{r, fig.width = opts_long$width_short, fig.height = opts_long$height_short}
+```{r, fig.width = opts_long$width_short, fig.height = opts_long$height_short, eval = enough_dat}
 # there must be a better way to do this
 
 # function arguments are what I want to be the defaults
@@ -1112,7 +1132,7 @@ cat(paste("The above graph is saved as: ", out_name))
 
 If NAVD88 elevations were provided in the metadata, two more versions of the graph above are produced below. The SETs are ordered along the y-axis from highest to lowest elevation.
 
-```{r}
+```{r, eval = enough_dat}
 # first get the factors in the right order
 
 lmm_out_navd88order <- left_join(lmm_out, navd88s)
@@ -1360,26 +1380,26 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
 
 The way these maps are rendered below (and even *if* they are rendered) depends on many things. The script `R_scripts/04_interact_maps.R` will let you interact with the maps, and you can either take a screenshot or use the `Export` command from RStudio's Viewer pane to save a version that looks better.   
 
-```{r map-script-source, eval = enough_dat}
+```{r map-script-source}
 source(here::here("R_scripts", "sourced", "006_map_making_static.R"))
 ```
 
 
 ### Comparisons to 0  
 
-```{r map0, eval = enough_dat}
+```{r map0}
 m0
 ```
 
 ### Comparisons to long-term SLR  
 
-```{r mapSLR, eval = enough_dat}
+```{r mapSLR}
 mSLR
 ```
 
 
 ### Comparisons to 19-yr water level change  
 
-```{r map19yr, eval = enough_dat}
+```{r map19yr}
 m19yr
 ```
