@@ -1,7 +1,7 @@
 ## map-making
 
 
-#### INSTRUCTIONS ####
+#### INSTRUCTIONS ############################################################
 ## This can only be run AFTER running '03_analyze_word.R'
 ## because it uses data generated during that analysis
 
@@ -10,18 +10,14 @@
 # From the menu bar, select 'Session', then 'Restart R'
 # Windows keyboard shortcut is Ctrl + Shift + F10
 
+
 # 2:
 # Select this entire script. 
 # Keyboard shortcut is Ctrl + a on windows or Cmd + a on Mac
 # Run it: either using the "Run" button in the upper right corner
 # or the keyboard shortcut Ctrl/Cmd + Enter
 
-
-
-
-## Kim's TO-DOs:
-# put a title on the map
-# make better legends (actual colors) 
+##############################################################################
 
 
 library(leaflet)
