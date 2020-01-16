@@ -682,7 +682,7 @@ _`r out_name`_
 # Rate Calculations  
 
 
-From this point on, **only SETs with 5 or more measurements over 4.5 or more years will be analyzed**. If you do not have any SETs that have been measured for this long, you will NOT see analyses or graphs below.  
+From this point on, **only SETs with 5 or more measurements over 4.5 or more years will be analyzed**. If you do not have any SETs that have been measured for this amount of time, you will NOT see analyses or graphs below.  
 
 
 ```{r find-enough-dat}
@@ -691,11 +691,17 @@ dat_all <- dat
 
 to_keep <- unlist(sample_info[sample_info$years_sampled >= 4.5 & sample_info$sample_events >= 5, "set_id"])
 
-dat <- dat[dat$set_id %in% to_keep, ]
+not_enough_df <- dat[!(dat$set_id %in% to_keep), ]  # stns with not enough data
+dat <- dat[dat$set_id %in% to_keep, ] # stns with enough data
 
-enough_dat <- nrow(dat) > 0
+enough_dat <- nrow(dat) > 0 # this will be used to determine the running of future code chunks
+
+partial_dat <- nrow(dat) > 0 & nrow(not_enough_df) > 0  # this will join data frames back together when some sites have enough data and others don't
 ```
 
+# Stations that have been kept... table  
+
+# Stations that are not being analyzed... table  
 
 These rates were generated using random-intercept linear mixed models. See Zuur et al. 2009 and Cahoon et al. 2019 for details.
 
@@ -779,6 +785,23 @@ lmm_out <- dat_all %>%
 ```
 
 
+```{r lmm-partialna-table, eval = partial_dat}
+# if some sites had enough data and some didn't, add the ones that didn't
+# back into the lmm_out data frame
+# for the maps
+
+# i want this included in the rate summary table
+# so it shows up in maps
+# but i don't want empty rows on the summary graphics
+
+# so i'm going to add it back to the lmm_out table
+# and then filter these sites out again later
+lmm_out <- not_enough_df %>% 
+  select(reserve, set_id) %>% 
+  distinct() %>% 
+  full_join(., lmm_out)
+```
+
 ### Additional model diagnostics  
 
 ```{r addl-diagnostics, eval = enough_dat}
@@ -850,16 +873,29 @@ rates_slr_all <- rate_summary %>%
                                rate > slr_19yr ~ "inc_nonsig",
                                TRUE ~ "nonsig"))
 
+```
+
+
+```{r rate-summ-file}
 # write that to a csv for use in mapping script
 write.csv(rates_slr_all, 
           here::here("data", "intermediate", "rate_summary.csv"),
           row.names = FALSE)
+```
 
+```{r subset-for-graphics}
 # subset that for making comparison tables
+# select only certain columns, and get rid of rows where a rate wasn't calculated
 # but the big data frame will be used in the mapping script
 rates_slr_comp <- rates_slr_all %>% 
-  select(reserve, set_id, rate, CI_low, CI_high, set_slr_ratio, dir_0, dir_slr, dir_19yr)
+  select(reserve, set_id, rate, CI_low, CI_high, set_slr_ratio, dir_0, dir_slr, dir_19yr) %>% 
+  filter(!is.na(rate))
+
+# also filter NAs back out of lmm_out
+lmm_out <- lmm_out %>% 
+  filter(!is.na(rate))
 ```
+
 
 ***
 ***
@@ -1378,7 +1414,8 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
 
 ## MAPS  
 
-The way these maps are rendered below (and even *if* they are rendered) depends on many things. The script `R_scripts/04_interact_maps.R` will let you interact with the maps, and you can either take a screenshot or use the `Export` command from RStudio's Viewer pane to save a version that looks better.   
+The way these maps are rendered below (and even *if* they are rendered) depends on many things. The script `R_scripts/04_interact_maps.R` will let you interact with the maps, and you can either take a screenshot or use the `Export` command from RStudio's Viewer pane to save a version that looks better.  
+
 
 ```{r map-script-source}
 source(here::here("R_scripts", "sourced", "006_map_making_static.R"))
@@ -1386,6 +1423,7 @@ source(here::here("R_scripts", "sourced", "006_map_making_static.R"))
 
 
 ### Comparisons to 0  
+  
 
 ```{r map0}
 m0
