@@ -18,7 +18,7 @@ icon_inc_sig_path <- here::here("img", "blue_up_arrow.png")
 icon_dec_sig_path <- here::here("img", "red_down_arrow.png")
 icon_inc_nonsig_path <- here::here("img", "gray_up_arrow.png")
 icon_dec_nonsig_path <- here::here("img", "gray_down_arrow.png")
-icon_nonsig_path <- here::here("img", "gray_dash.png")
+icon_nonsig_path <- here::here("img", "yel_not_enough_info.png")
 
 # turn them into icons
 icon_inc_siga <- icon_inc_sigb <- makeIcon(iconUrl = icon_inc_sig_path, 
@@ -30,11 +30,11 @@ icon_inc_nonsiga <- icon_inc_nonsigb <- makeIcon(iconUrl = icon_inc_nonsig_path,
 icon_dec_nonsiga <- icon_dec_nonsigb <- makeIcon(iconUrl = icon_dec_nonsig_path, 
                                                  iconWidth = 30, iconHeight = 35)
 icon_nonsiga <- icon_nonsigb <- makeIcon(iconUrl = icon_nonsig_path, 
-                                         iconWidth = 25, iconHeight = 12)
+                                         iconWidth = 20, iconHeight = 20)
 
 
 # specify what these colors are, for the legends
-map_pal <- c("#c00000", "#2f5597", "#7f7f7f")
+map_pal <- c("#c00000", "#2f5597", "#7f7f7f", "#fffacd")
 
 
 
@@ -67,7 +67,7 @@ m0 <- leaflet(to_map,
               position = "bottomright",
               colors = map_pal,
               values = c(1:length(map_pal)),
-              labels = c("lower; CIs don't overlap", "higher; CIs don't overlap", "CIs overlap"),
+              labels = c("lower; CIs don't overlap", "higher; CIs don't overlap", "CIs overlap", "not enough info"),
               opacity = 0.8) 
 
 # save it out
@@ -103,7 +103,7 @@ mSLR <- leaflet(to_map,
               position = "bottomright",
               colors = map_pal,
               values = c(1:length(map_pal)),
-              labels = c("lower; CIs don't overlap", "higher; CIs don't overlap", "CIs overlap"),
+              labels = c("lower; CIs don't overlap", "higher; CIs don't overlap", "CIs overlap", "not enough info"),
               opacity = 0.8) 
 
 # save it out
@@ -141,7 +141,7 @@ m19yr <- leaflet(to_map,
               position = "bottomright",
               colors = map_pal,
               values = c(1:length(map_pal)),
-              labels = c("lower; CIs don't overlap", "higher; CIs don't overlap", "CIs overlap"),
+              labels = c("lower; CIs don't overlap", "higher; CIs don't overlap", "CIs overlap", "not enough info"),
               opacity = 0.8) 
 
 # save it out

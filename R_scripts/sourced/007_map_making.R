@@ -18,17 +18,7 @@ dat <- read.csv(file_in) %>%
 # arrow for direction; color for whether CIs overlap (gray if they do; red/blue if differences are "significant")
 # join coordinates with the rate results, and categorize the rates
 to_map <- dat %>%
-    mutate(dir_0 = case_when(CI_high < 0 ~ "dec_sig",
-                             CI_low > 0  ~ "inc_sig",
-                             rate < 0 ~ "dec_nonsig",
-                             rate > 0 ~ "inc_nonsig",
-                             TRUE ~ "nonsig"),
-           dir_slr = case_when(CI_high < slr_CI_low ~ "dec_sig",
-                               CI_low > slr_CI_high  ~ "inc_sig",
-                               rate < slr_rate ~ "dec_nonsig",
-                               rate > slr_rate ~ "inc_nonsig",
-                               TRUE ~ "nonsig"),
-           map_lab = paste0(set_id, ": ", user_friendly_set_name, "; ",
+    mutate(map_lab = paste0(set_id, ": ", user_friendly_set_name, "; ",
                             round(rate, 2), " mm/yr")) %>% 
     rename(lat = latitude_dec_deg,
            long = longitude_dec_deg)
@@ -39,7 +29,7 @@ icon_inc_sig_path <- here::here("img", "blue_up_arrow.png")
 icon_dec_sig_path <- here::here("img", "red_down_arrow.png")
 icon_inc_nonsig_path <- here::here("img", "gray_up_arrow.png")
 icon_dec_nonsig_path <- here::here("img", "gray_down_arrow.png")
-icon_nonsig_path <- here::here("img", "gray_dash.png")
+icon_nonsig_path <- here::here("img", "yel_not_enough_info.png")
 
 
 # turn them into icons
@@ -52,12 +42,12 @@ icon_inc_nonsiga <- icon_inc_nonsigb <- makeIcon(iconUrl = icon_inc_nonsig_path,
 icon_dec_nonsiga <- icon_dec_nonsigb <- makeIcon(iconUrl = icon_dec_nonsig_path, 
                                                  iconWidth = 30, iconHeight = 35)
 icon_nonsiga <- icon_nonsigb <- makeIcon(iconUrl = icon_nonsig_path, 
-                                         iconWidth = 25, iconHeight = 12)
+                                         iconWidth = 20, iconHeight = 20)
 
 
 
 # specify what these colors are, for the legends
-map_pal <- c("#c00000", "#2f5597", "#7f7f7f")
+map_pal <- c("#c00000", "#2f5597", "#7f7f7f", "#fffacd")
 
 
 
@@ -123,19 +113,45 @@ m <- leaflet(to_map,
                lat = ~lat[to_map$dir_slr == "dec_nonsig"],
                group = "Compared to SLR",
                popup = ~map_lab[to_map$dir_slr == "dec_nonsig"]) %>%
+    ### Compared to 19-year water level change 
+    addMarkers(icon = icon_nonsigb,
+               lng = ~long[to_map$dir_19yr == "nonsig"],
+               lat = ~lat[to_map$dir_19yr == "nonsig"],
+               group = "Compared to 19yr change",
+               popup = ~map_lab[to_map$dir_19yr == "nonsig"]) %>%
+    addMarkers(icon = icon_inc_sigb,
+               lng = ~long[to_map$dir_19yr == "inc_sig"],
+               lat = ~lat[to_map$dir_19yr == "inc_sig"],
+               group = "Compared to 19yr change",
+               popup = ~map_lab[to_map$dir_19yr == "inc_sig"]) %>%
+    addMarkers(icon = icon_dec_sigb,
+               lng = ~long[to_map$dir_19yr == "dec_sig"],
+               lat = ~lat[to_map$dir_19yr == "dec_sig"],
+               group = "Compared to 19yr change",
+               popup = ~map_lab[to_map$dir_19yr == "dec_sig"]) %>% 
+    addMarkers(icon = icon_inc_nonsigb,
+               lng = ~long[to_map$dir_19yr == "inc_nonsig"],
+               lat = ~lat[to_map$dir_19yr == "inc_nonsig"],
+               group = "Compared to 19yr change",
+               popup = ~map_lab[to_map$dir_19yr == "inc_nonsig"]) %>%  
+    addMarkers(icon = icon_dec_nonsigb,
+               lng = ~long[to_map$dir_19yr == "dec_nonsig"],
+               lat = ~lat[to_map$dir_19yr == "dec_nonsig"],
+               group = "Compared to 19yr change",
+               popup = ~map_lab[to_map$dir_19yr == "dec_nonsig"]) %>%
     ### control which layers can be shown
     addLayersControl(
         baseGroups = c("Esri World Gray Canvas", "Esri World Topo Map", "Esri default"),
-        overlayGroups = c("Compared to 0", "Compared to SLR"),
+        overlayGroups = c("Compared to 0", "Compared to SLR", "Compared to 19yr change"),
         options = layersControlOptions(collapsed = FALSE)
     ) %>% 
-    hideGroup("Compared to SLR") %>% 
+    hideGroup(c("Compared to SLR", "Compared to 19yr change")) %>% 
     ### dress up the map
     addScaleBar() %>%
     addLegend(position = "bottomright",
               colors = map_pal,
               values = c(1:length(map_pal)),
-              labels = c("lower; CIs don't overlap", "higher; CIs don't overlap", "CIs overlap"),
+              labels = c("lower; CIs don't overlap", "higher; CIs don't overlap", "CIs overlap", "not enough info"),
               opacity = 0.8) 
 
 # print the map
