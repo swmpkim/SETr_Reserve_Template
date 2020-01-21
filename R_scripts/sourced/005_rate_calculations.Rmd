@@ -744,6 +744,10 @@ comparative purposes, this was done even in cases where the
 intercept-only model was superior.
 
 
+# LMM wording; clean up  
+Linear mixed models extend traditional linear regression models by allowing for the inclusion of both fixed and random effects. These types of models are particularly useful when the data are structured hierarchically, as with SET data. Data for each SET is analyzed separately using pin height as the response variable; arm and pin nested in arm are treated as random effects, while date since initial measurement is considered a numeric covariate. As both the intercept and slope include random effects, methods other than least squares must be employed. Next discuss model fitting… All models were fit in R (reference…) using the nlme package (reference…). This type of approach is similar to the analysis performed in Cahoon 2019.  
+
+
 In our case, we have, for each SET:  
 
 +  **response variable:** pin_height  
@@ -1105,6 +1109,14 @@ plot_comp_specific <- function(data = lmm_out,
 # plot_comp_specific(plot_type = 3, color_by_veg = TRUE)
 ```
 
+```{r}
+# set up options for the legend in the veg plots
+leg_pos <- ifelse(opts_long$legend_side == 1, "right", "bottom")
+leg_align <- ifelse(opts_long$legend_alignment == 1, "vertical", "horizontal")
+user_leg <- theme(legend.position = leg_pos,
+                  legend.direction = leg_align)
+
+```
 
 
 ```{r plot-slr-ci-lmm, fig.width = opts_long$width_short, fig.height = opts_long$height_short, eval = enough_dat}
@@ -1123,7 +1135,8 @@ cat(paste("The above graph is saved as: ", out_name))
 
 ```{r plot-slr-ci-lmm-veg, fig.width = opts_long$width_short, fig.height = opts_long$height_short, eval = enough_dat}
 # original; colored by veg
-plot_comp_specific(plot_type = 3, color_by_veg = TRUE)
+plot_comp_specific(plot_type = 3, color_by_veg = TRUE) +
+  user_leg
 
 out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_veg.png", sep = "/")
 out_file <- here::here(out_name)
@@ -1152,7 +1165,8 @@ cat(paste("The above graph is saved as: ", out_name))
 
 ```{r plot-slr-ci-lmm-veg-19yr, fig.width = opts_long$width_short, fig.height = opts_long$height_short, eval = enough_dat}
 # 19-year water level change, with veg coloring
-plot_comp_specific(plot_type = 4, color_by_veg = TRUE)
+plot_comp_specific(plot_type = 4, color_by_veg = TRUE) +
+  user_leg
 
 out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_veg_19yr.png", sep = "/")
 out_file <- here::here(out_name)
@@ -1211,7 +1225,8 @@ if(multiple_navd88s){
   p <- plot_comp_specific(data = lmm_out_navd88order,
                      set_ids = set_id2,
                      color_by_veg = TRUE,
-                     veg = veg)
+                     veg = veg) +
+  user_leg
   
   print(p)
   
@@ -1283,7 +1298,8 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
   p <- plot_comp_specific(plot_type = 3,
                        data = lmm_out_ordered,
                        set_ids = set_id2,
-                       color_by_veg = TRUE)
+                       color_by_veg = TRUE) +
+  user_leg
   
   print(p)
   
@@ -1321,7 +1337,9 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
   p <- plot_comp_specific(data = lmm_out_ordered,
                           plot_type = 3,
                           set_ids = user_friendly_set_name,
-                          color_by_veg = TRUE)
+                          color_by_veg = TRUE) +
+  user_leg
+  
   print(p)
   
   out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_ordered_friendly_names_veg.png", sep = "/")
@@ -1357,7 +1375,8 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
   p <- plot_comp_specific(plot_type = 4,
                        data = lmm_out_ordered,
                        set_ids = set_id2,
-                       color_by_veg = TRUE)
+                       color_by_veg = TRUE) +
+  user_leg
   
   print(p)
   
@@ -1395,7 +1414,9 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
   p <- plot_comp_specific(data = lmm_out_ordered,
                           plot_type = 4,
                           set_ids = user_friendly_set_name,
-                          color_by_veg = TRUE)
+                          color_by_veg = TRUE) +
+  user_leg
+  
   print(p)
   
   out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_ordered_friendly_names_with19yr_veg.png", sep = "/")
