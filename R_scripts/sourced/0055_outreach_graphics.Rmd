@@ -30,6 +30,30 @@ source(here::here('R_scripts', 'sourced', '000_functions.R'))
 source(here::here('R_scripts', 'sourced', '001_user_options.R'))
 ```
 
+# Feedback - ignore this; it will be worked in eventually  
+
+What I might suggest is having a really short summary on the top, and then maybe a boldface summary sentence or two at the top of each subsection, so that someone could get the take home messages really quickly, but then go in and read the fine print if desired before leading a workshop, etc.  
+I also would suggest starting with a zoomed out background paragraph that briefly reviews, in a sentence or two each  
+--why we love marshes (key values/services)
+--why elevation is critical for marshes (can’t have too much or too little inundation by tidal waters, and this is function of elevation)
+--that accelerated SLR poses emerging threat and makes tracking elevation extra critical; need marshes to track SLR
+--that there are lots of factors that affect marsh elevation changes.  Some of these are in top meters which: organic deposition by roots below ground, surface deposition of inorganics.  SET is a way of measuring these shallow elevation changes.  There are also deeper elevation changes (due to groundwater overdraft, geologic uplift or subsidence, etc.), and these can be just as important for marsh tracking SLR, but are not covered by SETs.  Ideally you could plot shallow+deep elevation changes relative to SLR (and some of us have both data and can), but here you’re focusing on the shallow, because it’s part of a NERR monitoring network.
+
+***
+
+difference between deep and shallow SETs?  
+
+fig. 2 is a graph at *which* reserve? (answer = whichever one generates the document)  
+
+
+fig. 4 more explanation - this could be difficult based on these being auto-generated, so we can't interpret every graph individually; that will have to happen between outreach and technical staff at the reserve using this. questions were: "I also thought these figures could have used a bit more explanation of what we are seeing. We see that sediment elevation has increased at what seems like the same rate as the increase in sea level. Wouldn’t we expect to see the opposite (more erosion as sea level rises)? Or is the sediment being built up at these locations from an increase in sea level?"  
+
+For figure 7, is the rate of change=the regression value? (answer: yes)  
+
+“On a map” section you refer to figure 11 and 12, did you mean map 1 and 2? (answer: probably; still working on captions)  
+
+
+
 # Background - National level  
 
 This document is intended for use as an outreach tool to help National Estuarine Research Reserve (NERR) Education and Coastal Training Program staff present and describe information relating to Surface Elevation Table (SET) data. These products are output from a 2018-2019 NERRS Science Collaborative Catalyst Grant project nicknamed "SETr".  
