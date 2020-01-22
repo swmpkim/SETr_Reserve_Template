@@ -707,7 +707,7 @@ enough_dat <- nrow(dat) > 0 # this will be used to determine the running of futu
 partial_dat <- nrow(dat) > 0 & nrow(not_enough_df) > 0  # this will join data frames back together when some sites have enough data and others don't
 ```
 
-## SETs that are included in the following analyses  
+### SETs that are included in the following analyses  
 
 ```{r}
 if(enough_dat){
@@ -716,7 +716,7 @@ if(enough_dat){
 ```
 
 
-## SETs that are not included in analyses  
+### SETs that are not included in analyses  
 
 ```{r}
 if(nrow(not_enough_df) > 0){
