@@ -36,11 +36,19 @@ library(readxl)
 library(lubridate)
 library(leaflet)
 library(stringr)
+
 # load functions
 source(here::here('R_scripts', 'sourced', '000_functions.R'))
 # load user options
 source(here::here('R_scripts', 'sourced', '001_user_options.R'))
 # user options script deals with qaqc codes
+
+
+# if for some reason the output directory for individual SET figures 
+# doesn't exist, create it
+ind_set_dir <- here::here("R_output", "figures", "cumu_change_plots", "individual_sets")
+if(!dir.exists(ind_set_dir)) dir.create(ind_set_dir)
+rm(ind_set_dir)
 ```
 
 
