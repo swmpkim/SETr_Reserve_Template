@@ -76,6 +76,11 @@ The height of the sediment is then calculated by subtracting the measurement (M)
 knitr::include_graphics(here::here("img", "SET_diagr2_NPSprotocols.png"))
 ```
 
+## p.s. I know that image needs some revision  
+
+Just haven't gotten to it yet
+
+
 ```{r, out.width = '5%', fig.cap = 'Figure 2. SET apparatus installed and observer taking measurement with meter stick atop the SET arm (photo credit Hudson River NERR).'}
 knitr::include_graphics(here::here("img", "SET_measurement_creditHudsonRiverNERR.png"))
 ```
