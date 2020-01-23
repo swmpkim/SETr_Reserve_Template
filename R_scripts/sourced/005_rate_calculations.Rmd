@@ -460,7 +460,7 @@ p +
                   slope = slope),
               color = "red3",
               size = 1) +
-  labs(subtitle = "red line has slope of long-term sea level rise; blue line is linear model of SET change")
+  labs(subtitle = "red line has slope of long-term sea level rise; blue line has slope of SET change")
 
 
 # save it
@@ -493,7 +493,7 @@ for(i in seq_along(all_sets)){
                     slope = slope),
                 color = "red3",
                 size = 1) +
-    labs(subtitle = "red line has slope of long-term sea level rise; blue line is linear model of SET change")
+    labs(subtitle = "red line has slope of long-term sea level rise; blue line has slope of SET change")
   
   
   plot_name = paste0("cumu_change_withLineAndSLR", all_sets[i], ".png")
@@ -575,7 +575,7 @@ ggplot(dat_cumu$set, aes(x = date, y = mean_cumu)) +
   geom_line(col = 'gray70') +
   facet_wrap(~set_id, ncol = opts_long$multi_cols) +
   labs(title = 'Cumulative Change since first reading', 
-       subtitle = 'light gray tracks mean change; blue is a linear smooth of change; \nred is slope of long-term sea level rise',
+       subtitle = 'light gray represents data; blue has slope of SET change; \nred has slope of long-term sea level rise',
        x = 'Date',
        y = 'Change since first reading (mm)') +
   theme_classic() +
@@ -610,7 +610,7 @@ for(i in seq_along(all_sets)){
     geom_line(col = 'gray70') +
     facet_wrap(~set_id, ncol = 1) +
     labs(title = 'Cumulative Change since first reading', 
-         subtitle = 'light gray tracks mean change; blue is a linear smooth of change; \nred is slope of long-term sea level rise',
+         subtitle = 'light gray represents data; blue has slope of SET change; \nred has slope of long-term sea level rise',
          x = 'Date',
          y = 'Change since first reading (mm)') +
     theme_classic() +
@@ -730,43 +730,13 @@ Cahoon, D.R., Lynch, J.C., Roman, C.T. et al. Estuaries and Coasts (2019) 42: 1.
 
 Zuur, A.F., E.N. Ieno, N.J. Walker, A.A. Saveliev, and G.M. Smith. 2009. Mixed effects models and extensions in ecology with R. New York: Springer.  
 
-The following is directly excerpted from Cahoon et al. 2019:
-
-> Linear mixed models (LMMs, Zuur et al. 2009) were chosen
-to analyze the surface elevation data. LMMs are ideal for
-analyzing the nested longitudinal data that is produced by
-the SET device. Rather than averaging the pin heights from
-each SET prior to analysis, the measurements from each pin
-are used as separate replicates. This preserves the variation
-found within each SET and also maximizes statistical power.
-Effects which are specific to each SET, direction within each
-SET, and pin within each direction are treated as random
-effects, which account for the lack of independence among
-pins on the same SET. Analysis was performed using
-mixed-effect models in the nlme package (Pinheiro et al.
-2016) in R version 3.3.2 (R Core Team 2016).
-Data from each of the five sites were analyzed separately.
-Pin height (m, NAVD88) served as the response variable, and
-the fixed effects were the number of days since the initial
-reading was taken. To account for a potential reduction of
-independence among pins on the same SET, the model included
-a random slope and intercept for each pin, nested in the SET
-position on the benchmark (typically, four positions were read
-during each sampling event), nested in the SET. This model
-was first fit using maximum likelihood. It was then compared
-to a model with identical random effects but an intercept-only
-fixed effect using the corrected form of Akaike’s information
-criterion (AICc, Akaike 1974, Burnham and Anderson 2004).
-If the intercept-only model was superior, this indicated that
-there is no trend in elevation over time. The model including
-a trend through time was then refit using restricted maximum
-likelihood to estimate the coefficients of the regression. For
-comparative purposes, this was done even in cases where the
-intercept-only model was superior.
 
 
-# LMM wording; clean up  
-Linear mixed models extend traditional linear regression models by allowing for the inclusion of both fixed and random effects. These types of models are particularly useful when the data are structured hierarchically, as with SET data. Data for each SET is analyzed separately using pin height as the response variable; arm and pin nested in arm are treated as random effects, while date since initial measurement is considered a numeric covariate. As both the intercept and slope include random effects, methods other than least squares must be employed. Next discuss model fitting… All models were fit in R (reference…) using the nlme package (reference…). This type of approach is similar to the analysis performed in Cahoon 2019.  
+# LMM wording; clean up (also just above)   
+
+Linear mixed models extend traditional linear regression models by allowing for the inclusion of both fixed and random effects. These types of models are particularly useful when the data are structured hierarchically, as with SET data. Data for each SET is analyzed separately using pin height as the response variable; arm and pin nested in arm are treated as random effects, while date since initial measurement is considered a numeric covariate. As both the intercept and slope include random effects, methods other than least squares must be employed. Next discuss model fitting… All models were fit in R (reference…) using the nlme package (reference…). This type of approach is similar to the analysis performed in Cahoon 2019.
+
+For each SET, we initially considered two LMMs: a LMM that includes a random intercept (with a random effects for arm and for pin nested in arm) and a LMM that includes both a random slope and a random intercept (with random effects for arm and for pin nested in arm). For many SETs, we observed that the random intercept model fit better. At other SETs, the random slope and intercept model seemed to fit better; however, the resulting point estimates showed only small differences. As the random intercept models did not require the same degree of scrutiny when model fitting, we exclusively employed random intercept models in our automated R scripts.  
 
 
 In our case, we have, for each SET:  
@@ -777,7 +747,7 @@ In our case, we have, for each SET:
 
 ## Rates of change  
 
-These rates were generated using the `lme()` function in the `nlme` package. Confidence intervals were generated using the `intervals()` function, also in the `nlme` package. 
+The LMMs were run using the `lme()` function in the `nlme` package. Confidence intervals were generated using the `intervals()` function, also in the `nlme` package. 
 
 All calculations generated output in *mm/day* and were converted to *mm/yr* by multiplying by 365.25 to account for leap years.    
 
