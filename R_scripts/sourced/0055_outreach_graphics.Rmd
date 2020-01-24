@@ -43,18 +43,6 @@ For figure 7, is the rate of change=the regression value? (answer: yes)
  
 
 
-
-
-
-## some feedback that needs to be incorporated into the next section   
-
-What I might suggest is having a really short summary on the top, and then maybe a boldface summary sentence or two at the top of each subsection, so that someone could get the take home messages really quickly, but then go in and read the fine print if desired before leading a workshop, etc.  
-I also would suggest starting with a zoomed out background paragraph that briefly reviews, in a sentence or two each  
---why we love marshes (key values/services)
---why elevation is critical for marshes (can’t have too much or too little inundation by tidal waters, and this is function of elevation)
---that accelerated SLR poses emerging threat and makes tracking elevation extra critical; need marshes to track SLR
---that there are lots of factors that affect marsh elevation changes.  Some of these are in top meters which: organic deposition by roots below ground, surface deposition of inorganics.  SET is a way of measuring these shallow elevation changes.  There are also deeper elevation changes (due to groundwater overdraft, geologic uplift or subsidence, etc.), and these can be just as important for marsh tracking SLR, but are not covered by SETs.  Ideally you could plot shallow+deep elevation changes relative to SLR (and some of us have both data and can), but here you’re focusing on the shallow, because it’s part of a NERR monitoring network.  
-
 # Background - National level  
 
 This document is intended for use as an outreach tool to help National Estuarine Research Reserve (NERR) Education and Coastal Training Program staff present and describe information relating to Surface Elevation Table (SET) data. These products are output from a 2018-2019 NERRS Science Collaborative Catalyst Grant project nicknamed "SETr".  

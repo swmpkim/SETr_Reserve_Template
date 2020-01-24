@@ -896,6 +896,19 @@ lmm_out <- lmm_out %>%
 ***
 
 
+# **FEEDBACK OPPORTUNITY**  
+
+Do you like having separate tables for each comparison (below), or would you rather collapse this into one simple table? e.g.  
+
+SET ID | Comp to 0 | CI overlaps 0? | Comp to SLR | CI overlaps SLR CI? | Comp to 19-yr | CI overlaps 19-yr CI?  
+---|---|---|---|---|---|---  
+SET-1 | higher | no | higher | no | lower | yes  
+SET-2 | higher | yes | lower | yes | lower | yes  
+SET-3 | lower | yes | lower | no | lower | no  
+
+This could take some explaining. Essentially, if the 95% CI doesn't include 0, that's the same as p < 0.05; slope differs significantly from 0. Comparisons to sea level change get more complicated because there's not a single number we're comparing to; there's a number and a confidence interval. And they're generated using different methods than what we've used to calculate the SET rates of change. So the closest we can get to "is this a significant difference" is "do the CIs overlap?" It's not exactly the same as a t-test, but it's the general idea of, "how confident are we". This same idea plays into everything else below; it's just a matter of how it's represented. So please share your thoughts.    
+
+
 # Increasing/Decreasing (Comparison to 0)  
 
 The following tables break the SETs into groups where the rate of SET elevation change is *lower than* / *higher than* / *not different from* 0. *Lower than* and *higher than* tables imply that the 95% confidence intervals for the SET's rate of change do not include 0. *Not different from* means that 0 *is* included.  
@@ -1152,6 +1165,9 @@ cat(paste("The above graph is saved as: ", out_name))
 ```
 
 
+# note to self - make a user input option for dimensions of the veg-graph too  
+
+because of the options for legend placement, the same dimensions used above don't work quite as well with these. Note to users, I'll try to improve this and add it in to the documentation.  
 
 
 ```{r plot-slr-ci-lmm-veg-19yr, fig.width = opts_long$width_short, fig.height = opts_long$height_short, eval = enough_dat}
