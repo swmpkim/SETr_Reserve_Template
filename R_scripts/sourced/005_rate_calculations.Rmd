@@ -628,7 +628,7 @@ for(i in seq_along(all_sets)){
   out_name <- paste(out_path, plot_name, sep = "/")
   out_file <- here::here(out_name)
   
-  ggsave(out_file, p, width = opts_long$width_square, height = opts_long$height_square, units = "in", scale = 0.8)
+  ggsave(out_file, p, width = opts_long$width_short, height = opts_long$height_short, units = "in", scale = 0.8)
   
 }
 ```
