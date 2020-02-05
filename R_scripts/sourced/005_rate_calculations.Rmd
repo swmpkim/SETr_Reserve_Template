@@ -1,7 +1,10 @@
 ---
 title: "SET Rate Calculations"
 date: "`r Sys.Date()`"
-output: word_document
+output: 
+  word_document:
+    toc: true
+    toc_depth: 2
 always_allow_html: yes
 editor_options: 
   chunk_output_type: console

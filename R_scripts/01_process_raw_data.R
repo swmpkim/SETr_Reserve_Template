@@ -11,9 +11,10 @@
 # Windows keyboard shortcut is Ctrl + Shift + F10
 
 # 2:
-
 # Select this entire script. 
 # Keyboard shortcut is Ctrl + a on windows or Cmd + a on Mac
+
+#3:
 # Run it: either using the "Run" button in the upper right corner
 # or the keyboard shortcut Ctrl/Cmd + Enter
 
