@@ -1,10 +1,7 @@
 ---
 title: "SET Outreach Tools"
 date: "`r Sys.Date()`"
-output: 
-  word_document:
-    toc: true
-    toc_depth: 2
+output: word_document
 always_allow_html: yes
 editor_options: 
   chunk_output_type: console
@@ -33,43 +30,24 @@ source(here::here('R_scripts', 'sourced', '000_functions.R'))
 source(here::here('R_scripts', 'sourced', '001_user_options.R'))
 ```
 
-# some questions and answers (will remove from final doc)  
-
-difference between deep and shallow SETs?  
-
-fig. 2 is a graph at *which* reserve? (answer = whichever one generates the document)  
-
-
-fig. 4 more explanation - this could be difficult based on these being auto-generated, so we can't interpret every graph individually; that will have to happen between outreach and technical staff at the reserve using this. questions were: "I also thought these figures could have used a bit more explanation of what we are seeing. We see that sediment elevation has increased at what seems like the same rate as the increase in sea level. Wouldn’t we expect to see the opposite (more erosion as sea level rises)? Or is the sediment being built up at these locations from an increase in sea level?"  
-
-For figure 7, is the rate of change=the regression value? (answer: yes)  
- 
-
 
 # Background - National level  
 
 This document is intended for use as an outreach tool to help National Estuarine Research Reserve (NERR) Education and Coastal Training Program staff present and describe information relating to Surface Elevation Table (SET) data. These products are output from a 2018-2019 NERRS Science Collaborative Catalyst Grant project nicknamed "SETr".  
 
-The NERR Sentinel Site Program is an integrated set of System-Wide Monitoring Program (SWMP) data on water level and vegetation characteristics combined with elevation measurements used to assess the impacts of changes in sea level. Surface Elevation Table (SET) technology, a means of measuring height of the marsh substrate, is a key component of the NERRS Sentinel Site Program. In this project, the acquired NERRS Sentinel Site SET data is analyzed to answer the question – Are marsh vegetation communities keeping pace with sea level rise. Note that this is an analysis looking backwards in time; it is not a forecast.
+The NERR Sentinel Site Program is an integrated set of System-Wide Monitoring Program (SWMP) data on water level and vegetation characteristics combined with elevation measurements used to assess the impacts of changes in sea level. Surface Elevation Table (SET) technology, a means of measuring height of the marsh substrate, is a key component of the NERRS Sentinel Site Program. In this project, the acquired NERRS Sentinel Site SET data is analyzed to answer the question – are marsh surfaces keeping pace with sea level rise? Note that this is an analysis looking backwards in time; it is not a forecast.
 
-A Surface Elevation Table (SET) is a specially machined apparatus designed to attach atop a rod driven into the ground as deeply as possible (point of refusal).  A receiver is attached to the rod and permanently cast in a cement collar (referenced as #1 ‘SET mark’ in Figure 1). The SET apparatus consists of a vertical stand, which attaches to the receiver, and a horizontal arm that reaches out over the marsh surface. For measurements, the SET apparatus is temporarily deployed by affixed to the SET receiver and ensuring the arm is horizonatally level. Surface elevation measurements are taken at nine equidistant locations along the arm, and the arm has typically four (but as many as eight) possible orientations. This allows for a minimum of 36 measurements taken at any given SET.  
+A Surface Elevation Table (SET) is a special apparatus designed to attach to a rod that was driven into the ground as deeply as possible (point of refusal).  A receiver is attached to the rod and permanently cast in a cement collar (referenced as #1 ‘SET mark’ in Figure 1). The SET apparatus consists of a vertical stand, which attaches to the receiver, and a horizontal arm that reaches out over the marsh surface. For measurements, the SET apparatus is temporarily attached to the SET receiver such that the arm is horizontally level. A long narrow pin of a known length (see #4 in Figure 1) is inserted vertically through each of nine holes drilled through the arm. The observer then measures the height of each pin above the arm (#3 in Figure 1). The arm is then moved to another one of the directions around the SET mark and the process is repeated. The arm has typically four (but as many as eight) possible orientations. This allows for a minimum of 36 measurements taken at any given SET.  
 
-A long narrow pin of a known length (see #4 in Figure 1) is inserted vertically through each of nine holes drilled through the arm. The observer then measures the height of each pin above the arm (#3 in Figure 1). The arm is then moved to another one of the directions around the SET mark and the process is repeated. Any descriptive information pertinent to the measurements at each pin is also recorded (e.g., mounds or divots on the substrate such as crab burrows, or the sediment surface being difficult to interpret due to the pin being located in water).  
-
-
-# This paragraph needs clarification  
-
-I'm thinking we can also simplify a bit? 
-
-The height of the sediment is then calculated by subtracting the measurement (M), #3 in Figure 1, from the Pin Length (PL) to get the distance from the top of arm to sediment surface.  Real-world elevation (not just a measured height) on the top of the arm is obtained from a measure of the elevation of the top of the rod or SET mark (#1 in Figure 1) and the Vertical Offset of SET (#2 in Figure 1) using high accuracy survey equipment. The elevation of the SET mark (1) plus the Vertical Offset of SET (2) equals the real world elevation of the SET arm.  Subtract the distance from top of the arm to sediment surface (M-PL) from the elevation of the arm to get the real-world elevation of the substrate surface.  
 
 ```{r, out.width = '10%', fig.cap = 'Figure 1. Example of a SET. Pin heights above the horizontal arm (A) are a proxy for the shape of the marsh surface (B) (adapted from Lynch et al. 2015).'}
 knitr::include_graphics(here::here("img", "SET_diagr2_NPSprotocols.png"))
 ```
 
-## p.s. I know that image needs some revision  
 
-Just haven't gotten to it yet
+Any descriptive information pertinent to the measurements at each pin is also recorded (e.g., mounds or divots on the substrate such as crab burrows, or the sediment surface being difficult to interpret due to the pin being located in water).  
+
+These measurements are repeated over time. Because of the stability of the SET mark, each pin is lowered to the surface in the *same* location, time after time. The measurement can be used to calculate where the surface is, and other measurements can relate it back to standard frameworks, such as local mean sea level. After several years, scientists can calculate a "rate of change" for the marsh surface. Is it getting higher, lower, or not changing? Because marshes are so important to coastal areas - they provide wildlife habitat, nursery habitat for seafood species, recreational areas, and flood protection - we especially want to know if the surface is growing quickly enough to keep up with sea level rise.  
 
 
 ```{r, out.width = '5%', fig.cap = 'Figure 2. SET apparatus installed and observer taking measurement with meter stick atop the SET arm (photo credit Hudson River NERR).'}
@@ -77,22 +55,15 @@ knitr::include_graphics(here::here("img", "SET_measurement_creditHudsonRiverNERR
 ```
 
 
-# Background Information  
+# Background - Reserve level  
+
+Each reserve is in charge of its own SET data. As part of the SETr project, 15 reserves sent their data files to the project team, and each was reworked into the same data format. Because of this standardization, we can generate several tables and graphs that look the same for each reserve; but each one uses the individual reserve's data! This document contains data for your reserve.  
+
+Pin measurements are stored in a spreadsheet that contains columns for the SET ID, date of measurement, measured height of the pin above the SET apparatus arm, and QA/QC codes (concise codes to mark common issues with a pin measurement). A separate spreadsheet contains metadata: higher-level information about the SETs themselves, such as its exact location (latitude and longitude), the most common vegetation type around the SET, typical salinity in the nearby water body, and other general information.  
 
 
-Many factors such as elevation, dominant vegetation community, even the stability of the rod, have an influence on the substrate elevation observations that are obtained at a particular SET.  
+Information from both spreadsheets is pulled together to communicate about the SETs and how they are changing.  
 
-Pin measurements are stored in a spreadsheet that contains columns for the SET ID, date of measurement, measured height of the pin above the SET apparatus arm, and qa/qc codes (concise codes to mark common issues with a pin measurement).  
-
-A separate spreadsheet contains metadata: higher-level information about the SETs themselves, such as its exact location (latitude and longitude), the most common vegetation type around the SET, typical salinity in the nearby water body, and other general information.  
-
-
-Information from both spreadsheets can be pulled together to communicate about the SETs and how they are changing.  
-
-
-# this paragraph might get revised a bit and moved  
-
-The graphs and visualizations of the data are used to assess accuracy and quality of the entered data, compare SETs, calculate rates of change in surface elevations over time and ultimately compare to changes in local sea level. Local rate of sea level change is obtained from NOAA’s National Water Level Observation Network (NWLON) for each Reserve. This document is the output from the scripts and the following data sections will be auto populated for each Reserve’s SET and water level data.  
 
 
 ```{r read-data}
@@ -281,9 +252,8 @@ if (res_to_match %in% unique(slr_rates$reserve)) {
 
 ### Setting  
 
-# Clean up the language  
 
-The first table produced from the R scripts provides a descriptive list of SETS at this reserve. The columns from left to right provide the SET code = a unique ID for the SET, SET name = a descriptive name for the SET, Type of SET = Deep or Shallow, and the Main Veg = dominant species vegetation at the SET.
+The first table is a descriptive list of SETS at this reserve. The columns from left to right provide the SET code, a unique ID for the SET; SET name, a more descriptive name for the SET; Type of SET, original/deep/shallow; and Main Veg, the dominant species vegetation at and around the SET.
 
 
 ```{r set-info-table}
@@ -314,7 +284,7 @@ if(opts_long$coords_outreach == 1){
 
 ### Sampling Information  
 
-The length of the observation period at a SET (how long it's been installed) and the frequency of sampling can be useful for evaluating the data. We might be more confident in a trend from a SET that has been measured for many years than we are in one that has only been measured for a few. Table 2 below gives a summary of the SETs at this reserve: the date the SET was first sampled, the date it was most recently sampled, how many years it has been sampled, and number of sample events (SETs may be sampled more or less frequently than once per year).
+How long a SET has been installed and how many times measurements have been made are useful background information when evaluating the data and trends. We might be more confident in a trend from a SET that has been measured for many years than we are in one that has only been measured for a few. Table 2 below gives a summary of the SETs at this reserve: the date the SET was first sampled, the date it was most recently sampled, how many years it has been sampled, and total number of sample events (sometimes SETs are measured more than once a year).
 
 ```{r sampling-info-table}
 sample_info <- dat %>% 
@@ -364,11 +334,9 @@ rate_summ <- rate_summ %>%
 
 ### Single SET  
 
-Figure 3 is a graph of data from a single SET at this reserve. Remember how we said there are 36 measurements on each date? Those have been averaged together, so we're looking at a single point for each date. The x-axis shows measurement date; as we move from left to right in the graph, we move through time. The y-axis shows change since the first reading (all 36 pin heights at a SET have been averaged together for each date to generate this number - otherwise there would be a lot of lines on the graphs!).  
+Figure 3 is a graph of data from a single SET at this reserve. The **x-axis** shows measurement date; as we move from left to right in the graph, we move through time. The **y-axis** shows change since the first measurement (often referred to as "baseline"). Remember how we said there are 36 measurements on each date? You're only seeing one point on each date in this graph, because 36 measurements is *a lot*! For simplicity, all 36 pin heights for a date have been averaged together.  
 
 Is the marsh surface getting higher, lower, or staying the same at this SET?  
-
-# Try to automate an answer  
 
 
 
@@ -401,7 +369,7 @@ knitr::include_graphics(path1)
 ```
 
 
-Now, let's add a line, from a statistical procedure called linear regression. For most SETs, a line is a useful simplification of the data. The data points bounce around a bit, but may still show that the marsh surface is changing over time. A linear regression takes all of this information and condenses it in ways that we can use to compare different sites numerically. The slope of the line, in mm/year, gives us a general idea of how quickly the surface at a SET is changing. We refer to this slope as the rate of elevation change at the SET.  
+Now, let's add a line, from a statistical procedure called linear regression. For most SETs, a line is a useful simplification of the data. The data points bounce around a bit, but may still show that the marsh surface is changing over time. A linear regression takes all of this information and condenses it, mathematically, in ways that we can use to compare different sites. The slope of the line, in mm/year, gives us a general idea of how quickly the surface at a SET is changing. We refer to this slope as the rate of elevation change at the SET.  
 
 # need to phrase this question better  
 
@@ -452,7 +420,7 @@ p <- plot_rate_comps(data = rate_summ, plot_type = 1,
 print(p)
 ```
 
-# need some cleanup on confidence interval explanation  
+# Describing uncertainty  
 
 Of course, these calculated rates have some associated uncertainty. Here, we represent that with "whiskers" to show 95% confidence intervals. The wider the confidence interval is (whiskers are further apart), the less certain we are about the calculations:    
 
@@ -539,9 +507,8 @@ Where are the changes happening within the reserve? Do you see any spatial patte
 
 ### Compared to 0  
 
-# can an educator please make sure this explanation makes sense?  
 
-First, are the SETs generally gaining or losing elevation? We can determine this by comparing each SET's rate of elevation change (the slope of the linear regression in the first set of graphs) to 0. Up arrows depict SETs with positive rates of change - meaning increasing elevation - and down arrows show negative rates of change - decreasing elevation. If the arrows are red or blue, this means that 0 was not inside the confidence interval for that SET, and we are confident the change at that SET is *not* 0. If the arrows are gray, we would not confidently claim a difference from 0.     
+First, are the SETs generally gaining or losing elevation? We can determine this by comparing each SET's rate of elevation change (the slope of the linear regression in the first set of graphs) to 0. Up arrows depict SETs with **positive** rates of change - meaning increasing elevation - and down arrows show **negative** rates of change - decreasing elevation. If the arrows are red or blue, this means that 0 was not inside the confidence interval for that SET, and we are confident that the change at that SET is *not* 0 (meaning the elevation is changing). If the arrows are gray, we would not confidently claim a difference from 0.     
 
 ```{r, fig.cap = 'Figure 14. Map of this reserve, showing how the rate of elevation change at each SET compares to 0.'}
 map_0_path <- here::here("R_output", "figures", "maps", "map_0.png")
@@ -553,10 +520,10 @@ knitr::include_graphics(map_0_path)
 
 The map below is similar to that above, but:  
 
-+  An up arrow represents a SET where the rate of elevation change (represented as a point in the dot-and-whisker graphs above) is higher than the rate of sea level change (the vertical blue line from those graphs), and a down arrow represents a SET where the rate of elevation change is lower than the rate of sea level change.  
++  An up arrow represents a SET where the rate of elevation change (represented as a point in the dot-and-whisker graphs above) is **higher than the rate of sea level change** (the vertical blue line from those graphs), and a down arrow represents a SET where the rate of elevation change is **lower than the rate of sea level change**.  
 +  Instead of asking "is 0 inside the confidence interval for each SET", we ask if the confidence interval for sea level change overlaps the confidence interval for a SET - do the whiskers overlap the blue shading?  
-    +  If the confidence intervals do *not* overlap, the arrows are red or blue and we would be confident saying the SET is changing at a different rate than sea level is changing.  
-    +  If the confidence intervals *do* overlap, the arrow is gray and we are not confident that there is a difference between the SET's rate of elevation change and that of sea level. 
+    +  If the confidence intervals do *not* overlap, the arrows are red or blue and we would be confident saying the SET is changing at a different rate (faster or slower) than sea level is changing.  
+    +  If the confidence intervals *do* overlap, the arrow is gray and we are *not* confident that there is a difference between the SET's rate of elevation change and that of sea level. 
 
 ```{r, fig.cap = 'Figure 15. Map of this reserve, showing how the rate of elevation change at each SET compares to the rate of long-term sea level change.'}
 map_SLR_path <- here::here("R_output", "figures", "maps", "map_SLR.png")
