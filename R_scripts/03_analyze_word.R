@@ -29,7 +29,7 @@ rm(list = ls())
 
 
 ## analytic report
-infile <- here::here("R_scripts", "sourced", "005_rate_calculations.Rmd")
+infile <- here::here("R_scripts", "sourced", "002_rate_calculations.Rmd")
 outdir <- here::here("R_output", "analysis")
 outfile <- paste0("SET_Analyses_", Sys.Date(), ".docx")
 rmarkdown::render(infile, output_dir = outdir, output_file = outfile)
@@ -42,7 +42,7 @@ msg1 <- ifelse(file.exists(paste0(outdir, "/", outfile)),
 
 
 ## outreach report
-infile <- here::here("R_scripts", "sourced", "0055_outreach_graphics.Rmd")
+infile <- here::here("R_scripts", "sourced", "003_outreach_graphics.Rmd")
 outdir <- here::here("R_output", "outreach_doc")
 outfile <- paste0("SET_Outreach_", Sys.Date(), ".docx")
 rmarkdown::render(infile, output_dir = outdir, output_file = outfile)

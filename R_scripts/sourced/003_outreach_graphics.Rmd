@@ -47,7 +47,9 @@ knitr::include_graphics(here::here("img", "SET_diagr2_NPSprotocols.png"))
 
 Any descriptive information pertinent to the measurements at each pin is also recorded (e.g., mounds or divots on the substrate such as crab burrows, or the sediment surface being difficult to interpret due to the pin being located in water).  
 
-These measurements are repeated over time. Because of the stability of the SET mark, each pin is lowered to the surface in the *same* location, time after time. The measurement can be used to calculate where the surface is, and other measurements can relate it back to standard frameworks, such as local mean sea level. After several years, scientists can calculate a "rate of change" for the marsh surface. Is it getting higher, lower, or not changing? Because marshes are so important to coastal areas - they provide wildlife habitat, nursery habitat for seafood species, recreational areas, and flood protection - we especially want to know if the surface is growing quickly enough to keep up with sea level rise.  
+These measurements are repeated over time. Because of the stability of the SET mark, each pin is lowered to the surface in the *same* location, time after time. The measurement can be used to calculate where the surface is, and other measurements can relate it back to standard frameworks, such as local mean sea level. After several years, scientists can calculate a "rate of change" for the marsh surface. Is it getting higher, lower, or not changing? 
+
+Because tidal wetlands are so important to coastal areas - they provide wildlife habitat, including nursery habitat for commercial and recreational fish species, recreational areas, and flood protection - we especially want to know if the surface is growing quickly enough to keep up with sea level rise.  
 
 
 ```{r, out.width = '5%', fig.cap = 'Figure 2. SET apparatus installed and observer taking measurement with meter stick atop the SET arm (photo credit Hudson River NERR).'}

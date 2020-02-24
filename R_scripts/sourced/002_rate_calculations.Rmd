@@ -1446,7 +1446,7 @@ The way these maps are rendered below (and even *if* they are rendered) depends 
 
 
 ```{r map-script-source}
-source(here::here("R_scripts", "sourced", "006_map_making_static.R"))
+source(here::here("R_scripts", "sourced", "004_map_making_static.R"))
 ```
 
 
