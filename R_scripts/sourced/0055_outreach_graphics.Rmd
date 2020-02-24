@@ -35,7 +35,7 @@ source(here::here('R_scripts', 'sourced', '001_user_options.R'))
 
 This document is intended for use as an outreach tool to help National Estuarine Research Reserve (NERR) Education and Coastal Training Program staff present and describe information relating to Surface Elevation Table (SET) data. These products are output from a 2018-2019 NERRS Science Collaborative Catalyst Grant project nicknamed "SETr".  
 
-The NERR Sentinel Site Program is an integrated set of System-Wide Monitoring Program (SWMP) data on water level and vegetation characteristics combined with elevation measurements used to assess the impacts of changes in sea level. Surface Elevation Table (SET) technology, a means of measuring height of the marsh substrate, is a key component of the NERRS Sentinel Site Program. In this project, the acquired NERRS Sentinel Site SET data is analyzed to answer the question – are marsh surfaces keeping pace with sea level rise? Note that this is an analysis looking backwards in time; it is not a forecast.
+The NERR Sentinel Site Program is an integrated set of System-Wide Monitoring Program (SWMP) data on water level and vegetation characteristics combined with elevation measurements used to assess the impacts of changes in sea level. Surface Elevation Table (SET) technology, a means of measuring height of the marsh substrate, is a key component of the NERRS Sentinel Site Program. In this project, the acquired NERRS Sentinel Site SET data is analyzed to answer the question – are marsh surfaces keeping pace with sea level rise? SET data analyses can also be used to inform other, more local, management needs. Note that this is an analysis looking backwards in time; it is not a forecast.
 
 A Surface Elevation Table (SET) is a special apparatus designed to attach to a rod that was driven into the ground as deeply as possible (point of refusal).  A receiver is attached to the rod and permanently cast in a cement collar (referenced as #1 ‘SET mark’ in Figure 1). The SET apparatus consists of a vertical stand, which attaches to the receiver, and a horizontal arm that reaches out over the marsh surface. For measurements, the SET apparatus is temporarily attached to the SET receiver such that the arm is horizontally level. A long narrow pin of a known length (see #4 in Figure 1) is inserted vertically through each of nine holes drilled through the arm. The observer then measures the height of each pin above the arm (#3 in Figure 1). The arm is then moved to another one of the directions around the SET mark and the process is repeated. The arm has typically four (but as many as eight) possible orientations. This allows for a minimum of 36 measurements taken at any given SET.  
 
@@ -57,7 +57,7 @@ knitr::include_graphics(here::here("img", "SET_measurement_creditHudsonRiverNERR
 
 # Background - Reserve level  
 
-Each reserve is in charge of its own SET data. As part of the SETr project, 15 reserves sent their data files to the project team, and each was reworked into the same data format. Because of this standardization, we can generate several tables and graphs that look the same for each reserve; but each one uses the individual reserve's data! This document contains data for your reserve.  
+Each reserve is in charge of its own SET data. As part of the SETr project, 15 reserves sent their data files to the project team, and each was reworked into the same data format. Because of this standardization, we can generate several tables and graphs that look the same for each reserve; but each one uses the individual reserve's data! **This document contains data for your reserve.**  
 
 Pin measurements are stored in a spreadsheet that contains columns for the SET ID, date of measurement, measured height of the pin above the SET apparatus arm, and QA/QC codes (concise codes to mark common issues with a pin measurement). A separate spreadsheet contains metadata: higher-level information about the SETs themselves, such as its exact location (latitude and longitude), the most common vegetation type around the SET, typical salinity in the nearby water body, and other general information.  
 
@@ -329,7 +329,7 @@ rate_summ <- rate_summ %>%
 ```
 
 
-## Change through time at each SET  
+## Changes through time at individual SETs  
 
 
 ### Single SET  
@@ -414,7 +414,13 @@ knitr::include_graphics(path5)
 
 ## Comparisons to 0 and SLR  
 
-In this section, we'll look at how the rate of marsh surface change compares to 0 and to sea level change. We'll start simple; with a gray vertical line at 0, a blue vertical line at the local rate of sea level rise (SLR), and a dot to represent the rate of change at each SET (rate of change increases from left to right on the x-axis):  
+In this section, we'll look at how the rate of marsh surface change compares to 0 (i.e. no change in surface elevation) and to local sea level change. We'll start simple; with a gray vertical line at 0, a blue vertical line at the local rate of sea level rise (SLR), and a dot to represent the rate of change at each SET (rate of change increases from left to right on the x-axis).  
+
+Note - the rate of change at each SET can be:  
+
++  lower than 0: losing elevation  
++  higher than 0, but lower than SLR: gaining elevation but not as fast as the sea level is rising  
++  higher than SLR: rate of elevation gain is exceeding local sea level rise rates  
 
 ```{r, fig.width = 7, fig.height = 5, fig.cap = 'Figure 9. Summary graph of the rate of marsh surface elevation change at each SET.'}
 p <- plot_rate_comps(data = rate_summ, plot_type = 1, 
@@ -515,7 +521,7 @@ Where are the changes happening within the reserve? Do you see any spatial patte
 ### Compared to 0  
 
 
-First, are the SETs generally gaining or losing elevation? We can determine this by comparing each SET's rate of elevation change (the slope of the linear regression in the first set of graphs) to 0. Up arrows depict SETs with **positive** rates of change - meaning increasing elevation - and down arrows show **negative** rates of change - decreasing elevation. If the arrows are red or blue, this means that 0 was not inside the confidence interval for that SET, and we are confident that the change at that SET is *not* 0 (meaning the elevation is changing). If the arrows are gray, we would not confidently claim a difference from 0.     
+First, are the SETs generally gaining or losing elevation? And does location - near the seaward edge of the marsh vs. upslope - matter? We can determine this by comparing each SET's rate of elevation change (the slope of the linear regression in the first set of graphs) to 0. Up arrows depict SETs with **positive** rates of change - meaning increasing elevation - and down arrows show **negative** rates of change - decreasing elevation. If the arrows are red or blue, this means that 0 was not inside the confidence interval for that SET, and we are confident that the change at that SET is *not* 0 (meaning the elevation is changing). If the arrows are gray, we would not confidently claim a difference from 0.     
 
 ```{r, fig.cap = 'Figure 15. Map of this reserve, showing how the rate of elevation change at each SET compares to 0.'}
 map_0_path <- here::here("R_output", "figures", "maps", "map_0.png")
@@ -537,3 +543,6 @@ map_SLR_path <- here::here("R_output", "figures", "maps", "map_SLR.png")
 knitr::include_graphics(map_SLR_path)
 ```
 
+
+Studying the maps for a while may allow you to see patterns that weren't clear from the tables or graphs alone. What kinds of questions do *you* have about marsh elevation change after looking at these depictions of SET data? Can you think of any other factors that might influence this change, or help you interpret what you've seen here?   
+  
