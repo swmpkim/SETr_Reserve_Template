@@ -712,8 +712,9 @@ partial_dat <- nrow(dat) > 0 & nrow(not_enough_df) > 0  # this will join data fr
 ```{r}
 if(enough_dat){
   cat(paste(unique(dat$set_id), collapse = ", "))
-}
+} else { cat("No SETs had enough data to be included in analyses.") }
 ```
+
 
 
 ### SETs that are not included in analyses  
@@ -721,8 +722,10 @@ if(enough_dat){
 ```{r}
 if(nrow(not_enough_df) > 0){
   cat(paste(unique(not_enough_df$set_id), collapse = ", "))
-}
+} else { cat("All SETs were included in analyses.") }
 ```
+
+***  
 
 These rates were generated using random-intercept linear mixed models. See Zuur et al. 2009 and Cahoon et al. 2019 for details.
 
@@ -1137,7 +1140,7 @@ cat(paste("The above graph is saved as: ", out_name))
 ```
 
 
-```{r plot-slr-ci-lmm-veg, fig.width = opts_long$width_short, fig.height = opts_long$height_short, eval = enough_dat}
+```{r plot-slr-ci-lmm-veg, fig.width = opts_long$width_veg, fig.height = opts_long$height_veg, eval = enough_dat}
 # original; colored by veg
 plot_comp_specific(plot_type = 3, color_by_veg = TRUE) +
   user_leg
@@ -1145,7 +1148,7 @@ plot_comp_specific(plot_type = 3, color_by_veg = TRUE) +
 out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_veg.png", sep = "/")
 out_file <- here::here(out_name)
 
-ggsave(out_file, width = 1.2*opts_long$width_short, height = opts_long$height_short, scale = 0.8)
+ggsave(out_file, width = 1.2*opts_long$width_veg, height = opts_long$height_veg, scale = 0.8)
 
 cat(paste("The above graph is saved as: ", out_name))
 ```
@@ -1165,12 +1168,8 @@ cat(paste("The above graph is saved as: ", out_name))
 ```
 
 
-# note to self - make a user input option for dimensions of the veg-graph too  
 
-because of the options for legend placement, the same dimensions used above don't work quite as well with these. Note to users, I'll try to improve this and add it in to the documentation.  
-
-
-```{r plot-slr-ci-lmm-veg-19yr, fig.width = opts_long$width_short, fig.height = opts_long$height_short, eval = enough_dat}
+```{r plot-slr-ci-lmm-veg-19yr, fig.width = opts_long$width_veg, fig.height = opts_long$height_veg, eval = enough_dat}
 # 19-year water level change, with veg coloring
 plot_comp_specific(plot_type = 4, color_by_veg = TRUE) +
   user_leg
@@ -1178,7 +1177,7 @@ plot_comp_specific(plot_type = 4, color_by_veg = TRUE) +
 out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_veg_19yr.png", sep = "/")
 out_file <- here::here(out_name)
 
-ggsave(out_file, width = 1.2*opts_long$width_short, height = opts_long$height_short, scale = 0.8)
+ggsave(out_file, width = 1.2*opts_long$width_veg, height = opts_long$height_veg, scale = 0.8)
 
 cat(paste("The above graph is saved as: ", out_name))
 ```
@@ -1225,7 +1224,7 @@ if(multiple_navd88s){
 }
 ```
 
-```{r plot-slr-ci-19yr-lmm-navd88order-veg, fig.width = opts_long$width_short, fig.height = opts_long$height_short, eval = enough_dat}
+```{r plot-slr-ci-19yr-lmm-navd88order-veg, fig.width = opts_long$width_veg, fig.height = opts_long$height_veg, eval = enough_dat}
 
 if(multiple_navd88s){
   # add 19-year water level change; yes veg coloring
@@ -1240,7 +1239,7 @@ if(multiple_navd88s){
   out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_bothSLRs_navd88ordering_veg.png", sep = "/")
   out_file <- here::here(out_name)
   
-  ggsave(out_file, plot = p, width = opts_long$width_short, height = opts_long$height_short, scale = 0.8)
+  ggsave(out_file, plot = p, width = opts_long$width_veg, height = opts_long$height_veg, scale = 0.8)
   
   cat(paste("The above graph is saved as: ", out_name))
 }
@@ -1313,7 +1312,7 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
   out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_ordered_veg.png", sep = "/")
   out_file <- here::here(out_name)
   
-  ggsave(out_file, p, width = 1.1*opts_long$width_short, height = opts_long$height_short, scale = 0.8)
+  ggsave(out_file, p, width = 1.1*opts_long$width_veg, height = opts_long$height_veg, scale = 0.8)
   
   cat(paste("The above graph is saved as: ", out_name))
   
@@ -1352,7 +1351,7 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
   out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_ordered_friendly_names_veg.png", sep = "/")
   out_file <- here::here(out_name)
   # because the legend is pretty wide for the plots with veg coloring, I'm saving them 20% wider than specified. this makes the final dimensions of the main panel comparable to the non-veg plots.
-  ggsave(out_file, p, width = 1.1*opts_long$width_short, height = opts_long$height_short, scale = 0.8)
+  ggsave(out_file, p, width = 1.1*opts_long$width_veg, height = opts_long$height_veg, scale = 0.8)
   
   cat(paste("The above graph is saved as: ", out_name))
   
@@ -1390,7 +1389,7 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
   out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_ordered_with_19yr_veg.png", sep = "/")
   out_file <- here::here(out_name)
   
-  ggsave(out_file, p, width = 1.1*opts_long$width_short, height = opts_long$height_short, scale = 0.8)
+  ggsave(out_file, p, width = 1.1*opts_long$width_veg, height = opts_long$height_veg, scale = 0.8)
   
   cat(paste("The above graph is saved as: ", out_name))
   
@@ -1429,7 +1428,7 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
   out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_ordered_friendly_names_with19yr_veg.png", sep = "/")
   out_file <- here::here(out_name)
   # because the legend is pretty wide for the plots with veg coloring, I'm saving them 20% wider than specified. this makes the final dimensions of the main panel comparable to the non-veg plots.
-  ggsave(out_file, p, width = 1.1*opts_long$width_short, height = opts_long$height_short, scale = 0.8)
+  ggsave(out_file, p, width = 1.1*opts_long$width_veg, height = opts_long$height_veg, scale = 0.8)
   
   cat(paste("The above graph is saved as: ", out_name))
 }
