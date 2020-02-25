@@ -9,18 +9,28 @@ editor_options:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, error = TRUE)
-
 ```
 
+*This document is intended for use by National Estuarine Research Reserve (NERR) technical staff to calculate, visualize, and describe rates of elevation change at Surface Elevation Table (SET) stations. These products are output from a 2018-2019 NERRS Science Collaborative Catalyst Grant project nicknamed "SETr". For more information on options to customize this report, see the document "Guide to the SETr Workflow" in the main folder of SETr outputs.* 
 
-In this report, the user may have chosen to exclude data associated with certain QA/QC codes. Any values that have been removed are listed in the appropriate section below.    
 
-Also, be aware that linear models are not appropriate for calculating rates of change at all sites. Use discretion when interpreting these results.  
+
+# General recommendations on analysis of SET data  
+
+Be aware that **linear models are not appropriate for calculating rates of change at all sites. Use discretion when interpreting these results.**  
+
+# come back to this  
+
++  Before analysis, the analyst should carefully examine plots of the data to ensure that a linear model is appropriate. If the points exhibit curvature or if there is some sort of a changepoint, this type of analysis may not be appropriate.  
++  The analyst should also look for highly influential observations. One way that this could occur is when there is a large temporal gap in the data.  
++  The analyst should employ a statistically valid model fitting strategy. When using LMMs, this should also include addressing issues such as: ensuring convergence of the numerical optimization, exploring sensitivity to starting values in the optimization procedure, determining whether a random slope model or a random slope/random intercept model is most appropriate, and verifying model assumptions.  
++  Determine whether a model that includes temporal dependence is appropriate.
+
 
 
 # Background on the data  
 
-
+In this report, the user may have chosen to exclude data associated with certain QA/QC codes. Any values that have been removed are listed in the appropriate section below.  
 
 ```{r load-libraries}
 library(knitr)
@@ -59,12 +69,13 @@ writeLines(capture.output(sessionInfo()), here::here("R_output", "log_files", lo
 
 ## Data and metadata setup  
 
-We start by reading in the long SET measurement dataset, converted from other formats by earlier scripts. Pin heights have also been converted to mm if they weren't already in those units.  
+We start by reading in the long SET measurement dataset, converted from other formats by earlier scripts. Pin heights have also been converted to mm if they had been recorded in cm.  
 
 
 ```{r read-data, warning = TRUE}
 # find the folder with processed data
 path <- here::here('data', 'processed')
+
 
 # in that folder, find the name of the file(s) that ends with 'set_processed.csv'
 filelist <- dir(path, pattern = "set_processed.csv$")
@@ -137,7 +148,7 @@ if(!is.na(opts_long$custom_end)){
 
 In the same `user_defined_inputs` spreadsheet, certain qa/qc codes may have been specified for removal in this analysis. In the `qaqc_codes` worksheet, they were labeled with "-3", to be consistent with SWMP's water quality/weather/nutrient "reject" flagging. If such values are present, they will be printed below, then turned into NAs so they are not used in the analysis.
 
-**Note** that the code looks for an EXACT match. e.g., if "LHE" is specified for removal, only values with "LHE" will be removed. "LHE CB" and "CRM LHE" will *not* be removed. To remove a combination of codes, a new line may need to be created in the `qaqc_codes` tab of the input spreadsheet.  
+**Note** that the R code dealing with these flags looks for an EXACT match. e.g., if "LHE" is specified for removal, only values with "LHE" will be removed. "LHE CB" and "CRM LHE" will *not* be removed, and need to be specified separately. To remove a combination of codes, a new line may need to be created in the `qaqc_codes` tab of the input spreadsheet.  
 
 ```{r qc-remove}
 if (excl_exist) {
@@ -258,8 +269,6 @@ rm(dat_not_m, m_not_dat, metadata_setid, data_setid, filelist, path)
 
 
 
-
-
 ```{r read-slr}
 # Read in general sea-level rates sheet and pull out the rate that matches the reserve.
 
@@ -298,14 +307,11 @@ if (res_to_match %in% unique(slr_rates$reserve)) {
 +  The local, long-term rate of sea level change is **`r slr`** +/- **`r slr_ci`** mm/yr.  
 +  This rate is reported by `r slr_res$nearest_nwlon_station`, NWLON station number `r as.character(slr_res$nwlon_station_number)` based on data from *`r slr_res$data_start`* to *`r slr_res$data_end`*.  
 +  A shorter-term rate of water level change based on 19 years of data from the same NWLON station, using the same methods NOAA uses to calculate long-term sea level rise, is **`r yr19chng`** +/- **`r yr19_ci`** mm/yr. This date range is from *`r slr_res$yr19_start`* to *`r slr_res$yr19_end`*.  
-+  The technical report on NOAA's calculation of long-term SLR trends, *Technical Report NOS CO-OPS 053; Sea Level Variations of the United States 1854-2006* can be found here: https://tidesandcurrents.noaa.gov/publications/Tech_rpt_53.pdf  (possibly cite as Zervas 2009?)  
-
-# KIM CHECK ON CITATION ABOVE  
-
++  The technical report on NOAA's calculation of long-term SLR trends, *Technical Report NOS CO-OPS 053 - Sea Level Variations of the United States 1854-2006* can be found here (accessed 2020-02-25): https://tidesandcurrents.noaa.gov/publications/Tech_rpt_53.pdf  
 
 ## SET-level characteristics  
 
-### setting  
+### Setting  
 
 
 ```{r set-info-table}
@@ -334,7 +340,7 @@ if(opts_long$coords_tech == 1){
 
 
 
-### sampling information  
+### Sampling Information  
 
 ```{r sampling-info-table}
 sample_info <- dat %>% 
@@ -355,9 +361,11 @@ sample_info %>%
 
 ***
 
-### Cumulative change snapshot  
+### Cumulative Change Snapshot  
 
-Take a look at your overall change since the first reading - make sure the change looks generally linear, and make sure there are no big breaks in the data that could influence the outputs. Output will be generated even if it is not appropriate - **it is up to you to use discretion and make sure a linear model is appropriate for the data!**
+Take a look at your overall change since the first reading - make sure the change looks generally linear, and make sure there are no big breaks in the data that could influence the outputs. Output will be generated even if it is not appropriate - **it is up to you to use discretion and make sure a linear model is appropriate for the data!**  
+
+In the graphics below, all readings from a given date had the first (baseline) reading for that pin subtracted, to yield change-since-baseline at a pin level. Then pins on an arm were averaged together to yield change-since-baseline at the arm level. Finally, the arms were averaged together to yield change-since-baseline for the SET as a whole. This is a slightly different approach than the rate calculations performed below but gives an almost identical point estimate for rate of change, and makes it easy to put change since baseline on a plot.    
 
 ```{r cumu-change, fig.width = opts_long$width_square, fig.height = opts_long$height_square}
 dat_cumu <- calc_change_cumu(dat)
@@ -433,9 +441,9 @@ Graphs for each SET individually are not shown here but have been saved in _`r o
 
 ### Plus Sea Level Rise Line  
 
-**This is an oversimplification of sea level rise**  
+**This is an oversimplification of sea level rise:**  the slope is that of long-term, local SLR. This was based on the SLR rate from the NWLON station listed above, and does not include actual water level data. This line also does not account for accelerating sea level rise.  
 
-It is only meant to illustrate and give context for SET elevation change  
+These graphs are meant to illustrate and give context for SET elevation change relative to long-term SLR.  
 
 
 
@@ -647,6 +655,8 @@ Graphs for each SET individually are not shown here but have been saved in _`r o
 
 The following graph shows cumulative elevation change at all SETs in one graph panel. If NAVD88 information was present in metadata, the first reading at each SET was placed at that point on the y-axis. Otherwise, the SET cumulative change lines start at 0.  
 
+NAVD88 information varied between reserves in this project; some reserves were not entirely sure what the numbers they had related back to. So **this graph is meant to show changes along a relative elevation gradient only.** We have not overlaid water levels because we could not always be sure of the appropriate offset.  
+
 
 ```{r cumu-navd88, fig.width = opts_long$width_tall, fig.height = opts_long$height_tall}
 # if either column has NO NAs, use the column. Preference goes to ground elevation, then receiver elevation. 
@@ -732,19 +742,22 @@ if(nrow(not_enough_df) > 0){
 
 ***  
 
+
+# Statistical methodology   
+
 These rates were generated using random-intercept linear mixed models. See Zuur et al. 2009 and Cahoon et al. 2019 for details.
 
 Cahoon, D.R., Lynch, J.C., Roman, C.T. et al. Estuaries and Coasts (2019) 42: 1. https://doi.org/10.1007/s12237-018-0448-x  
 
 Zuur, A.F., E.N. Ieno, N.J. Walker, A.A. Saveliev, and G.M. Smith. 2009. Mixed effects models and extensions in ecology with R. New York: Springer.  
 
+Linear mixed models extend traditional linear regression models by allowing for the inclusion of both fixed and random effects. *These types of models are particularly useful when the data are structured hierarchically*, as with SET data. Data for each SET is analyzed separately using pin height as the response variable; arm and pin (nested in arm) are treated as random effects, and date is considered a numeric covariate. As both the intercept and slope include random effects, methods other than least squares must be employed. 
 
+# come back to this  
 
-# LMM wording; clean up (also just above)   
+Next discuss model fitting… All models were fit in R (reference…) using the nlme package (reference…). This type of approach is similar to the analysis performed in Cahoon 2019.
 
-Linear mixed models extend traditional linear regression models by allowing for the inclusion of both fixed and random effects. These types of models are particularly useful when the data are structured hierarchically, as with SET data. Data for each SET is analyzed separately using pin height as the response variable; arm and pin nested in arm are treated as random effects, while date since initial measurement is considered a numeric covariate. As both the intercept and slope include random effects, methods other than least squares must be employed. Next discuss model fitting… All models were fit in R (reference…) using the nlme package (reference…). This type of approach is similar to the analysis performed in Cahoon 2019.
-
-For each SET, we initially considered two LMMs: a LMM that includes a random intercept (with a random effects for arm and for pin nested in arm) and a LMM that includes both a random slope and a random intercept (with random effects for arm and for pin nested in arm). For many SETs, we observed that the random intercept model fit better. At other SETs, the random slope and intercept model seemed to fit better; however, the resulting point estimates showed only small differences. As the random intercept models did not require the same degree of scrutiny when model fitting, we exclusively employed random intercept models in our automated R scripts.  
+For each SET, we initially considered two LMMs: a LMM that includes a random intercept (with a random effects for arm and for pin nested in arm) and a LMM that includes both a random slope and a random intercept (with random effects for arm and for pin nested in arm). For many SETs, we observed that the random intercept model fit better. At other SETs, the random slope and intercept model seemed to fit better; however, the resulting point estimates showed only small differences. As the random intercept models did not require the same degree of scrutiny when model fitting, and did not cause as many script-running errors, we exclusively employed random intercept models in our automated R scripts.  
 
 
 In our case, we have, for each SET:  
@@ -970,6 +983,10 @@ This rate is reported by `r slr_res$nearest_nwlon_station`, NWLON station number
 
 The following tables break the SETs into groups where the rate of SET elevation change is *lower than* / *higher than* / *not different from* this SLR rate. *Lower than* and *higher than* tables imply that 95% confidence intervals do not overlap between the SET and SLR. *Not different from* means that confidence intervals *do* overlap.  
 
+# Type I error rate language - come back to  
+
+This method of comparison was chosen because different methods were used to calculate rates for sea level rise (ARIMA) and SET elevation change (LMMs). **Note** that the type I error rate is not actually 5% in these cases. 
+
 
 <br>
 
@@ -1020,6 +1037,9 @@ This rate uses data reported by `r slr_res$nearest_nwlon_station`, NWLON station
 
 The following tables break the SETs into groups where the rate of SET elevation change is *lower than* / *higher than* / *not different from* this 19-year rate. *Lower than* and *higher than* tables imply that 95% confidence intervals do not overlap between the SET and water level change. *Not different from* means that confidence intervals *do* overlap.  
 
+# Type I error rate language - come back to  
+
+This method of comparison was chosen because different methods were used to calculate rates for sea level rise (ARIMA) and SET elevation change (LMMs). **Note** that the type I error rate is not actually 5% in these cases. 
 
 <br>
 
