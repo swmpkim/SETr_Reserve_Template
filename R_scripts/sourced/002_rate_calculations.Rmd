@@ -126,7 +126,7 @@ end_whole <- max(dat$date)
 
 This dataset spans the dates **`r start_whole`** to **`r end_whole`**.  
 
-If custom start and/or end dates were specified for this analysis, the dataset is subsetted here and the chosen date range will be printed below this paragraph. These options can be changed in the file `metadata/user_defined_inputs.xlsx`.  
+If custom start and/or end dates were specified for this analysis, the dataset is subsetted here and the chosen date range will be printed below this paragraph. These options can be changed in the file `metadata/user_defined_inputs.xlsx`, `general` tab.  
 
 ```{r trim-data}
 # trim the dataset based on user-specified dates
@@ -147,7 +147,7 @@ if(!is.na(opts_long$custom_end)){
 
 ## QA/QC codes  
 
-In the same `user_defined_inputs` spreadsheet, certain qa/qc codes may have been specified for removal in this analysis. In the `qaqc_codes` worksheet, they were labeled with "-3", to be consistent with SWMP's water quality/weather/nutrient "reject" flagging. If such values are present, they will be printed below, then turned into NAs so they are not used in the analysis.
+In the same `user_defined_inputs` spreadsheet, certain QA/QC codes may have been specified for removal in this analysis. In the `qaqc_codes` worksheet, they were labeled with "-3", to be consistent with SWMP's water quality/weather/nutrient "reject" flagging. If such values are present, they will be printed below, then turned into NAs so they are not used in the analysis.
 
 **Note** that the R code dealing with these flags looks for an EXACT match. e.g., if "LHE" is specified for removal, only values with "LHE" will be removed. "LHE CB" and "CRM LHE" will *not* be removed, and need to be specified separately. To remove a combination of codes, a new line may need to be created in the `qaqc_codes` tab of the input spreadsheet.  
 
@@ -685,7 +685,7 @@ ggplot(cumu_navd88, aes(x = date, y = mean_cumu, color = set_id)) +
   geom_line(size = 1) +
   theme_minimal() +
   labs(title = "SET cumulative change",
-       subtitle = "first sample date set to that SET's NAVD88 elevation",
+       subtitle = "each SET's NAVD88 elevation used for its first sample date",
        y = "NAVD88 elevation (m)",
        color = "SET")
 
@@ -758,7 +758,7 @@ Linear mixed models extend traditional linear regression models by allowing for 
 
 Next discuss model fitting… All models were fit in R (reference…) using the nlme package (reference…). This type of approach is similar to the analysis performed in Cahoon 2019.
 
-For each SET, we initially considered two LMMs: a LMM that includes a random intercept (with a random effects for arm and for pin nested in arm) and a LMM that includes both a random slope and a random intercept (with random effects for arm and for pin nested in arm). For many SETs, we observed that the random intercept model fit better. At other SETs, the random slope and intercept model seemed to fit better; however, the resulting point estimates showed only small differences. As the random intercept models did not require the same degree of scrutiny when model fitting, and did not cause as many script-running errors, we exclusively employed random intercept models in our automated R scripts.  
+For each SET, we initially considered two LMMs: a LMM that includes a random intercept (with a random effects for arm and for pin nested in arm) and a LMM that includes both a random slope and a random intercept (with random effects for arm and for pin nested in arm). For many SETs, we observed that the random intercept model fit better. At other SETs, the random slope and intercept model produced better fitting models (based on AIC); however, the resulting point estimates showed only small differences between the two approaches. As the random intercept models did not require the same degree of scrutiny when model fitting, and did not cause as many script-running errors, we exclusively employed random intercept models in our automated R scripts.  
 
 
 In our case, we have, for each SET:  
@@ -967,7 +967,9 @@ rates_comp_table <- flextable(rates_comp_split) %>%
   merge_at(i = 1, j = 9:10, part = "header") %>% 
   merge_at(i = 1, j = 7:8, part = "header") %>% 
   merge_at(i = 1, j = 5:6, part = "header") %>% 
-  merge_at(i = 1, j = 3:4, part = "header")
+  merge_at(i = 1, j = 3:4, part = "header") %>% 
+  fontsize(size = 9, part = "body") %>% 
+  fontsize(size = 10, part = "header")
 
 rates_comp_table <- rates_comp_table %>% 
   add_header_row(values = c("",
@@ -980,21 +982,52 @@ rates_comp_table <- rates_comp_table %>%
                             "CI overlap?",
                             "point",
                             "CI overlap?"),
-                 top = FALSE)
+                 top = FALSE) %>% 
+  fontsize(size = 9, part = "header", i = 2)
 
 std_border = fp_border(color = "gray80", width = 1)
-rates_comp_table %>% 
+rates_comp_table <- rates_comp_table %>% 
   theme_zebra() %>% 
   border_inner_v(part = "all", border = std_border) %>% 
   border_outer(border = std_border, part = "all") %>% 
   align(align = "center", part = "all") %>%
-  align(align = "left", part = "all", j = 1) %>% 
+  align(align = "left", part = "all", j = 1) # %>% 
   # align(align = "center", part = "body", j = 5:10) %>% 
   # align(align = "ce", part = "header", i = 2, j = c(5, 7, 9)) %>%
   # align(align = "center", i = 1, part = "header") %>% 
-  autofit()
+  # autofit()
+
+forced_widths <- c(1, rep(0.7, 9))
+width(rates_comp_table, width = forced_widths)
 ```
 
+```{r}
+# thank you to Sarah from stackoverflow for 
+# having and solving the problem I'm experiencing
+# https://stackoverflow.com/questions/57175351/flextable-autofit-in-a-rmarkdown-to-word-doc-causes-table-to-go-outside-page-mar
+
+FitFlextableToPage <- function(ft, pgwidth = 7){
+
+  ft_out <- ft %>% autofit()
+
+  ft_out <- width(ft_out, width = dim(ft_out)$widths*pgwidth /(flextable_dim(ft_out)$widths))
+  return(ft_out)
+}
+
+FitFlextableToPage(rates_comp_table)
+```
+
+```{r}
+FitFlextableToPage <- function(ft, pgwidth = 7){
+
+  ft_out <- ft %>% width(width = c(1, rep(0.7, 3), rep(0.85, 6)))
+
+  ft_out <- width(ft_out, width = dim(ft_out)$widths*pgwidth /(flextable_dim(ft_out)$widths))
+  return(ft_out)
+}
+
+FitFlextableToPage(rates_comp_table)
+```
 
 
 # Increasing/Decreasing (Comparison to 0)  
