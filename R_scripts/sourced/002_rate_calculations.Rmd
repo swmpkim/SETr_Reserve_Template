@@ -365,7 +365,7 @@ sample_info %>%
 
 Take a look at your overall change since the first reading - make sure the change looks generally linear, and make sure there are no big breaks in the data that could influence the outputs. Output will be generated even if it is not appropriate - **it is up to you to use discretion and make sure a linear model is appropriate for the data!**  
 
-In the graphics below, all readings from a given date had the first (baseline) reading for that pin subtracted, to yield change-since-baseline at a pin level. Then pins on an arm were averaged together to yield change-since-baseline at the arm level. Finally, the arms were averaged together to yield change-since-baseline for the SET as a whole. This is a slightly different approach than the rate calculations performed below but gives an almost identical point estimate for rate of change, and makes it easy to put change since baseline on a plot.    
+In the graphics below, each pin reading had the first (baseline) reading for that pin subtracted, to yield change-since-baseline at a pin level, for all dates. Then pins on an arm were averaged together to yield change-since-baseline at the arm level. Finally, the arms were averaged together to yield change-since-baseline for the SET as a whole. This is a slightly different approach than the rate calculations performed below but gives an almost identical point estimate for rate of change, and makes it easy to put change since baseline on a plot.    
 
 ```{r cumu-change, fig.width = opts_long$width_square, fig.height = opts_long$height_square}
 dat_cumu <- calc_change_cumu(dat)
