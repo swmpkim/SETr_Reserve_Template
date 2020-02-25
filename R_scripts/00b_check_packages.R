@@ -17,7 +17,7 @@
 # list of packages we need to have installed for our workflow
 pkg_wrangle <- c("dplyr", "here", "janitor", "lubridate", "purrr", "forcats", "readr", "readxl", "stringr", "tidyr")
 pkg_interact <- c("DT", "ggplot2", "plotly", "shiny", "leaflet")
-pkg_analyze <- c("rmarkdown", "broom", "flextable", "webshot", "mapview")
+pkg_analyze <- c("rmarkdown", "broom", "flextable", "officer", "webshot", "mapview")
 
 
 # glue the sub-categories together into one vector of packages we need
