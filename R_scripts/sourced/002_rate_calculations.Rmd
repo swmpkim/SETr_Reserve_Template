@@ -991,14 +991,10 @@ rates_comp_table <- rates_comp_table %>%
   border_inner_v(part = "all", border = std_border) %>% 
   border_outer(border = std_border, part = "all") %>% 
   align(align = "center", part = "all") %>%
-  align(align = "left", part = "body", j = 1) # %>% 
-  # align(align = "center", part = "body", j = 5:10) %>% 
-  # align(align = "ce", part = "header", i = 2, j = c(5, 7, 9)) %>%
-  # align(align = "center", i = 1, part = "header") %>% 
-  # autofit()
+  align(align = "left", part = "body", j = 1) %>% 
+  width(width = c(1, rep(0.7, 9)))
 
-forced_widths <- c(1, rep(0.7, 9))
-width(rates_comp_table, width = forced_widths)
+rates_comp_table
 ```
 
 
