@@ -31,9 +31,19 @@ source(here::here('R_scripts', 'sourced', '001_user_options.R'))
 ```
 
 
-# Background - National level  
+*This document is intended for use as an outreach tool to help National Estuarine Research Reserve (NERR) Education and Coastal Training Program staff present and describe information relating to Surface Elevation Table (SET) data. These products are output from a 2018-2019 NERRS Science Collaborative Catalyst Grant project nicknamed "SETr".*  
 
-This document is intended for use as an outreach tool to help National Estuarine Research Reserve (NERR) Education and Coastal Training Program staff present and describe information relating to Surface Elevation Table (SET) data. These products are output from a 2018-2019 NERRS Science Collaborative Catalyst Grant project nicknamed "SETr".  
+
+# Importance of Tidal Wetlands and Sea Level  
+
+Tidal wetlands are very important to coastal areas - they provide wildlife habitat, including nursery habitat for commercial and recreational fish species are areas for recreational and economic opportunity; store carbon; and offer flood protection. There are a variety of tidal wetlands: submerged vegetation (such as eelgrass), marshes, forested swamps, and mangroves. The type of wetland in a given location is related to elevation and inundation regime - how often the surface of the wetland is flooded by the tide, and the salinity of those tidal waters. For example, eelgrass meadows have lower elevations than marshes and are more frequently submerged. Many factors that affect wetland elevation, including shallow surface components - such as organic matter buildup by plant roots and sediment deposits at the surface - and sub-surface components such as geologic uplift or subsidence. The data described here focus on changes due to shallow surface components.  
+
+Long term sea level rise (SLR) rates vary regionally due to processes such as subsidence, which causes increased relative SLR rates, or isostatic rebound from glaciation, which causes the land surface to rise and leads to a decrease in relative SLR.  Even changes in ocean surface currents can affect sea levels observed at particular locations. Similarly, there is variability in changes to surface elevation of wetlands at both the local and regional level due to a variety of drivers, such as human disturbance, whether systems are ocean or river driven, inundation (flooding) patterns, and plant community composition.  
+
+Analyzing rates of marsh surface elevation change, in the context of local sea level changes, can help identify patterns to determine how resilient tidal wetlands across the nation are to SLR.  
+
+
+# Background on SETs - National level  
 
 The "Sentinel Site Application 1" (SSAM-1) module of the NERR Sentinel Site Program integrates water level data, System-Wide Monitoring Program (SWMP) abiotic data, vegetation data, and elevation measurements, for the purpose of assessing the impacts of sea level change on tidal wetlands. Surface Elevation Table (SET) technology, a means of measuring changes to the height of the wetland substrate, is a widely implemented component of SSAM-1. In this project, previously collected NERRS SET data was analyzed to answer the question – are marsh surfaces keeping pace with sea level rise? Note that this is an analysis looking back through time; it is not a forecasting tool.
 
@@ -49,7 +59,7 @@ Any descriptive information pertinent to the measurements at each pin is also re
 
 These measurements are repeated over time. Because of the stability of the SET mark, each pin is lowered to the surface in the *same* location, time after time. The measurement can be used to calculate where the surface is, and other measurements can relate it back to standard frameworks, such as local mean sea level. After several years, scientists can calculate a "rate of change" for the marsh surface. Is it getting higher, lower, or not changing? 
 
-Because tidal wetlands are so important to coastal areas - they provide wildlife habitat, including nursery habitat for commercial and recreational fish species, recreational areas, and flood protection - we especially want to know if the surface is growing quickly enough to keep up with sea level rise.  
+Because tidal wetlands are so important to coastal areas, we especially want to know if the surface is growing quickly enough to keep up with sea level rise.  
 
 
 ```{r, out.width = '5%', fig.cap = 'Figure 2. SET apparatus installed and observer taking measurement with meter stick atop the SET arm (photo credit Hudson River NERR).'}
@@ -57,7 +67,7 @@ knitr::include_graphics(here::here("img", "SET_measurement_creditHudsonRiverNERR
 ```
 
 
-# Background - Reserve level  
+# Background on SETs - Reserve level  
 
 Each reserve is in charge of its own SET data. As part of the SETr project, 15 reserves sent their data files to the project team, and each was reworked into the same data format. Because of this standardization, we can generate several tables and graphs that look the same for each reserve; but each one uses the individual reserve's data! **This document contains data for your reserve.**  
 
