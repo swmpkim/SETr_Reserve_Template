@@ -310,6 +310,8 @@ if (res_to_match %in% unique(slr_rates$reserve)) {
 +  A shorter-term rate of water level change based on 19 years of data from the same NWLON station, using the same methods NOAA uses to calculate long-term sea level rise, is **`r yr19chng`** +/- **`r yr19_ci`** mm/yr. This date range is from *`r slr_res$yr19_start`* to *`r slr_res$yr19_end`*.  
 +  The technical report on NOAA's calculation of long-term SLR trends, *Technical Report NOS CO-OPS 053 - Sea Level Variations of the United States 1854-2006* can be found here (accessed 2020-02-25): https://tidesandcurrents.noaa.gov/publications/Tech_rpt_53.pdf  
 
+# something about metonic cycle?  
+
 ## SET-level characteristics  
 
 ### Setting  
@@ -748,10 +750,6 @@ if(nrow(not_enough_df) > 0){
 
 These rates were generated using random-intercept linear mixed models. See Zuur et al. 2009 and Cahoon et al. 2019 for details.
 
-Cahoon, D.R., Lynch, J.C., Roman, C.T. et al. Estuaries and Coasts (2019) 42: 1. https://doi.org/10.1007/s12237-018-0448-x  
-
-Zuur, A.F., E.N. Ieno, N.J. Walker, A.A. Saveliev, and G.M. Smith. 2009. Mixed effects models and extensions in ecology with R. New York: Springer.  
-
 Linear mixed models extend traditional linear regression models by allowing for the inclusion of both fixed and random effects. *These types of models are particularly useful when the data are structured hierarchically*, as with SET data. Data for each SET is analyzed separately using pin height as the response variable; arm and pin (nested in arm) are treated as random effects, and date is considered a numeric covariate. As both the intercept and slope include random effects, methods other than least squares must be employed. 
 
 # come back to this  
@@ -920,6 +918,8 @@ lmm_out <- lmm_out %>%
 
 # Comparisons to 0 and SLR  
 
+This method of comparison was chosen because different methods were used to calculate rates for sea level rise (ARIMA) and SET elevation change (LMMs) using data from different sources. We note that each individual interval has 95% confidence associated with it, and conclusions that are made based on pairwise comparison of these intervals will not necessarily be equivalent to conducting a formal hypothesis test for a difference at the 5% level (Schenker and Gentleman, 2001).
+
 This could take some explaining. Essentially, if the 95% CI doesn't include 0, that's the same as p < 0.05; slope differs significantly from 0. Comparisons to sea level change get more complicated because there's not a single number we're comparing to; there's a number and a confidence interval. And they're generated using different methods than what we've used to calculate the SET rates of change. So the closest we can get to "is this a significant difference" is "do the CIs overlap?" It's not exactly the same as a t-test, and the probability of a type I error is higher than 0.05. It is, however, the general idea of "how confident are we". This same idea plays into everything else below; it's just a matter of how it's represented. So please share your thoughts.   
 
 ## Overall Summary Table  
@@ -991,7 +991,7 @@ rates_comp_table <- rates_comp_table %>%
   border_inner_v(part = "all", border = std_border) %>% 
   border_outer(border = std_border, part = "all") %>% 
   align(align = "center", part = "all") %>%
-  align(align = "left", part = "all", j = 1) # %>% 
+  align(align = "left", part = "body", j = 1) # %>% 
   # align(align = "center", part = "body", j = 5:10) %>% 
   # align(align = "ce", part = "header", i = 2, j = c(5, 7, 9)) %>%
   # align(align = "center", i = 1, part = "header") %>% 
@@ -999,34 +999,6 @@ rates_comp_table <- rates_comp_table %>%
 
 forced_widths <- c(1, rep(0.7, 9))
 width(rates_comp_table, width = forced_widths)
-```
-
-```{r}
-# thank you to Sarah from stackoverflow for 
-# having and solving the problem I'm experiencing
-# https://stackoverflow.com/questions/57175351/flextable-autofit-in-a-rmarkdown-to-word-doc-causes-table-to-go-outside-page-mar
-
-FitFlextableToPage <- function(ft, pgwidth = 7){
-
-  ft_out <- ft %>% autofit()
-
-  ft_out <- width(ft_out, width = dim(ft_out)$widths*pgwidth /(flextable_dim(ft_out)$widths))
-  return(ft_out)
-}
-
-FitFlextableToPage(rates_comp_table)
-```
-
-```{r}
-FitFlextableToPage <- function(ft, pgwidth = 7){
-
-  ft_out <- ft %>% width(width = c(1, rep(0.7, 3), rep(0.85, 6)))
-
-  ft_out <- width(ft_out, width = dim(ft_out)$widths*pgwidth /(flextable_dim(ft_out)$widths))
-  return(ft_out)
-}
-
-FitFlextableToPage(rates_comp_table)
 ```
 
 
@@ -1085,7 +1057,7 @@ The following tables break the SETs into groups where the rate of SET elevation 
 
 # Type I error rate language - come back to  
 
-This method of comparison was chosen because different methods were used to calculate rates for sea level rise (ARIMA) and SET elevation change (LMMs). **Note** that the type I error rate is not actually 5% in these cases. 
+This method of comparison was chosen because different methods were used to calculate rates for sea level rise (ARIMA) and SET elevation change (LMMs) using data from different sources. We note that each individual interval has 95% confidence associated with it, and conclusions that are made based on pairwise comparison of these intervals will not necessarily be equivalent to conducting a formal hypothesis test for a difference at the 5% level (Schenker and Gentleman, 2001).
 
 
 <br>
@@ -1139,7 +1111,7 @@ The following tables break the SETs into groups where the rate of SET elevation 
 
 # Type I error rate language - come back to  
 
-This method of comparison was chosen because different methods were used to calculate rates for sea level rise (ARIMA) and SET elevation change (LMMs). **Note** that the type I error rate is not actually 5% in these cases. 
+This method of comparison was chosen because different methods were used to calculate rates for sea level rise (ARIMA) and SET elevation change (LMMs) using data from different sources. We note that each individual interval has 95% confidence associated with it, and conclusions that are made based on pairwise comparison of these intervals will not necessarily be equivalent to conducting a formal hypothesis test for a difference at the 5% level (Schenker and Gentleman, 2001).
 
 <br>
 
@@ -1233,12 +1205,6 @@ plot_comp_specific <- function(data = lmm_out,
   p
 }
 
-
-# run it on a few things to make sure it works
-# plot_comp_specific()
-# plot_comp_specific(plot_type = 3)
-# plot_comp_specific(color_by_veg = TRUE)
-# plot_comp_specific(plot_type = 3, color_by_veg = TRUE)
 ```
 
 ```{r}
@@ -1596,3 +1562,11 @@ m19yr
 
 
 
+# References  
+
+
+Cahoon, D.R., J.C. Lynch, C.T. Roman, J.P. Schmit, and D.E. Skidds. 2019. Evaluating the Relationship Among Wetland Vertical Development, Elevation Capital, Sea-Level Rise, and Tidal Marsh Sustainability. Estuaries and Coasts 42:1-15. https://doi.org/10.1007/s12237-018-0448-x 
+
+Schenker, N. and J.F. Gentleman. 2001. On Judging the Significance of Differences by Examining the Overlap Between Confidence Intervals. The American Statistician 55(3):182-186. https://doi.org/10.1198/000313001317097960
+
+Zuur, A.F., E.N. Ieno, N.J. Walker, A.A. Saveliev, and G.M. Smith. 2009. Mixed effects models and extensions in ecology with R. New York: Springer.  
