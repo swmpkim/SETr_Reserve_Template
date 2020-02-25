@@ -11,24 +11,18 @@ editor_options:
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, error = TRUE)
 ```
 
-*This document is intended for use by National Estuarine Research Reserve (NERR) technical staff to calculate, visualize, and describe rates of elevation change at Surface Elevation Table (SET) stations. These products are output from a 2018-2019 NERRS Science Collaborative Catalyst Grant project nicknamed "SETr". For more information on options to customize this report, see the document "Guide to the SETr Workflow" in the main folder of SETr outputs.* 
+*This document was designed for use by National Estuarine Research Reserve (NERR) technical staff and may also be useful to other Surface Elevation Table (SET) data analysts. It is meant to calculate, visualize, and describe rates of elevation change at SET stations in a given area (such as an individual NERR or reserve component). These products are output from a 2018-2019 NERRS Science Collaborative Catalyst Grant project nicknamed "SETr". For information on options to customize this report, see the document "Guide to the SETr Workflow" in the main folder of SETr outputs.* 
 
-
-
-# General recommendations on analysis of SET data  
-
-Be aware that **linear models are not appropriate for calculating rates of change at all sites. Use discretion when interpreting these results.**  
-
-# come back to this  
-
-+  Before analysis, the analyst should carefully examine plots of the data to ensure that a linear model is appropriate. If the points exhibit curvature or if there is some sort of a changepoint, this type of analysis may not be appropriate.  
-+  The analyst should also look for highly influential observations. One way that this could occur is when there is a large temporal gap in the data.  
-+  The analyst should employ a statistically valid model fitting strategy. When using LMMs, this should also include addressing issues such as: ensuring convergence of the numerical optimization, exploring sensitivity to starting values in the optimization procedure, determining whether a random slope model or a random slope/random intercept model is most appropriate, and verifying model assumptions.  
-+  Determine whether a model that includes temporal dependence is appropriate.
-
+```{r}
+# generate file list
+path <- here::here('data', 'processed')
+filelist <- dir(path, pattern = "set_processed.csv$")
+```
 
 
 # Background on the data  
+
+This analysis was run on **`r filelist[1]`** on *`r Sys.Date()`*. 
 
 In this report, the user may have chosen to exclude data associated with certain QA/QC codes. Any values that have been removed are listed in the appropriate section below.  
 
@@ -70,7 +64,7 @@ writeLines(capture.output(sessionInfo()), here::here("R_output", "log_files", lo
 
 ## Data and metadata setup  
 
-We start by reading in the long SET measurement dataset, converted from other formats by earlier scripts. Pin heights have also been converted to mm if they had been recorded in cm.  
+We start by reading in the long SET measurement dataset, converted from other formats by earlier SETr scripts. Pin heights have also been converted to mm if they were previously in cm.  
 
 
 ```{r read-data, warning = TRUE}
@@ -187,7 +181,6 @@ if (excl_exist) {
 
 ### File Matching checks  
 
-This analysis was run on **`r filelist[1]`** on *`r Sys.Date()`*.  
 
 If any mismatches in SET stations between the data and metadata files are present, they will be noted below. The user of this report will need to make any necessary changes in the data/metadata files.  
 
@@ -218,8 +211,6 @@ mdat <- read_excel(filename) %>%
   mutate_at(c("unique_set_id", "user_friendly_set_name", "reserve"),
             as.character)
 ```
-
-
 
 
 ```{r verify-setid, warning = TRUE}
@@ -307,10 +298,10 @@ if (res_to_match %in% unique(slr_rates$reserve)) {
 
 +  The local, long-term rate of sea level change is **`r slr`** +/- **`r slr_ci`** mm/yr.  
 +  This rate is reported by `r slr_res$nearest_nwlon_station`, NWLON station number `r as.character(slr_res$nwlon_station_number)` based on data from *`r slr_res$data_start`* to *`r slr_res$data_end`*.  
-+  A shorter-term rate of water level change based on 19 years of data from the same NWLON station, using the same methods NOAA uses to calculate long-term sea level rise, is **`r yr19chng`** +/- **`r yr19_ci`** mm/yr. This date range is from *`r slr_res$yr19_start`* to *`r slr_res$yr19_end`*.  
++  A shorter-term rate of water level change based on 19 years of data from the same NWLON station, using the same methods NOAA uses to calculate long-term sea level rise (ARIMA 1,0,0), is **`r yr19chng`** +/- **`r yr19_ci`** mm/yr. This date range is from *`r slr_res$yr19_start`* to *`r slr_res$yr19_end`*.  
 +  The technical report on NOAA's calculation of long-term SLR trends, *Technical Report NOS CO-OPS 053 - Sea Level Variations of the United States 1854-2006* can be found here (accessed 2020-02-25): https://tidesandcurrents.noaa.gov/publications/Tech_rpt_53.pdf  
 
-# something about metonic cycle?  
+
 
 ## SET-level characteristics  
 
@@ -368,7 +359,7 @@ sample_info %>%
 
 Take a look at your overall change since the first reading - make sure the change looks generally linear, and make sure there are no big breaks in the data that could influence the outputs. Output will be generated even if it is not appropriate - **it is up to you to use discretion and make sure a linear model is appropriate for the data!**  
 
-In the graphics below, each pin reading had the first (baseline) reading for that pin subtracted, to yield change-since-baseline at a pin level, for all dates. Then pins on an arm were averaged together to yield change-since-baseline at the arm level. Finally, the arms were averaged together to yield change-since-baseline for the SET as a whole. This is a slightly different approach than the rate calculations performed below but gives an almost identical point estimate for rate of change, and makes it easy to put change since baseline on a plot.    
+In the graphics below, the first (baseline) measurement for each pin was subtracted from every subsequent reading, to yield change-since-baseline at a pin level, for all dates. Then pins on an arm were averaged together for each date to yield change-since-baseline at the arm level. Finally, the arms for each date were averaged together to yield change-since-baseline for the SET as a whole. This is a slightly different approach than the rate calculations performed below but gives an almost identical point estimate for rate of change, and makes it easy to put change since baseline on a plot.    
 
 ```{r cumu-change, fig.width = opts_long$width_square, fig.height = opts_long$height_square}
 dat_cumu <- calc_change_cumu(dat)
@@ -658,7 +649,7 @@ Graphs for each SET individually are not shown here but have been saved in _`r o
 
 The following graph shows cumulative elevation change at all SETs in one graph panel. If NAVD88 information was present in metadata, the first reading at each SET was placed at that point on the y-axis. Otherwise, the SET cumulative change lines start at 0.  
 
-NAVD88 information varied between reserves in this project; some reserves were not entirely sure what the numbers they had related back to. So **this graph is meant to show changes along a relative elevation gradient only.** We have not overlaid water levels because we could not always be sure of the appropriate offset.  
+Available elevation information varied between reserves in this project;  **this graph is meant to show changes along a relative elevation gradient only.** We have not overlaid water levels because we could not always be sure of the appropriate offset.  
 
 
 ```{r cumu-navd88, fig.width = opts_long$width_tall, fig.height = opts_long$height_tall}
@@ -748,28 +739,41 @@ if(nrow(not_enough_df) > 0){
 
 # Statistical methodology   
 
-These rates were generated using random-intercept linear mixed models. See Zuur et al. 2009 and Cahoon et al. 2019 for details.
+Rates of elevation change at each SET were generated using random-intercept linear mixed models. See Zuur et al. (2009) and Cahoon et al. (2019) for details.
 
-Linear mixed models extend traditional linear regression models by allowing for the inclusion of both fixed and random effects. *These types of models are particularly useful when the data are structured hierarchically*, as with SET data. Data for each SET is analyzed separately using pin height as the response variable; arm and pin (nested in arm) are treated as random effects, and date is considered a numeric covariate. As both the intercept and slope include random effects, methods other than least squares must be employed. 
-
-# come back to this  
-
-Next discuss model fitting… All models were fit in R (reference…) using the nlme package (reference…). This type of approach is similar to the analysis performed in Cahoon 2019.
-
-For each SET, we initially considered two LMMs: a LMM that includes a random intercept (with a random effects for arm and for pin nested in arm) and a LMM that includes both a random slope and a random intercept (with random effects for arm and for pin nested in arm). For many SETs, we observed that the random intercept model fit better. At other SETs, the random slope and intercept model produced better fitting models (based on AIC); however, the resulting point estimates showed only small differences between the two approaches. As the random intercept models did not require the same degree of scrutiny when model fitting, and did not cause as many script-running errors, we exclusively employed random intercept models in our automated R scripts.  
+Linear mixed models extend traditional linear regression models by allowing for the inclusion of both fixed and random effects. *These types of models are particularly useful when the data are structured hierarchically*, as with SET data. Data for each SET is analyzed separately using pin height as the response variable; arm and pin (nested in arm) are treated as random effects; and date is considered a numeric covariate. As both the intercept and slope include random effects, methods other than least squares must be employed. 
 
 
-In our case, we have, for each SET:  
+For each SET, we initially considered two LMMs, as in Cahoon et al. (2019): a LMM that includes a random intercept (with a random effects for arm and for pin nested in arm) and a LMM that includes both a random slope and a random intercept (with random effects for arm and for pin nested in arm). For many SETs, we observed that the random intercept model fit better. At other SETs, the random slope and intercept model produced better fitting models (based on AIC). However, the resulting point estimates showed only small differences between the two approaches. As the random intercept models did not require the same degree of scrutiny when model fitting, and did not cause as many script-running errors, we exclusively employed random intercept models in these automated R scripts. For more detailed analyses at a smaller level, we recommend consideration of both models.  
+
+
+## General recommendations on analysis of SET data  
+
+
++  Before analysis, the analyst should carefully examine plots of the data to ensure that a linear model is appropriate. *If the points exhibit curvature or if there is some sort of a changepoint, this type of analysis may not be appropriate.* Graphs are provided in this report to help with this determination.  
++  The analyst should also look for highly influential observations. One way that this could occur is when there is a *large temporal gap* in the data.  
++  Be aware that, though we have done our best to appropriately describe uncertainty in the following rate calculations, the analyses below do not account for *temporal dependence* in the data. This could mean that confidence intervals are narrower than they should be and may be something the analyst wishes to address in future analyses.  
++  The analyst should employ a statistically valid model fitting strategy. When using Linear Mixed Models (LMMs), as we do below, this should also include addressing issues such as: 
+    +  ensuring convergence of the numerical optimization  
+    +  exploring sensitivity to starting values in the optimization procedure  
+    +  determining whether a random slope model or a random slope/random intercept model is most appropriate, and  
+    +  verifying model assumptions.  
+
+
+## Statistical details of this analysis  
+
+For this analysis, models were fit in R, using the `lme()` function in the `nlme` package (Pinheiro et al. 2019). Confidence intervals were generated using the `intervals()` function, also in the `nlme` package. 
+
+Variable names within each SET were:  
 
 +  **response variable:** pin_height  
 +  **fixed effect:** date  
-+  **random effects:** arm_position, pin_number  (note, these are nested)  
++  **random effects:** arm_position, pin_number (with pin_number nested in arm_position)  
 
-## Rates of change  
+All calculations generated output in *mm/day* and these rates were converted to *mm/yr* by multiplying by 365.25, to account for leap years. 
 
-The LMMs were run using the `lme()` function in the `nlme` package. Confidence intervals were generated using the `intervals()` function, also in the `nlme` package. 
 
-All calculations generated output in *mm/day* and were converted to *mm/yr* by multiplying by 365.25 to account for leap years.    
+## Calculated rates of elevation change  
 
 ```{r calc-lmm, eval = enough_dat}
 models2 <- dat %>%
@@ -918,13 +922,15 @@ lmm_out <- lmm_out %>%
 
 # Comparisons to 0 and SLR  
 
-This method of comparison was chosen because different methods were used to calculate rates for sea level rise (ARIMA) and SET elevation change (LMMs) using data from different sources. We note that each individual interval has 95% confidence associated with it, and conclusions that are made based on pairwise comparison of these intervals will not necessarily be equivalent to conducting a formal hypothesis test for a difference at the 5% level (Schenker and Gentleman, 2001).
+In the following tables and graphics, rates of elevation change at each SET are compared to rates of water level change (SLR = long-term sea level rise; 19yr = water level change over a 19 year period) by investigating whether confidence intervals overlap. This method of comparison was chosen because different methods were used to calculate rates for sea level rise (ARIMA) and SET elevation change (LMMs), using data from different sources. We note that each individual interval has 95% confidence associated with it, and conclusions that are made based on pairwise comparison of these intervals will not necessarily be equivalent to conducting a formal hypothesis test for a difference at the 5% level (Schenker and Gentleman, 2001).  
 
-This could take some explaining. Essentially, if the 95% CI doesn't include 0, that's the same as p < 0.05; slope differs significantly from 0. Comparisons to sea level change get more complicated because there's not a single number we're comparing to; there's a number and a confidence interval. And they're generated using different methods than what we've used to calculate the SET rates of change. So the closest we can get to "is this a significant difference" is "do the CIs overlap?" It's not exactly the same as a t-test, and the probability of a type I error is higher than 0.05. It is, however, the general idea of "how confident are we". This same idea plays into everything else below; it's just a matter of how it's represented. So please share your thoughts.   
+For comparisons to 0, if the SET's 95% CI does not include 0, this *is* equivalent to a formal hypothesis test. For consistency, we are using the same terminology, involving overlapping CIs for all comparisons.
+
+
 
 ## Overall Summary Table  
 
-In this table, the SETs are ordered by their rate of change, from lowest at the top to highest at the bottom. The rate and 95% CI (all in mm/yr) for each SET is provided. The last 6 columns show comparisons to: zero (is elevation at the SET changing?), long-term SLR, and 19-year water level change. Each comparison takes up two columns: a comparison of point estimates (is the SET rate higher or lower than the estimated SLR rate), and whether the confidence intervals overlap or not (see above).  
+In this table, the SETs are ordered by their rate of change, from lowest at the top to highest at the bottom. The rate and 95% CI (all in mm/yr) for each SET are provided. The last 6 columns show comparisons to: zero (is elevation at the SET changing?), long-term SLR, and 19-year water level change. Each comparison takes up two columns: a comparison of point estimates (is the SET rate higher or lower than what it is compared to), and whether or not the confidence intervals overlap.  
 
 ```{r}
 rates_comp_split <- rates_slr_comp %>% 
@@ -1000,7 +1006,7 @@ rates_comp_table
 
 # Increasing/Decreasing (Comparison to 0)  
 
-The following tables break the SETs into groups where the rate of SET elevation change is *lower than* / *higher than* / *not different from* 0. *Lower than* and *higher than* tables imply that the 95% confidence intervals for the SET's rate of change do not include 0. *Not different from* means that 0 *is* included.  
+The following tables break the SETs into groups where the rate of SET elevation change is *lower than* / *higher than* / *not different from* 0. *Lower than* and *higher than* tables imply that the 95% confidence intervals for the SET's rate of elevation change do not include 0. *Not different from* means that 0 *is* included.  
 
 
 <br>
@@ -1051,7 +1057,6 @@ This rate is reported by `r slr_res$nearest_nwlon_station`, NWLON station number
 
 The following tables break the SETs into groups where the rate of SET elevation change is *lower than* / *higher than* / *not different from* this SLR rate. *Lower than* and *higher than* tables imply that 95% confidence intervals do not overlap between the SET and SLR. *Not different from* means that confidence intervals *do* overlap.  
 
-# Type I error rate language - come back to  
 
 This method of comparison was chosen because different methods were used to calculate rates for sea level rise (ARIMA) and SET elevation change (LMMs) using data from different sources. We note that each individual interval has 95% confidence associated with it, and conclusions that are made based on pairwise comparison of these intervals will not necessarily be equivalent to conducting a formal hypothesis test for a difference at the 5% level (Schenker and Gentleman, 2001).
 
@@ -1105,7 +1110,6 @@ This rate uses data reported by `r slr_res$nearest_nwlon_station`, NWLON station
 
 The following tables break the SETs into groups where the rate of SET elevation change is *lower than* / *higher than* / *not different from* this 19-year rate. *Lower than* and *higher than* tables imply that 95% confidence intervals do not overlap between the SET and water level change. *Not different from* means that confidence intervals *do* overlap.  
 
-# Type I error rate language - come back to  
 
 This method of comparison was chosen because different methods were used to calculate rates for sea level rise (ARIMA) and SET elevation change (LMMs) using data from different sources. We note that each individual interval has 95% confidence associated with it, and conclusions that are made based on pairwise comparison of these intervals will not necessarily be equivalent to conducting a formal hypothesis test for a difference at the 5% level (Schenker and Gentleman, 2001).
 
@@ -1161,9 +1165,9 @@ lmm_out <- left_join(lmm_out, select(mdat, unique_set_id, co_dominant_species1),
 ```
 
 
-## Graphical Comparison to Sea Level Rise and 0  
+# Graphical Comparisons to Sea Level Rise and 0  
 
-## Sites in R's default order  
+## Sites in alphabetical order, R's default  
 
 
 ```{r, fig.width = opts_long$width_short, fig.height = opts_long$height_short, eval = enough_dat}
@@ -1270,7 +1274,7 @@ cat(paste("The above graph is saved as: ", out_name))
 ```
 
 
-# Ordered (categorically) by NAVD88 elevation  
+## Ordered (categorically) by NAVD88 elevation  
 
 
 If NAVD88 elevations were provided in the metadata, two more versions of the graph above are produced below. The SETs are ordered along the y-axis from highest to lowest elevation.
@@ -1338,7 +1342,7 @@ if(multiple_navd88s){
 
 ## Sites by a user-specified order  
 
-In order, according to specifications in the metadata; and labeled with user-friendly names. Note that no plot will be produced if there are any NAs in the metadata fields `numerical_order` or `user_friendly_set_name`.    
+If the `numerical_order` column of the metadata was filled out, the order of SETs in the graphics below will be in that order, as well as labeled with user-friendly names. Note that no plot will be produced if there are any NAs (missing values) in the metadata fields `numerical_order` or `user_friendly_set_name`.    
 
 ```{r plot-slr-ci-lmm-ordered, fig.width = opts_long$width_short, fig.height = opts_long$height_short, eval = enough_dat}
 # only run this chunk if numerical order and user friendly names are specified for all SETs
@@ -1526,9 +1530,9 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
 
 ***
 
-## MAPS  
+# MAPS  
 
-The way these maps are rendered below (and even *if* they are rendered) depends on many things. The script `R_scripts/04_interact_maps.R` will let you interact with the maps, and you can either take a screenshot or use the `Export` command from RStudio's Viewer pane to save a version that looks better.  
+The way the maps are rendered below (and even *if* they are rendered) depends on several things specific to your computer. The script `R_scripts/04_interact_maps.R` will let you interact with the maps, and you can either take a screenshot or use the `Export` command from RStudio's Viewer pane to save a version that looks better. Even if no output was generated in this Word document, you should still be able to use the interactive script to generate maps.    
 
 
 ```{r map-script-source}
@@ -1561,7 +1565,11 @@ m19yr
 # References  
 
 
-Cahoon, D.R., J.C. Lynch, C.T. Roman, J.P. Schmit, and D.E. Skidds. 2019. Evaluating the Relationship Among Wetland Vertical Development, Elevation Capital, Sea-Level Rise, and Tidal Marsh Sustainability. Estuaries and Coasts 42:1-15. https://doi.org/10.1007/s12237-018-0448-x 
+Cahoon, D.R., J.C. Lynch, C.T. Roman, J.P. Schmit, and D.E. Skidds. 2019. Evaluating the Relationship Among Wetland Vertical Development, Elevation Capital, Sea-Level Rise, and Tidal Marsh Sustainability. Estuaries and Coasts 42:1-15. https://doi.org/10.1007/s12237-018-0448-x  
+
+Pinheiro J, Bates D, DebRoy S, Sarkar D, R Core Team. 2019. _nlme: Linear
+and Nonlinear Mixed Effects Models_. R package version 3.1-140, 
+https://CRAN.R-project.org/package=nlme  
 
 Schenker, N. and J.F. Gentleman. 2001. On Judging the Significance of Differences by Examining the Overlap Between Confidence Intervals. The American Statistician 55(3):182-186. https://doi.org/10.1198/000313001317097960
 
