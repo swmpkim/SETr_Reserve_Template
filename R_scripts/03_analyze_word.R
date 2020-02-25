@@ -54,5 +54,9 @@ msg2 <- ifelse(
     "\n \nSomething has gone wrong. Please scroll up and see if there's a line that starts with 'Quit from line ___'; copy that and email it to Kim Cressman for help. \n \n"
 )
 
+# save a log file just in case
+log_name <- paste0(Sys.Date(), "_03analyzeword_logfile.txt")
+writeLines(capture.output(sessionInfo()), here::here("R_output", "log_files", log_name))
+
 # print both messages
 message(c(msg1, msg2))

@@ -9,7 +9,9 @@ editor_options:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, error = TRUE)
+
 ```
+
 
 In this report, the user may have chosen to exclude data associated with certain QA/QC codes. Any values that have been removed are listed in the appropriate section below.    
 
@@ -49,8 +51,11 @@ source(here::here('R_scripts', 'sourced', '001_user_options.R'))
 ind_set_dir <- here::here("R_output", "figures", "cumu_change_plots", "individual_sets")
 if(!dir.exists(ind_set_dir)) dir.create(ind_set_dir)
 rm(ind_set_dir)
-```
 
+# save a log file just in case
+log_name <- paste0(Sys.Date(), "_002ratecalculations_logfile.txt")
+writeLines(capture.output(sessionInfo()), here::here("R_output", "log_files", log_name))
+```
 
 ## Data and metadata setup  
 
@@ -1468,3 +1473,6 @@ mSLR
 ```{r map19yr}
 m19yr
 ```
+
+
+

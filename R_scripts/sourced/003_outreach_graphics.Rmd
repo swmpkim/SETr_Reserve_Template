@@ -28,6 +28,10 @@ library(leaflet)
 source(here::here('R_scripts', 'sourced', '000_functions.R'))
 # load user options
 source(here::here('R_scripts', 'sourced', '001_user_options.R'))
+
+# save a log file just in case
+log_name <- paste0(Sys.Date(), "_003outreach_logfile.txt")
+writeLines(capture.output(sessionInfo()), here::here("R_output", "log_files", log_name))
 ```
 
 
