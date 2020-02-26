@@ -479,44 +479,51 @@ print(p)
 
 
 
-Now we'll do the same building up, with a twist. Different plant communities may show different patterns in change over time. We will represent this by coloring the points on the graph by the dominant vegetation around each SET:  
+Now we'll do the same building up, with a twist. Different plant communities may show different patterns in change over time. If vegetation information for the SETs was provided in the metadata document, it will be represented in the following graphs by coloring points by that dominant vegetation. If this information was not provided, figures 12-14 will not be generated.    
 
 ```{r, fig.width = 7, fig.height = 6, fig.cap = 'Figure 12. Summary graph of the rate of marsh surface elevation change at each SET, colored by dominant vegetation type.'}
-p <- plot_rate_comps(data = rate_summ, plot_type = 1, 
-                     set_ids = user_friendly_set_name, set_ci_low = CI_low,
-                     set_ci_high = CI_high, 
-                     comp1 = slr, 
-                     comp1_ci_low = slr - slr_ci,
-                     comp1_ci_high = slr + slr_ci,
-                     rates = rate, color_by_veg = TRUE, veg = veg) +
+
+if(!anyNA(rate_summ$veg)){
+  p <- plot_rate_comps(data = rate_summ, plot_type = 1, 
+                       set_ids = user_friendly_set_name, set_ci_low = CI_low,
+                       set_ci_high = CI_high, 
+                       comp1 = slr, 
+                       comp1_ci_low = slr - slr_ci,
+                       comp1_ci_high = slr + slr_ci,
+                       rates = rate, color_by_veg = TRUE, veg = veg) +
     theme(legend.position = "bottom")
-print(p)
+  print(p)
+}
 ```
 
 
 ```{r, fig.width = 7, fig.height = 5, fig.cap = 'Figure 13. Summary graph of the rate of marsh surface elevation change at each SET, colored by dominant vegetation type, with whiskers to indicate 95% confidence intervals for the SETs.'}
-p <- plot_rate_comps(data = rate_summ, plot_type = 2, 
-                     set_ids = user_friendly_set_name, set_ci_low = CI_low,
-                     set_ci_high = CI_high, 
-                     comp1 = slr, 
-                     comp1_ci_low = slr - slr_ci,
-                     comp1_ci_high = slr + slr_ci,
-                     rates = rate, color_by_veg = TRUE, veg = veg) +
-  theme(legend.position = "bottom")
-print(p)
+if(!anyNA(rate_summ$veg)){
+  p <- plot_rate_comps(data = rate_summ, plot_type = 2, 
+                       set_ids = user_friendly_set_name, set_ci_low = CI_low,
+                       set_ci_high = CI_high, 
+                       comp1 = slr, 
+                       comp1_ci_low = slr - slr_ci,
+                       comp1_ci_high = slr + slr_ci,
+                       rates = rate, color_by_veg = TRUE, veg = veg) +
+    theme(legend.position = "bottom")
+  print(p)
+}
 ```
 
 
 ```{r, fig.width = 7, fig.height = 7, fig.cap = 'Figure 14. Summary graph of the rate of marsh surface elevation change at each SET, colored by vegetation type, with whiskers to indicate 95% confidence intervals for the SETs and shading to represent a 95% confidence interval for sea level change.'}
-p <- plot_rate_comps(data = rate_summ, plot_type = 3, 
-                     set_ids = user_friendly_set_name, set_ci_low = CI_low,
-                     set_ci_high = CI_high, 
-                     comp1 = slr, 
-                     comp1_ci_low = slr - slr_ci,
-                     comp1_ci_high = slr + slr_ci,
-                     rates = rate, color_by_veg = TRUE, veg = veg) +
-  theme(legend.position = "bottom", legend.direction = "vertical")
-print(p)
+if(!anyNA(rate_summ$veg)){
+  p <- plot_rate_comps(data = rate_summ, plot_type = 3, 
+                       set_ids = user_friendly_set_name, set_ci_low = CI_low,
+                       set_ci_high = CI_high, 
+                       comp1 = slr, 
+                       comp1_ci_low = slr - slr_ci,
+                       comp1_ci_high = slr + slr_ci,
+                       rates = rate, color_by_veg = TRUE, veg = veg) +
+    theme(legend.position = "bottom", legend.direction = "vertical")
+  print(p)
+}
 ```
 
 

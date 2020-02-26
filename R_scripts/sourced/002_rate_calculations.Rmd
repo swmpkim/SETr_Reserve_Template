@@ -1167,6 +1167,8 @@ lmm_out <- left_join(lmm_out, select(mdat, unique_set_id, co_dominant_species1),
 
 # Graphical Comparisons to Sea Level Rise and 0  
 
+If dominant vegetation was provided in the metadata document, the following graphs will be provided both with and without points colored by vegetation type. If any vegetation entries were missing, the vegetation point-coloration will NOT be provided. You can generate them by adding vegetation to the "CoDominant Species 1" column of the `---set_metadata.xlsx` document.   
+
 ## Sites in alphabetical order, R's default  
 
 
@@ -1231,17 +1233,24 @@ cat(paste("The above graph is saved as: ", out_name))
 ```
 
 
+
 ```{r plot-slr-ci-lmm-veg, fig.width = opts_long$width_veg, fig.height = opts_long$height_veg, eval = enough_dat}
-# original; colored by veg
-plot_comp_specific(plot_type = 3, color_by_veg = TRUE) +
-  user_leg
 
-out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_veg.png", sep = "/")
-out_file <- here::here(out_name)
 
-ggsave(out_file, width = 1.2*opts_long$width_veg, height = opts_long$height_veg, scale = 0.8)
+if(!anyNA(lmm_out$veg)){
 
-cat(paste("The above graph is saved as: ", out_name))
+  # original; colored by veg
+  plot_comp_specific(plot_type = 3, color_by_veg = TRUE) +
+    user_leg
+  
+  out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_veg.png", sep = "/")
+  out_file <- here::here(out_name)
+  
+  ggsave(out_file, width = 1.2*opts_long$width_veg, height = opts_long$height_veg, scale = 0.8)
+  
+  cat(paste("The above graph is saved as: ", out_name))
+  
+}
 ```
 
 
@@ -1262,15 +1271,20 @@ cat(paste("The above graph is saved as: ", out_name))
 
 ```{r plot-slr-ci-lmm-veg-19yr, fig.width = opts_long$width_veg, fig.height = opts_long$height_veg, eval = enough_dat}
 # 19-year water level change, with veg coloring
-plot_comp_specific(plot_type = 4, color_by_veg = TRUE) +
-  user_leg
 
-out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_veg_19yr.png", sep = "/")
-out_file <- here::here(out_name)
-
-ggsave(out_file, width = 1.2*opts_long$width_veg, height = opts_long$height_veg, scale = 0.8)
-
-cat(paste("The above graph is saved as: ", out_name))
+if(!anyNA(lmm_out$veg)){
+  
+  plot_comp_specific(plot_type = 4, color_by_veg = TRUE) +
+    user_leg
+  
+  out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_veg_19yr.png", sep = "/")
+  out_file <- here::here(out_name)
+  
+  ggsave(out_file, width = 1.2*opts_long$width_veg, height = opts_long$height_veg, scale = 0.8)
+  
+  cat(paste("The above graph is saved as: ", out_name))
+  
+}
 ```
 
 
@@ -1319,20 +1333,22 @@ if(multiple_navd88s){
 
 if(multiple_navd88s){
   # add 19-year water level change; yes veg coloring
-  p <- plot_comp_specific(data = lmm_out_navd88order,
-                          set_ids = set_id2,
-                          color_by_veg = TRUE,
-                          veg = veg) +
-    user_leg
-  
-  print(p)
-  
-  out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_bothSLRs_navd88ordering_veg.png", sep = "/")
-  out_file <- here::here(out_name)
-  
-  ggsave(out_file, plot = p, width = opts_long$width_veg, height = opts_long$height_veg, scale = 0.8)
-  
-  cat(paste("The above graph is saved as: ", out_name))
+  if(!anyNA(lmm_out$veg)){
+    p <- plot_comp_specific(data = lmm_out_navd88order,
+                            set_ids = set_id2,
+                            color_by_veg = TRUE,
+                            veg = veg) +
+      user_leg
+    
+    print(p)
+    
+    out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_bothSLRs_navd88ordering_veg.png", sep = "/")
+    out_file <- here::here(out_name)
+    
+    ggsave(out_file, plot = p, width = opts_long$width_veg, height = opts_long$height_veg, scale = 0.8)
+    
+    cat(paste("The above graph is saved as: ", out_name))
+  }
 }
 ```
 
@@ -1391,22 +1407,22 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
   
   
   # original, colored by veg
-  
-  p <- plot_comp_specific(plot_type = 3,
-                          data = lmm_out_ordered,
-                          set_ids = set_id2,
-                          color_by_veg = TRUE) +
-    user_leg
-  
-  print(p)
-  
-  out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_ordered_veg.png", sep = "/")
-  out_file <- here::here(out_name)
-  
-  ggsave(out_file, p, width = 1.1*opts_long$width_veg, height = opts_long$height_veg, scale = 0.8)
-  
-  cat(paste("The above graph is saved as: ", out_name))
-  
+  if(!anyNA(lmm_out$veg)){
+    p <- plot_comp_specific(plot_type = 3,
+                            data = lmm_out_ordered,
+                            set_ids = set_id2,
+                            color_by_veg = TRUE) +
+      user_leg
+    
+    print(p)
+    
+    out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_ordered_veg.png", sep = "/")
+    out_file <- here::here(out_name)
+    
+    ggsave(out_file, p, width = 1.1*opts_long$width_veg, height = opts_long$height_veg, scale = 0.8)
+    
+    cat(paste("The above graph is saved as: ", out_name))
+  }
   
   
   
@@ -1430,22 +1446,22 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
   
   
   # original, with user-friendly names, and colored by veg
-  
-  p <- plot_comp_specific(data = lmm_out_ordered,
-                          plot_type = 3,
-                          set_ids = user_friendly_set_name,
-                          color_by_veg = TRUE) +
-    user_leg
-  
-  print(p)
-  
-  out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_ordered_friendly_names_veg.png", sep = "/")
-  out_file <- here::here(out_name)
-  # because the legend is pretty wide for the plots with veg coloring, I'm saving them 20% wider than specified. this makes the final dimensions of the main panel comparable to the non-veg plots.
-  ggsave(out_file, p, width = 1.1*opts_long$width_veg, height = opts_long$height_veg, scale = 0.8)
-  
-  cat(paste("The above graph is saved as: ", out_name))
-  
+  if(!anyNA(lmm_out$veg)){
+    p <- plot_comp_specific(data = lmm_out_ordered,
+                            plot_type = 3,
+                            set_ids = user_friendly_set_name,
+                            color_by_veg = TRUE) +
+      user_leg
+    
+    print(p)
+    
+    out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_ordered_friendly_names_veg.png", sep = "/")
+    out_file <- here::here(out_name)
+    # because the legend is pretty wide for the plots with veg coloring, I'm saving them 20% wider than specified. this makes the final dimensions of the main panel comparable to the non-veg plots.
+    ggsave(out_file, p, width = 1.1*opts_long$width_veg, height = opts_long$height_veg, scale = 0.8)
+    
+    cat(paste("The above graph is saved as: ", out_name))
+  }
   
   
   
@@ -1468,22 +1484,22 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
   
   
   # original, colored by veg
-  
-  p <- plot_comp_specific(plot_type = 4,
-                          data = lmm_out_ordered,
-                          set_ids = set_id2,
-                          color_by_veg = TRUE) +
-    user_leg
-  
-  print(p)
-  
-  out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_ordered_with_19yr_veg.png", sep = "/")
-  out_file <- here::here(out_name)
-  
-  ggsave(out_file, p, width = 1.1*opts_long$width_veg, height = opts_long$height_veg, scale = 0.8)
-  
-  cat(paste("The above graph is saved as: ", out_name))
-  
+  if(!anyNA(lmm_out$veg)){
+    p <- plot_comp_specific(plot_type = 4,
+                            data = lmm_out_ordered,
+                            set_ids = set_id2,
+                            color_by_veg = TRUE) +
+      user_leg
+    
+    print(p)
+    
+    out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_ordered_with_19yr_veg.png", sep = "/")
+    out_file <- here::here(out_name)
+    
+    ggsave(out_file, p, width = 1.1*opts_long$width_veg, height = opts_long$height_veg, scale = 0.8)
+    
+    cat(paste("The above graph is saved as: ", out_name))
+  }
   
   
   
@@ -1507,21 +1523,22 @@ if(sum(is.na(mdat$numerical_order)) + sum(is.na(mdat$user_friendly_set_name)) ==
   
   
   # original, with user-friendly names, and colored by veg
-  
-  p <- plot_comp_specific(data = lmm_out_ordered,
-                          plot_type = 4,
-                          set_ids = user_friendly_set_name,
-                          color_by_veg = TRUE) +
-    user_leg
-  
-  print(p)
-  
-  out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_ordered_friendly_names_with19yr_veg.png", sep = "/")
-  out_file <- here::here(out_name)
-  # because the legend is pretty wide for the plots with veg coloring, I'm saving them 20% wider than specified. this makes the final dimensions of the main panel comparable to the non-veg plots.
-  ggsave(out_file, p, width = 1.1*opts_long$width_veg, height = opts_long$height_veg, scale = 0.8)
-  
-  cat(paste("The above graph is saved as: ", out_name))
+  if(!anyNA(lmm_out$veg)){
+    p <- plot_comp_specific(data = lmm_out_ordered,
+                            plot_type = 4,
+                            set_ids = user_friendly_set_name,
+                            color_by_veg = TRUE) +
+      user_leg
+    
+    print(p)
+    
+    out_name <- paste("R_output", "figures", "summary_plots", "summary_plot_ordered_friendly_names_with19yr_veg.png", sep = "/")
+    out_file <- here::here(out_name)
+    # because the legend is pretty wide for the plots with veg coloring, I'm saving them 20% wider than specified. this makes the final dimensions of the main panel comparable to the non-veg plots.
+    ggsave(out_file, p, width = 1.1*opts_long$width_veg, height = opts_long$height_veg, scale = 0.8)
+    
+    cat(paste("The above graph is saved as: ", out_name))
+  }
 }
 
 ```
