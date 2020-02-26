@@ -88,7 +88,7 @@ if (length(filelist) > 1) {
 
 # generate the full path to the file; read it in and get pin heights to mm
 filename <- paste0(path, "/", filelist)
-dat <- read_csv(filename)
+dat <- read_csv(filename, guess_max = 2000)
 dat <- height_to_mm(dat)
 
 # if there isn't a reserve column in the data,
