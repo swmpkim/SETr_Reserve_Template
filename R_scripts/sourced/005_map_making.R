@@ -21,7 +21,9 @@ to_map <- dat %>%
     mutate(map_lab = paste0(set_id, ": ", user_friendly_set_name, "; ",
                             round(rate, 2), " mm/yr")) %>% 
     rename(lat = latitude_dec_deg,
-           long = longitude_dec_deg)
+           long = longitude_dec_deg) %>% 
+    filter(!is.na(lat),
+           !is.na(long))
 
 
 # read in images to use as map icons

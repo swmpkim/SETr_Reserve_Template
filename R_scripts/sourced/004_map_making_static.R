@@ -14,7 +14,9 @@ writeLines(capture.output(sessionInfo()), here::here("R_output", "log_files", lo
 # join coordinates with the rate results, and categorize the rates
 to_map <- rates_slr_all %>%
     rename(lat = latitude_dec_deg,
-           long = longitude_dec_deg)
+           long = longitude_dec_deg) %>% 
+    filter(!is.na(lat),
+           !is.na(long))
 
 
 # read in images to use as map icons
