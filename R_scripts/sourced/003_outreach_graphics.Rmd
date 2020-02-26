@@ -479,9 +479,18 @@ print(p)
 
 
 
-Now we'll do the same building up, with a twist. Different plant communities may show different patterns in change over time. If vegetation information for the SETs was provided in the metadata document, it will be represented in the following graphs by coloring points by that dominant vegetation. If this information was not provided, figures 12-14 will not be generated.    
+Now we'll do the same building up, with a twist. Different plant communities may show different patterns in change over time. If vegetation information for the SETs was provided in the metadata document, it will be represented in the following graphs by coloring points by that dominant vegetation. If this information was not provided, figures 12-14 will not be generated. 
 
-```{r, fig.width = 7, fig.height = 6, fig.cap = 'Figure 12. Summary graph of the rate of marsh surface elevation change at each SET, colored by dominant vegetation type.'}
+```{r}
+# set up options for the legend in the veg plots
+leg_pos <- ifelse(opts_long$legend_side == 1, "right", "bottom")
+leg_align <- ifelse(opts_long$legend_alignment == 1, "vertical", "horizontal")
+user_leg <- theme(legend.position = leg_pos,
+                  legend.direction = leg_align)
+
+```
+
+```{r, fig.width = opts_long$width_veg, fig.height = opts_long$height_veg, fig.cap = 'Figure 12. Summary graph of the rate of marsh surface elevation change at each SET, colored by dominant vegetation type.'}
 
 if(!anyNA(rate_summ$veg)){
   p <- plot_rate_comps(data = rate_summ, plot_type = 1, 
@@ -491,13 +500,13 @@ if(!anyNA(rate_summ$veg)){
                        comp1_ci_low = slr - slr_ci,
                        comp1_ci_high = slr + slr_ci,
                        rates = rate, color_by_veg = TRUE, veg = veg) +
-    theme(legend.position = "bottom")
+    user_leg
   print(p)
 }
 ```
 
 
-```{r, fig.width = 7, fig.height = 5, fig.cap = 'Figure 13. Summary graph of the rate of marsh surface elevation change at each SET, colored by dominant vegetation type, with whiskers to indicate 95% confidence intervals for the SETs.'}
+```{r, fig.width = opts_long$width_veg, fig.height = opts_long$height_veg, fig.cap = 'Figure 13. Summary graph of the rate of marsh surface elevation change at each SET, colored by dominant vegetation type, with whiskers to indicate 95% confidence intervals for the SETs.'}
 if(!anyNA(rate_summ$veg)){
   p <- plot_rate_comps(data = rate_summ, plot_type = 2, 
                        set_ids = user_friendly_set_name, set_ci_low = CI_low,
@@ -506,13 +515,13 @@ if(!anyNA(rate_summ$veg)){
                        comp1_ci_low = slr - slr_ci,
                        comp1_ci_high = slr + slr_ci,
                        rates = rate, color_by_veg = TRUE, veg = veg) +
-    theme(legend.position = "bottom")
+    user_leg
   print(p)
 }
 ```
 
 
-```{r, fig.width = 7, fig.height = 7, fig.cap = 'Figure 14. Summary graph of the rate of marsh surface elevation change at each SET, colored by vegetation type, with whiskers to indicate 95% confidence intervals for the SETs and shading to represent a 95% confidence interval for sea level change.'}
+```{r, fig.width = opts_long$width_veg, fig.height = opts_long$height_veg, fig.cap = 'Figure 14. Summary graph of the rate of marsh surface elevation change at each SET, colored by vegetation type, with whiskers to indicate 95% confidence intervals for the SETs and shading to represent a 95% confidence interval for sea level change.'}
 if(!anyNA(rate_summ$veg)){
   p <- plot_rate_comps(data = rate_summ, plot_type = 3, 
                        set_ids = user_friendly_set_name, set_ci_low = CI_low,
@@ -521,7 +530,7 @@ if(!anyNA(rate_summ$veg)){
                        comp1_ci_low = slr - slr_ci,
                        comp1_ci_high = slr + slr_ci,
                        rates = rate, color_by_veg = TRUE, veg = veg) +
-    theme(legend.position = "bottom", legend.direction = "vertical")
+    user_leg
   print(p)
 }
 ```
