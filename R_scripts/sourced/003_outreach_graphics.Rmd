@@ -550,7 +550,7 @@ knitr::include_graphics(map_0_path)
 The map below is similar to that above, but:  
 
 +  An up arrow represents a SET where the rate of elevation change (represented as a point in the dot-and-whisker graphs above) is **higher than the rate of sea level change** (the vertical blue line from those graphs), and a down arrow represents a SET where the rate of elevation change is **lower than the rate of sea level change**.  
-+  Instead of asking "is 0 inside the confidence interval for each SET", we ask if the confidence interval for sea level change overlaps the confidence interval for a SET - do the whiskers overlap the blue shading?  
++  Instead of asking "is 0 inside the confidence interval for each SET", we ask if the confidence interval for sea level change overlaps the confidence interval for a SET - do the whiskers overlap the blue shading? It's important to note for more science-minded audiences that this is not the same as the formal hypothesis tests we learned about in introductory statistics. We are comparing confidence intervals to get a general idea of how these different rates of change relate to each other.  
     +  If the confidence intervals do *not* overlap, the arrows are red or blue and we would be confident saying the SET is changing at a different rate (faster or slower) than sea level is changing.  
     +  If the confidence intervals *do* overlap, the arrow is gray and we are *not* confident that there is a difference between the SET's rate of elevation change and that of sea level. 
 

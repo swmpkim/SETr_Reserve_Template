@@ -64,7 +64,7 @@ writeLines(capture.output(sessionInfo()), here::here("R_output", "log_files", lo
 
 ## Data and metadata setup  
 
-We start by reading in the long SET measurement dataset, converted from other formats by earlier SETr scripts. Pin heights have also been converted to mm if they were previously in cm.  
+We start by reading in the long SET measurement dataset, converted from other formats by earlier SETr scripts. See the "Guide to the SETr Workflow" document for more detail on data formatting. In this step, pin heights were converted to mm if they were previously in cm.  
 
 
 ```{r read-data, warning = TRUE}
@@ -143,7 +143,7 @@ if(!is.na(opts_long$custom_end)){
 
 In the same `user_defined_inputs` spreadsheet, certain QA/QC codes may have been specified for removal in this analysis. In the `qaqc_codes` worksheet, they were labeled with "-3", to be consistent with SWMP's water quality/weather/nutrient "reject" flagging. If such values are present, they will be printed below, then turned into NAs so they are not used in the analysis.
 
-**Note** that the R code dealing with these flags looks for an EXACT match. e.g., if "LHE" is specified for removal, only values with "LHE" will be removed. "LHE CB" and "CRM LHE" will *not* be removed, and need to be specified separately. To remove a combination of codes, a new line may need to be created in the `qaqc_codes` tab of the input spreadsheet.  
+**Note** that the R code dealing with these flags looks for an EXACT match in the `qaqc_codes` worksheet, and matches are case-sensitive (all codes should be in all caps). If "LHE" is specified for removal, only values with "LHE" will be removed. "LHE CB" and "CRM LHE" will *not* be removed if only "LHE" is specified; combinations of codes need to be specified on their own line in the input spreadsheet. If you are using a new combination of codes, you may need to create a new row in that spreadsheet See the "Guide to the SETr Workflow" document for more information.     
 
 ```{r qc-remove}
 if (excl_exist) {
@@ -435,9 +435,9 @@ Graphs for each SET individually are not shown here but have been saved in _`r o
 
 ### Plus Sea Level Rise Line  
 
-**This is an oversimplification of sea level rise:**  the slope is that of long-term, local SLR. This was based on the SLR rate from the NWLON station listed above, and does not include actual water level data. This line also does not account for accelerating sea level rise.  
+**This is an oversimplification of sea level rise:**  the slope is that of long-term, local SLR, calculated by NOAA COOPS at the NWLON station closest to the reserve. This line does not account for accelerating sea level rise or site-specific processes, and these graphs do not include actual water level data.  
 
-These graphs are meant to illustrate and give context for SET elevation change relative to long-term SLR.  
+These graphs are meant to illustrate and provide context for SET elevation change relative to long-term SLR.  
 
 
 

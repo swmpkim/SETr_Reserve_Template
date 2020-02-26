@@ -393,10 +393,10 @@ plot_rate_comps <- function(data, plot_type = 3, color_by_veg = FALSE,
     
     # labels when SETs, SLR, and 19-year change are included
     labels_all <- labs(title = "Elevation Change with 95% Confidence Intervals", 
-                       subtitle = paste0("Long-term SLR, solid line: ", 
+                       subtitle = paste0("Long-term SLR, solid line & dark shading: ", 
                                          {{comp1}}, " +/- ", 
                                          comp1_ci_halfwidth, " mm/yr",
-                                         "\n19-yr water level change, dashed line: ", 
+                                         "\n19-yr water level change, dashed line & light shading: ", 
                                          {{comp2}}, " +/- ", 
                                          comp2_ci_halfwidth, " mm/yr"), 
                        x = "Rate of change (mm/yr)", 
