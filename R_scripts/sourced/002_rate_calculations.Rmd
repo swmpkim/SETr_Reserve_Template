@@ -678,7 +678,7 @@ ggplot(cumu_navd88, aes(x = date, y = mean_cumu, color = set_id)) +
   geom_line(size = 1) +
   theme_minimal() +
   labs(title = "SET cumulative change",
-       subtitle = "each SET's NAVD88 elevation used for its first sample date",
+       subtitle = "Each SET's position on the y-axis was \ndetermined by its NAVD88 elevation",
        y = "NAVD88 elevation (m)",
        color = "SET")
 
