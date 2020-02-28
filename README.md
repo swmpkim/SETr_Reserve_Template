@@ -4,6 +4,27 @@ Reserve-level workflow repository
   - [Directory structure](#directory-structure)
   - [Proposed workflow](#proposed-workflow)
 
+The *SETr* project period ended 2/28/2020. Here are links to publicly
+available outputs. Currently they are on google drive; links will be
+updated when products have their final home on the CDMO/Science
+Collaborative site:
+
+[Final Outreach Webinar](https://youtu.be/ggoINd6RQwA)  
+[Final Technical Webinar](https://youtu.be/1uBAq1bd7JE)  
+[All Available
+Reports](https://drive.google.com/drive/folders/1yEY5nbq54Wibw-gJRXQfd1Hy2Tc17J8b?usp=sharing)
+
+  - [National Synthesis of SET
+    Data](https://drive.google.com/open?id=1VT2zsfbr8Mi35gI-VYgnXX_pOxgQ5Oa3)
+    (pdf; opens in google drive)  
+  - [Reserve-Level Technical
+    Reports](https://drive.google.com/drive/folders/1ExY94WWOoS3iY3iJpKdteI96_iFnDdMM?usp=sharing)  
+  - [Reserve-Level Outreach
+    Reports](https://drive.google.com/drive/folders/1fItxnJGQurKoxcK1-9SKP6O94dksuAOD?usp=sharing)  
+  - [SETr Workflow
+    Guide](https://drive.google.com/open?id=14CslEIyoVDuR1q_Nlmt9d87UJnCQvsHV)
+    (pdf; opens in google drive)
+
 This page and repository are for the scripts as they’re modified to work
 at the Reserve-level. The file structure necessarily needs to be
 different from what I’ve been doing to wrangle data from multiple
